@@ -25,11 +25,16 @@ private:
     QButtonGroup* inputRadioButtons;
     QButtonGroup* outputRadioButtons;
 
-    void onPushConvertButton();
-    void updateOutText();
+    // init
+    void initAllRadioButtons();
+
+    // getters
     void getInputText();
-	void initRadioButtons();
-    void UpdateLSystem();
-    void UpdateRSystem();
+    void onPushConvertButton();
+
+    // setters
+    void setOutputText();
+    void setRightSystem();
+    void setLeftSystem();
 };
 #endif // MAINWINDOW_H

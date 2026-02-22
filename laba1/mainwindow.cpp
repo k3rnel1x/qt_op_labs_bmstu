@@ -1,6 +1,5 @@
 #include <iostream>
 #include <qabstractbutton.h>
-#include <qdebug.h>
 #include <qmessagebox.h>
 #include <qobject.h>
 #include <qstringview.h>
@@ -72,18 +71,22 @@ void MainWindow::initRadioButtons()
 
 void MainWindow::UpdateLSystem()
 {
-    NumSystem num;
+    NumSystem num = TEN;
     int idx = inputRadioButtons->checkedId(); 
     switch(idx)
     {
     case 0:
         num = TWO;
+        break;
     case 1:
         num = TEN;
+        break;
     case 2:
         num = SXTEEN;
+        break;
     }
     ctx->iptsys = num;
+    qDebug() << ctx->iptsys;
 }
 
 void MainWindow::UpdateRSystem()

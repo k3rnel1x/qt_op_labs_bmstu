@@ -4,8 +4,8 @@
 #include "appcontext.h"
 #include <string.h>
 
-void convert(AppContext* ctx);
-void initialize(AppContext* ctx);
-void deinitialize(AppContext* ctx);
+void doConvert(AppContext* ctx);
+void doInit(AppContext* ctx);
+void doDeInit(AppContext* ctx);
 
 #endif // LOGIC_H

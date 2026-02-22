@@ -1,18 +1,11 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
-#include <string>
-
-enum NumSystem {
-    TWO=2,
-    TEN=10,
-    SXTEEN=16
-};
 
 typedef struct AppContext {
     char* inputText;
-    NumSystem iptsys;
+    unsigned int iptsys;
     char* outputText;
-    NumSystem outsys;
+    unsigned int outsys;
 } AppContext;
 
 #endif // APPCONTEXT_H

@@ -5,12 +5,12 @@
 #include "mainwindow.h"
 
 enum Operation {
-    Convert,
-    Initialization,
-    DeInitialization
+    CONVERT,
+    INIT,
+    DEINIT
 };
 
-void doOperation(Operation operation, AppContext* context);
+void doOperation(Operation operation, AppContext* ctx);
 
 
 #endif // ENTRYPOINT_H

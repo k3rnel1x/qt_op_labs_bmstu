@@ -1,4 +1,5 @@
 typedef enum InputErrors {
+    INPUT_ERROR,
 	NUM_RANGE_ERROR,
-	ALPHABET_ERROR,	
+    INPUT_ALPHABET_ERROR
 } InputErrors;
