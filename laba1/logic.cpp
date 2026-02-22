@@ -5,11 +5,7 @@
 
 void convert(AppContext* ctx)
 {
-    // int res = verifyInput(ctx);
-	// if(res)
-	// {
 
-	// }
 }
 
 
