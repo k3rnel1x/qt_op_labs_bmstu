@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>591</width>
+    <height>327</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="1" column="1">
+     <widget class="QWidget" name="gridWidget" native="true">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="1" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QTextEdit" name="inputTextField"/>
+       </item>
+       <item row="3" column="1" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton1Ipt">
+         <property name="text">
+          <string>TEN</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton3Ipt">
+         <property name="text">
+          <string>EIGHT</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPlainTextEdit" name="outputTextField">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton2Out">
+         <property name="text">
+          <string>TWO</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="swapButton">
+         <property name="text">
+          <string>&lt;--&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton1Out">
+         <property name="text">
+          <string>TEN</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="3" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton3Out">
+         <property name="text">
+          <string>EIGHT</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" alignment="Qt::AlignmentFlag::AlignHCenter">
+        <widget class="QRadioButton" name="radioButton2Ipt">
+         <property name="text">
+          <string>TWO</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>150</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="1">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>75</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="3" column="1">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>75</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="2">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>150</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="convertButton">
+      <property name="text">
+       <string>Convert</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
