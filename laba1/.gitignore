@@ -1,0 +1,48 @@
+# C++ objects and libs
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-specific generated files
+/.qmake.cache
+/.qmake.stash
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*_plugin_import.cpp
+*.qm
+*.prl
+
+# Build directories and Makefiles (common patterns)
+Makefile*
+*build-*
+debug/
+release/
+build/
+
+# Qt Creator user-specific files (specific to your local machine, should not be committed)
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.qmlproject.user
+*.qmlproject.user.*
+CMakeLists.txt.user*
+*creator.user*
+*.autosave
+compile_commands.json
+
+# Qt unit tests
+target_wrapper.*
+
+# Temporary or other specific files
+*.swp
+
