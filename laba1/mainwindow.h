@@ -36,7 +36,7 @@ private:
 
     // getters
     const char* getInputText();
-    unsigned int getInputNumSystem();
+    void getNumSystems();
 
     // setters
     void setOutputText();

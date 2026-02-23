@@ -114,23 +114,27 @@ void MainWindow::on_inputRadioButtons_clicked()
 
 void MainWindow::getNumSystems()
 {
-    ctx->checkedInputRadioButton = inputRadioButtons->checkedId();
-    if(ctx->checkedInputRadioButton == 3) {
-
-        if(ctx->customInputSystem != NULL) {
-            free(ctx->customInputSystem); ctx->customInputSystem = NULL;
+    int inputIdx = inputRadioButtons->checkedId();
+    if(inputIdx == 3) {
+        if(ctx->customInputSystem != NULL)
+        {
+            free(ctx->customInputSystem);
+            ctx->customInputSystem = NULL;
         }
         ctx->customInputSystem = getCustomInputSystem();
     }
+    ctx->checkedInputRadioButton = inputIdx;
 
-    ctx->checkedOutputRadioButton = outputRadioButtons->checkedId();
-    if(ctx->checkedOutputRadioButton == 3) {
-
-        if(ctx->customOutputSystem != NULL) {
-            free(ctx->customOutputSystem); ctx->customOutputSystem = NULL;
+    int outputIdx = inputRadioButtons->checkedId();
+    if(outputIdx == 3) {
+        if(ctx->customOutputSystem != NULL)
+        {
+            free(ctx->customOutputSystem);
+            ctx->customOutputSystem = NULL;
         }
         ctx->customOutputSystem = getCustomOutputSystem();
     }
+    ctx->checkedOutputRadioButton = outputIdx;
 }
 
 void MainWindow::on_convertButton_clicked()
@@ -140,6 +144,7 @@ void MainWindow::on_convertButton_clicked()
         ctx->inputText = NULL;
     }
 
+    getNumSystems();
     ctx->inputText = getInputText();
     doOperation(Convert, ctx);
     updateOutText();
