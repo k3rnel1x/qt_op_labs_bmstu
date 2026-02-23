@@ -26,11 +26,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->convertButton, &QPushButton::clicked,
                          this, &MainWindow::on_convertButton_clicked);
 
-	connect(inputRadioButtons, &QButtonGroup::idClicked,
-                         this, &MainWindow::on_inputRadioButtons_clicked);
+    // connect(inputRadioButtons, &QButtonGroup::idClicked,
+                         // this, &MainWindow::on_inputRadioButtons_clicked);
 
-	connect(outputRadioButtons, &QButtonGroup::idClicked,
-                          this, &MainWindow::on_outputRadioButtons_clicked);
+    // connect(outputRadioButtons, &QButtonGroup::idClicked,
+                          // this, &MainWindow::on_outputRadioButtons_clicked);
 
 }
 
@@ -49,6 +49,22 @@ const char* MainWindow::getInputText()
     return ctext;
 }
 
+const char* MainWindow::getCustomInputSystem()
+{
+    QString qtext = ui->inputCustomSystemField->toPlainText();
+    QByteArray qbytes = qtext.toUtf8();
+    const char* ctext = qbytes.constData();
+    return ctext;
+}
+
+const char* MainWindow::getCustomOutputSystem()
+{
+    QString qtext = ui->getCustomOutputSystem->toPlainText();
+    QByteArray qbytes = qtext.toUtf8();
+    const char* ctext = qbytes.constData();
+    return ctext;
+}
+
 // Setters
 void MainWindow::updateOutText()
 {
@@ -62,11 +78,13 @@ void MainWindow::initRadioButtons()
     inputRadioButtons->addButton(ui->radioButtonTwoInput,   0);
     inputRadioButtons->addButton(ui->radioButtonEightInput, 1);
     inputRadioButtons->addButton(ui->radioButtonTenInput,   2);
+    inputRadioButtons->addButton(ui->radioButtonCustomSystemInput,   3);
 
     // Init output radio-buttons
     outputRadioButtons->addButton(ui->radioButtonTwoOutput,   0);
     outputRadioButtons->addButton(ui->radioButtonEightOutput, 1);
     outputRadioButtons->addButton(ui->radioButtonTenOutput,   2);
+    outputRadioButtons->addButton(ui->radioButtonCustomSystemOutput,   3);
 }
 
 // Slots
@@ -86,37 +104,43 @@ void MainWindow::on_inputRadioButtons_clicked()
     case 2:
         num = SXTEEN;
         break;
+    case 3:
+
     }
     ctx->iptsys = num;
     qDebug() << ctx->iptsys;
 }
 
 
-void MainWindow::on_outputRadioButtons_clicked()
+void MainWindow::getNumSystems()
 {
-    NumSystem num;
-    int idx = outputRadioButtons->checkedId();
-    switch(idx)
-    {
-    case 0:
-        num = TWO;
-        break;
-    case 1:
-        num = TEN;
-        break;
-    case 2:
-        num = SXTEEN;
-        break;
+    ctx->checkedInputRadioButton = inputRadioButtons->checkedId();
+    if(ctx->checkedInputRadioButton == 3) {
+
+        if(ctx->customInputSystem != NULL) {
+            free(ctx->customInputSystem); ctx->customInputSystem = NULL;
+        }
+        ctx->customInputSystem = getCustomInputSystem();
     }
-    ctx->outsys = num;
+
+    ctx->checkedOutputRadioButton = outputRadioButtons->checkedId();
+    if(ctx->checkedOutputRadioButton == 3) {
+
+        if(ctx->customOutputSystem != NULL) {
+            free(ctx->customOutputSystem); ctx->customOutputSystem = NULL;
+        }
+        ctx->customOutputSystem = getCustomOutputSystem();
+    }
 }
 
 void MainWindow::on_convertButton_clicked()
 {
-    if(ctx->inputText != NULL)
+    if(ctx->inputText != NULL){
         free(ctx->inputText);
-    ctx->inputText = getInputText();
+        ctx->inputText = NULL;
+    }
 
+    ctx->inputText = getInputText();
     doOperation(Convert, ctx);
     updateOutText();
 }

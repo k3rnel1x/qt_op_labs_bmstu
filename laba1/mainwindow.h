@@ -35,7 +35,8 @@ private:
     void initRadioButtons();
 
     // getters
-    const char *getInputText();
+    const char* getInputText();
+    unsigned int getInputNumSystem();
 
     // setters
     void setOutputText();

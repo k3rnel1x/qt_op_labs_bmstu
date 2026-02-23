@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>264</height>
+    <width>413</width>
+    <height>233</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -188,23 +188,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <item row="3" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <item>
-            <widget class="QLabel" name="label">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>2</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>26</height>
-              </size>
-             </property>
+            <widget class="QRadioButton" name="radioButtonCustomSystemInput">
              <property name="font">
               <font>
                <family>Terminus</family>
-               <pointsize>9</pointsize>
               </font>
              </property>
              <property name="text">
@@ -213,7 +200,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="inputSystemField">
+            <widget class="QTextEdit" name="inputCustomSystemField">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -237,6 +224,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="horizontalScrollBarPolicy">
               <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -308,23 +298,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <item row="3" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_13">
            <item>
-            <widget class="QLabel" name="label_4">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>2</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>26</height>
-              </size>
-             </property>
+            <widget class="QRadioButton" name="radioButtonCustomSystemOutput">
              <property name="font">
               <font>
                <family>Terminus</family>
-               <pointsize>9</pointsize>
               </font>
              </property>
              <property name="text">
@@ -333,7 +310,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="outputSystemField">
+            <widget class="QTextEdit" name="outputCustomSystemField">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -357,6 +334,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="horizontalScrollBarPolicy">
               <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
              </property>
             </widget>
            </item>

@@ -3,9 +3,12 @@
 
 typedef struct AppContext {
     const char* inputText;
-    unsigned int iptsys;
+    int checkedInputRadioButton;
+    const char* customInputSystem;
+
     char* outputText;
-    unsigned int outsys;
+    int checkedInputRadioButton;
+    const char* customOutputSystem;
 } AppContext;
 
 #endif // APPCONTEXT_H
