@@ -21,17 +21,18 @@ set(PROJECT_SOURCES
         logic.h
         entrypoint.cpp
         entrypoint.h
-        errors.h
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(laba1
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        utils.h
-        utils.cpp
+
+
         appcontext.h
         entrypoint.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET laba1 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

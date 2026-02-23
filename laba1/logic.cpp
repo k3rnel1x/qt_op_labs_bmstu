@@ -1,28 +1,35 @@
 #include "logic.h"
 #include "appcontext.h"
+#include "entrypoint.h"
 #include <string.h>
 
-void doConvert(AppContext* ctx)
+Result doConvert(AppContext* ctx)
 {
+    Result res = SUCCEED;
     char* outStr = (char*)calloc(strlen(ctx->inputText)+1, sizeof(char));
     strcpy(outStr, ctx->inputText);
     ctx->outputText = outStr;
+    return res;
 }
 
 
-void doInit(AppContext* ctx)
+Result doInit(AppContext* ctx)
 {
+    Result res = SUCCEED;
     ctx->checkedInputRadioButton  = 2; // 10
     ctx->checkedOutputRadioButton = 0; // 2
+    return res;
 }
 
-void doDeInit(AppContext* ctx)
+Result doDeInit(AppContext* ctx)
 {
-
+    Result res = SUCCEED;
+    return res;
 }
 
-void doClear(AppContext* ctx)
+Result doClear(AppContext* ctx)
 {
+    Result res = SUCCEED;
     if(ctx->inputText) {
         free(ctx->inputText);
         ctx->inputText = NULL;
@@ -43,9 +50,11 @@ void doClear(AppContext* ctx)
         free(ctx->customOutputSystem);
         ctx->customOutputSystem = NULL;
     }
+    return res;
 }
 
-void doSwap(AppContext *ctx)
+Result doSwap(AppContext *ctx)
 {
-
+    Result res = SUCCEED;
+    return res;
 }

@@ -1,27 +1,33 @@
 #include "entrypoint.h"
 #include "logic.h"
 
-void doOperation(Operation operation, AppContext* ctx)
+Result doOperation(Operation operation, AppContext* ctx)
 {
+    Result result = SUCCEED;
     switch(operation) {
     case CONVERT:
-        doConvert(ctx);
+        result = doConvert(ctx);
         break;
 
     case INIT:
-        doInit(ctx);
+        result = doInit(ctx);
         break;
 
     case DEINIT:
-        doDeInit(ctx);
+        result = doDeInit(ctx);
         break;
 
     case CLEAR:
-        doClear(ctx);
+        result = doClear(ctx);
         break;
 
     case SWAP:
-        doSwap(ctx);
+        result = doSwap(ctx);
         break;
     }
+
+    return result;
 }
+
+// void handlError(Result res)
+

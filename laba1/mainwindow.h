@@ -14,6 +14,7 @@
 
 #include "appcontext.h"
 #include "entrypoint.h"
+#include "errors.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -57,5 +58,8 @@ private:
 
     // Setters
     void setOutText(AppContext* context);
+
+    // Utils
+    void handleResult(Result res);
 };
 #endif // MAINWINDOW_H

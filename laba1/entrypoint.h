@@ -3,16 +3,18 @@
 
 #include "appcontext.h"
 #include "mainwindow.h"
+#include "errors.h"
 
 enum Operation {
     CONVERT,
     INIT,
     DEINIT,
     CLEAR,
-    SWAP
+    SWAP,
+    SHOWERR
 };
 
-void doOperation(Operation operation, AppContext* ctx);
 
+Result doOperation(Operation operation, AppContext* ctx);
 
 #endif // ENTRYPOINT_H

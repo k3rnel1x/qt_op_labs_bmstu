@@ -1,5 +1,13 @@
-typedef enum InputErrors {
+#ifndef ERRORS_H
+#define ERRORS_H
+
+typedef enum Result {
+    SUCCEED,
     INPUT_ERROR,
-	NUM_RANGE_ERROR,
+    NUM_RANGE_ERROR,
     INPUT_ALPHABET_ERROR
-} InputErrors;
+} Result;
+
+
+
+#endif // ERRORS_H

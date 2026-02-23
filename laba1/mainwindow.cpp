@@ -5,7 +5,10 @@
 #include <qstringview.h>
 #include <string.h>
 #include "mainwindow.h"
+#include "errors.h"
 #include "./ui_mainwindow.h"
+
+// TODO: add handlers to doOperation() calls
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -37,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     inputRadioButtons, &QButtonGroup::buttonClicked,
                  this, &MainWindow::on_radioButtonCustomSystemInput_clicked);
 
-    // А почему так нельзя?
+    // TODO: А почему так нельзя?
     // connect(
     // inputRadioButtons, &inputRadioButtons->buttonClicked,
     //              this, &this->on_radioButtonCustomSystemInput_clicked);
@@ -176,4 +179,23 @@ void MainWindow::on_radioButtonCustomSystemOutput_clicked()
         ui->outputCustomSystemField->setEnabled(1);
     else
         ui->outputCustomSystemField->setEnabled(0);
+}
+
+// Utils
+void MainWindow::handleResult(Result res)
+{
+    // TODO implement
+    switch (res) {
+    case INPUT_ERROR:
+        break;
+
+    case NUM_RANGE_ERROR:
+        break;
+
+    case INPUT_ALPHABET_ERROR:
+        break;
+
+    case SUCCEED:
+        break;
+    }
 }
