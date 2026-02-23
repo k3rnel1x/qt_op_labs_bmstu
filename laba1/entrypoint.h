@@ -8,7 +8,8 @@ enum Operation {
     CONVERT,
     INIT,
     DEINIT,
-    CLEAR
+    CLEAR,
+    SWAP
 };
 
 void doOperation(Operation operation, AppContext* ctx);

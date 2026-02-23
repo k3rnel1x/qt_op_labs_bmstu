@@ -19,5 +19,9 @@ void doOperation(Operation operation, AppContext* ctx)
     case CLEAR:
         doClear(ctx);
         break;
+
+    case SWAP:
+        doSwap(ctx);
+        break;
     }
 }

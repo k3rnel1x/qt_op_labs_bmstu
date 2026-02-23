@@ -25,10 +25,26 @@ MainWindow::MainWindow(QWidget *parent)
     ui->radioButtonTenInput->setChecked (1);
     ui->radioButtonTwoOutput->setChecked(1);
 
+    ui->inputCustomSystemField->setEnabled (0);
+    ui->outputCustomSystemField->setEnabled(0);
+
 	// Create connections
     connect(
     ui->convertButton, &QPushButton::clicked,
                  this, &MainWindow::on_convertButton_clicked);
+
+    connect(
+    inputRadioButtons, &QButtonGroup::buttonClicked,
+                 this, &MainWindow::on_radioButtonCustomSystemInput_clicked);
+
+    // А почему так нельзя?
+    // connect(
+    // inputRadioButtons, &inputRadioButtons->buttonClicked,
+    //              this, &this->on_radioButtonCustomSystemInput_clicked);
+
+    connect(
+    outputRadioButtons, &QButtonGroup::buttonClicked,
+                  this, &MainWindow::on_radioButtonCustomSystemOutput_clicked);
 }
 
 MainWindow::~MainWindow()
@@ -144,3 +160,20 @@ void MainWindow::on_swapNumSystemButton_clicked()
 
 }
 
+void MainWindow::on_radioButtonCustomSystemInput_clicked()
+{
+    int idx = inputRadioButtons->checkedId();
+    if(idx == 3)
+        ui->inputCustomSystemField->setEnabled(1);
+    else
+        ui->inputCustomSystemField->setEnabled(0);
+}
+
+void MainWindow::on_radioButtonCustomSystemOutput_clicked()
+{
+    int idx = outputRadioButtons->checkedId();
+    if(idx == 3)
+        ui->outputCustomSystemField->setEnabled(1);
+    else
+        ui->outputCustomSystemField->setEnabled(0);
+}

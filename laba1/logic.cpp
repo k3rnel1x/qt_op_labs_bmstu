@@ -45,3 +45,7 @@ void doClear(AppContext* ctx)
     }
 }
 
+void doSwap(AppContext *ctx)
+{
+
+}

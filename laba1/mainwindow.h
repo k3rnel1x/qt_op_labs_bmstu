@@ -4,6 +4,14 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QButtonGroup>
+
+// #include <iostream>
+#include <qabstractbutton.h>
+#include <qmessagebox.h>
+#include <qobject.h>
+#include <qstringview.h>
+#include <string.h>
+
 #include "appcontext.h"
 #include "entrypoint.h"
 
@@ -27,6 +35,10 @@ private slots:
     void on_CopyToClipboardLeftButton_clicked();
 
     void on_CopyToClipboardRightButton_clicked();
+
+    void on_radioButtonCustomSystemInput_clicked();
+
+    void on_radioButtonCustomSystemOutput_clicked();
 
 private:
     Ui::MainWindow* ui;
