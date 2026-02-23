@@ -32,10 +32,10 @@ private:
     QButtonGroup* outputRadioButtons;
 
     // init
-    void initAllRadioButtons();
+    void initRadioButtons();
 
     // getters
-    void getInputText();
+    const char *getInputText();
 
     // setters
     void setOutputText();

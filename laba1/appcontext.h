@@ -2,7 +2,7 @@
 #define APPCONTEXT_H
 
 typedef struct AppContext {
-    char* inputText;
+    const char* inputText;
     unsigned int iptsys;
     char* outputText;
     unsigned int outsys;

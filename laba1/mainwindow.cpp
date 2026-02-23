@@ -11,31 +11,26 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
 	// Init context
     ctx = (AppContext*)calloc(1, sizeof(AppContext));
 	doOperation(Initialization, ctx);
 
 	// Group RadioButtons
-    inputRadioButtons = new QButtonGroup(this);
-	inputRadioButtons->addButton(ui->radioButton1Ipt, 0);	
-	inputRadioButtons->addButton(ui->radioButton2Ipt, 1);	
-	inputRadioButtons->addButton(ui->radioButton3Ipt, 2);	
-
+    inputRadioButtons  = new QButtonGroup(this);
 	outputRadioButtons = new QButtonGroup(this);
-	outputRadioButtons->addButton(ui->radioButton1Out, 0);	
-	outputRadioButtons->addButton(ui->radioButton2Out, 1);	
-	outputRadioButtons->addButton(ui->radioButton3Out, 2);	
+    initRadioButtons();
+
 
 	// Create connections
     connect(ui->convertButton, &QPushButton::clicked,
-            this, &MainWindow::onPushConvertButton);
+                         this, &MainWindow::on_convertButton_clicked);
 
 	connect(inputRadioButtons, &QButtonGroup::idClicked,
-            this, &MainWindow::UpdateLSystem);
+                         this, &MainWindow::on_inputRadioButtons_clicked);
+
 	connect(outputRadioButtons, &QButtonGroup::idClicked,
-            this, &MainWindow::UpdateRSystem);
-
-
+                          this, &MainWindow::on_outputRadioButtons_clicked);
 
 }
 
@@ -45,31 +40,38 @@ MainWindow::~MainWindow()
     doOperation(DeInitialization, ctx);
 }
 
-void MainWindow::onPushConvertButton()
+// Getters
+const char* MainWindow::getInputText()
 {
-	getInputText();
-    doOperation(Convert, ctx);
-    updateOutText();
+    QString qtext = ui->inputNumberTextField->toPlainText();
+    QByteArray qbytes = qtext.toUtf8();
+    const char* ctext = qbytes.constData();
+    return ctext;
 }
 
+// Setters
 void MainWindow::updateOutText()
 {
-    ui->outputTextField->setPlainText(ctx->outputText);
+    ui->outputNumberTextField->setPlainText(ctx->outputText);
 }
-void MainWindow::getInputText()
-{
-	QString qtext = ui->inputTextField->toPlainText();
-	QByteArray qbytes = qtext.toUtf8();
-	const char* ctext = qbytes.constData();
-	strcpy(ctx->inputText, ctext);
-}
+
 
 void MainWindow::initRadioButtons()
 {
+    // Init input radio-buttons
+    inputRadioButtons->addButton(ui->radioButtonTwoInput,   0);
+    inputRadioButtons->addButton(ui->radioButtonEightInput, 1);
+    inputRadioButtons->addButton(ui->radioButtonTenInput,   2);
 
+    // Init output radio-buttons
+    outputRadioButtons->addButton(ui->radioButtonTwoOutput,   0);
+    outputRadioButtons->addButton(ui->radioButtonEightOutput, 1);
+    outputRadioButtons->addButton(ui->radioButtonTenOutput,   2);
 }
 
-void MainWindow::UpdateLSystem()
+// Slots
+
+void MainWindow::on_inputRadioButtons_clicked()
 {
     NumSystem num = TEN;
     int idx = inputRadioButtons->checkedId(); 
@@ -89,7 +91,8 @@ void MainWindow::UpdateLSystem()
     qDebug() << ctx->iptsys;
 }
 
-void MainWindow::UpdateRSystem()
+
+void MainWindow::on_outputRadioButtons_clicked()
 {
     NumSystem num;
     int idx = outputRadioButtons->checkedId();
@@ -110,7 +113,12 @@ void MainWindow::UpdateRSystem()
 
 void MainWindow::on_convertButton_clicked()
 {
+    if(ctx->inputText != NULL)
+        free(ctx->inputText);
+    ctx->inputText = getInputText();
 
+    doOperation(Convert, ctx);
+    updateOutText();
 }
 
 
@@ -121,12 +129,6 @@ void MainWindow::on_CopyToClipboardLeftButton_clicked()
 
 
 void MainWindow::on_CopyToClipboardRightButton_clicked()
-{
-
-}
-
-
-void MainWindow::on_pushButton_clicked()
 {
 
 }
