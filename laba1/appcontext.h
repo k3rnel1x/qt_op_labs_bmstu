@@ -4,7 +4,7 @@
 typedef struct AppContext {
     char* inputText;
     int checkedInputRadioButton;
-    const char* customInputSystem;
+    char* customInputSystem;
 
     char* outputText;
     int checkedOutputRadioButton;

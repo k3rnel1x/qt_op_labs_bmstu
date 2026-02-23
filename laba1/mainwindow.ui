@@ -254,7 +254,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <item row="1" column="2">
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="1" column="0">
-          <widget class="QRadioButton" name="radioButtonEightInput_4">
+          <widget class="QRadioButton" name="radioButtonEightOutput">
            <property name="font">
             <font>
              <family>Terminus</family>
@@ -266,7 +266,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QRadioButton" name="radioButtonTwoInput_4">
+          <widget class="QRadioButton" name="radioButtonTwoOutput">
            <property name="font">
             <font>
              <family>Terminus</family>
@@ -281,7 +281,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QRadioButton" name="radioButtonTenInput_4">
+          <widget class="QRadioButton" name="radioButtonTenOutput">
            <property name="font">
             <font>
              <family>Terminus</family>

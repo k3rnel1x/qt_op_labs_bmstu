@@ -3,6 +3,7 @@
 #include <qmessagebox.h>
 #include <qobject.h>
 #include <qstringview.h>
+#include <string.h>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
@@ -13,13 +14,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // Init (context)
+    ctx = (AppContext*)calloc(1, sizeof(AppContext));
     doOperation(INIT, ctx);
 
-	// Group RadioButtons
+    // Group and Init RadioButtons
     inputRadioButtons  = new QButtonGroup(this);
 	outputRadioButtons = new QButtonGroup(this);
     groupRadioButtons();
 
+    ui->radioButtonTenInput->setChecked (1);
+    ui->radioButtonTwoOutput->setChecked(1);
 
 	// Create connections
     connect(
@@ -34,32 +38,38 @@ MainWindow::~MainWindow()
 }
 
 /* Getters */
-const char* MainWindow::getInputText()
+char* MainWindow::getInputText()
 {
     QString qtext = ui->inputNumberTextField->toPlainText();
-    QByteArray qbytes = qtext.toUtf8();
+    QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
-    return ctxt;
+    char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
+    strcpy(str, ctxt);
+    return str;
 }
 
-const char* MainWindow::getCustomInputSystem()
+char* MainWindow::getCustomInputSystem()
 {
     QString qtext = ui->inputCustomSystemField->toPlainText();
-    QByteArray qbytes = qtext.toUtf8();
+    QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
-    return ctxt;
+    char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
+    strcpy(str, ctxt);
+    return str;
 }
 
-const char* MainWindow::getCustomOutputSystem()
+char* MainWindow::getCustomOutputSystem()
 {
-    QString qtext = ui->getCustomOutputSystem->toPlainText();
-    QByteArray qbytes = qtext.toUtf8();
+    QString qtext = ui->outputCustomSystemField->toPlainText();
+    QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
-    return ctxt;
+    char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
+    strcpy(str, ctxt);
+    return str;
 }
 
 /* Setters */
-void MainWindow::setOutputText(AppContext* context)
+void MainWindow::setOutText(AppContext* context)
 {
     ui->outputNumberTextField->setPlainText(context->outputText);
 }
@@ -94,7 +104,7 @@ void MainWindow::getNumSystems(AppContext* context)
     }
     context->checkedInputRadioButton = inputIdx;
 
-    int outputIdx = inputRadioButtons->checkedId();
+    int outputIdx = outputRadioButtons->checkedId();
     if(outputIdx == 3) {
         if(context->customOutputSystem != NULL)
         {

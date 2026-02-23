@@ -38,10 +38,12 @@ private:
     void groupRadioButtons();
 
     // Getters
-    const char* getInputText();
     void getNumSystems(AppContext* context);
+    char* getInputText();
+    char* getCustomOutputSystem();
+    char* getCustomInputSystem();
 
     // Setters
-    void setOutputText(AppContext* context);
+    void setOutText(AppContext* context);
 };
 #endif // MAINWINDOW_H

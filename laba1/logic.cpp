@@ -1,9 +1,12 @@
 #include "logic.h"
 #include "appcontext.h"
+#include <string.h>
 
 void doConvert(AppContext* ctx)
 {
-
+    char* outStr = (char*)calloc(strlen(ctx->inputText)+1, sizeof(char));
+    strcpy(outStr, ctx->inputText);
+    ctx->outputText = outStr;
 }
 
 

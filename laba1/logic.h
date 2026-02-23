@@ -4,6 +4,7 @@
 #include "appcontext.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void doConvert(AppContext* ctx);
 void doInit   (AppContext* ctx);
