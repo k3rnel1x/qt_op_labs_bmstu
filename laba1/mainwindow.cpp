@@ -107,3 +107,27 @@ void MainWindow::UpdateRSystem()
     }
     ctx->outsys = num;
 }
+
+void MainWindow::on_convertButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_CopyToClipboardLeftButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_CopyToClipboardRightButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_pushButton_clicked()
+{
+
+}
+

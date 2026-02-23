@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>234</height>
+    <width>405</width>
+    <height>264</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -70,7 +70,7 @@
      <widget class="QWidget" name="gridWidget" native="true">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QTextEdit" name="textEdit">
+        <widget class="QTextEdit" name="inputNumberTextField">
          <property name="maximumSize">
           <size>
            <width>150</width>
@@ -104,7 +104,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QTextEdit" name="textEdit_7">
+        <widget class="QTextEdit" name="outputNumberTextField">
          <property name="maximumSize">
           <size>
            <width>150</width>
@@ -213,7 +213,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="textEdit_2">
+            <widget class="QTextEdit" name="inputSystemField">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -333,7 +333,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="textEdit_6">
+            <widget class="QTextEdit" name="outputSystemField">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -365,7 +365,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </layout>
        </item>
        <item row="2" column="0">
-        <widget class="QPushButton" name="convertButton_2">
+        <widget class="QPushButton" name="CopyToClipboardLeftButton">
          <property name="font">
           <font>
            <family>Terminus</family>
@@ -391,7 +391,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QPushButton" name="convertButton_3">
+        <widget class="QPushButton" name="CopyToClipboardRightButton">
          <property name="font">
           <font>
            <family>Terminus</family>

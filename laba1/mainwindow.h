@@ -19,6 +19,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_convertButton_clicked();
+    void on_pushButton_clicked();
+    void on_CopyToClipboardLeftButton_clicked();
+    void on_CopyToClipboardRightButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     AppContext* ctx;
@@ -30,7 +36,6 @@ private:
 
     // getters
     void getInputText();
-    void onPushConvertButton();
 
     // setters
     void setOutputText();
