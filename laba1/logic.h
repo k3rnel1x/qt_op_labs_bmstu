@@ -8,5 +8,6 @@
 void doConvert(AppContext* ctx);
 void doInit   (AppContext* ctx);
 void doDeInit (AppContext* ctx);
+void doClear  (AppContext* ctx);
 
 #endif // LOGIC_H

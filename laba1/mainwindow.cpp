@@ -12,8 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-	// Init context
-    ctx = (AppContext*)calloc(1, sizeof(AppContext));
+    // Init (context)
     doOperation(INIT, ctx);
 
 	// Group RadioButtons
@@ -39,32 +38,31 @@ const char* MainWindow::getInputText()
 {
     QString qtext = ui->inputNumberTextField->toPlainText();
     QByteArray qbytes = qtext.toUtf8();
-    const char* ctext = qbytes.constData();
-    return ctext;
+    char* ctxt = qbytes.data();
+    return ctxt;
 }
 
 const char* MainWindow::getCustomInputSystem()
 {
     QString qtext = ui->inputCustomSystemField->toPlainText();
     QByteArray qbytes = qtext.toUtf8();
-    const char* ctext = qbytes.constData();
-    return ctext;
+    char* ctxt = qbytes.data();
+    return ctxt;
 }
 
 const char* MainWindow::getCustomOutputSystem()
 {
     QString qtext = ui->getCustomOutputSystem->toPlainText();
     QByteArray qbytes = qtext.toUtf8();
-    const char* ctext = qbytes.constData();
-    return ctext;
+    char* ctxt = qbytes.data();
+    return ctxt;
 }
 
 /* Setters */
-void MainWindow::updateOutText()
+void MainWindow::setOutputText(AppContext* context)
 {
-    ui->outputNumberTextField->setPlainText(ctx->outputText);
+    ui->outputNumberTextField->setPlainText(context->outputText);
 }
-
 
 void MainWindow::groupRadioButtons()
 {
@@ -114,7 +112,7 @@ void MainWindow::on_convertButton_clicked()
 
     getNumSystems(ctx);
     doOperation(CONVERT, ctx);
-    setOutText();
+    setOutText(ctx);
     doOperation(CLEAR, ctx);
 }
 

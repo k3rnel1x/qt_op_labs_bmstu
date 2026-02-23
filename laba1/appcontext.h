@@ -2,13 +2,13 @@
 #define APPCONTEXT_H
 
 typedef struct AppContext {
-    const char* inputText;
+    char* inputText;
     int checkedInputRadioButton;
     const char* customInputSystem;
 
     char* outputText;
-    int checkedInputRadioButton;
-    const char* customOutputSystem;
+    int checkedOutputRadioButton;
+    char* customOutputSystem;
 } AppContext;
 
 #endif // APPCONTEXT_H

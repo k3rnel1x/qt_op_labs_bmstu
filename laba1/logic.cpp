@@ -25,9 +25,20 @@ void doClear(AppContext* ctx)
         ctx->inputText = NULL;
     }
 
+    if(ctx->customInputSystem) {
+        free(ctx->customInputSystem);
+        ctx->customInputSystem = NULL;
+    }
+
+
     if(ctx->outputText) {
         free(ctx->outputText);
         ctx->outputText = NULL;
+    }
+
+    if(ctx->customOutputSystem) {
+        free(ctx->customOutputSystem);
+        ctx->customOutputSystem = NULL;
     }
 }
 

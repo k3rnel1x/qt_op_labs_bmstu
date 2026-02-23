@@ -1,8 +1,6 @@
 #include "entrypoint.h"
 #include "logic.h"
 
-void updateClickCount(Operation operation, AppContext* context);
-
 void doOperation(Operation operation, AppContext* ctx)
 {
     switch(operation) {

@@ -42,6 +42,6 @@ private:
     void getNumSystems(AppContext* context);
 
     // Setters
-    void setOutputText();
+    void setOutputText(AppContext* context);
 };
 #endif // MAINWINDOW_H
