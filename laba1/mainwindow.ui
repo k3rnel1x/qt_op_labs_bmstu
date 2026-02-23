@@ -237,7 +237,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="swapNumSystemButton">
            <property name="font">
             <font>
              <family>Terminus</family>

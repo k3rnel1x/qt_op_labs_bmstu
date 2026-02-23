@@ -21,26 +21,27 @@ public:
 
 private slots:
     void on_convertButton_clicked();
-    void on_pushButton_clicked();
+
+    void on_swapNumSystemButton_clicked();
+
     void on_CopyToClipboardLeftButton_clicked();
+
     void on_CopyToClipboardRightButton_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    AppContext* ctx;
-    QButtonGroup* inputRadioButtons;
-    QButtonGroup* outputRadioButtons;
+    Ui::MainWindow* ui;
+    AppContext*     ctx;
+    QButtonGroup*   inputRadioButtons;
+    QButtonGroup*   outputRadioButtons;
 
-    // init
-    void initRadioButtons();
+    // Init
+    void groupRadioButtons();
 
-    // getters
+    // Getters
     const char* getInputText();
-    void getNumSystems();
+    void getNumSystems(AppContext* context);
 
-    // setters
+    // Setters
     void setOutputText();
-    void setRightSystem();
-    void setLeftSystem();
 };
 #endif // MAINWINDOW_H

@@ -1,25 +1,33 @@
 #include "logic.h"
 #include "appcontext.h"
-#include <stdio.h>
-#include <stdlib.h>
 
-void convert(AppContext* ctx)
+void doConvert(AppContext* ctx)
 {
 
 }
 
 
-void initialize(AppContext* ctx)
+void doInit(AppContext* ctx)
 {
-	ctx->inputText =  (char*)calloc(500, 1);
-	ctx->outputText = (char*)calloc(500, 1);
-	ctx->iptsys = TEN;	
-	ctx->outsys = TWO;	
+    ctx->checkedInputRadioButton  = 2; // 10
+    ctx->checkedOutputRadioButton = 0; // 2
 }
 
-void deinitialize(AppContext* ctx)
+void doDeInit(AppContext* ctx)
 {
-	free(ctx->inputText);
-	free(ctx->outputText);
+
+}
+
+void doClear(AppContext* ctx)
+{
+    if(ctx->inputText) {
+        free(ctx->inputText);
+        ctx->inputText = NULL;
+    }
+
+    if(ctx->outputText) {
+        free(ctx->outputText);
+        ctx->outputText = NULL;
+    }
 }
 

@@ -14,33 +14,27 @@ MainWindow::MainWindow(QWidget *parent)
 
 	// Init context
     ctx = (AppContext*)calloc(1, sizeof(AppContext));
-	doOperation(Initialization, ctx);
+    doOperation(INIT, ctx);
 
 	// Group RadioButtons
     inputRadioButtons  = new QButtonGroup(this);
 	outputRadioButtons = new QButtonGroup(this);
-    initRadioButtons();
+    groupRadioButtons();
 
 
 	// Create connections
-    connect(ui->convertButton, &QPushButton::clicked,
-                         this, &MainWindow::on_convertButton_clicked);
-
-    // connect(inputRadioButtons, &QButtonGroup::idClicked,
-                         // this, &MainWindow::on_inputRadioButtons_clicked);
-
-    // connect(outputRadioButtons, &QButtonGroup::idClicked,
-                          // this, &MainWindow::on_outputRadioButtons_clicked);
-
+    connect(
+    ui->convertButton, &QPushButton::clicked,
+                 this, &MainWindow::on_convertButton_clicked);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    doOperation(DeInitialization, ctx);
+    doOperation(DEINIT, ctx);
 }
 
-// Getters
+/* Getters */
 const char* MainWindow::getInputText()
 {
     QString qtext = ui->inputNumberTextField->toPlainText();
@@ -65,14 +59,14 @@ const char* MainWindow::getCustomOutputSystem()
     return ctext;
 }
 
-// Setters
+/* Setters */
 void MainWindow::updateOutText()
 {
     ui->outputNumberTextField->setPlainText(ctx->outputText);
 }
 
 
-void MainWindow::initRadioButtons()
+void MainWindow::groupRadioButtons()
 {
     // Init input radio-buttons
     inputRadioButtons->addButton(ui->radioButtonTwoInput,   0);
@@ -87,67 +81,41 @@ void MainWindow::initRadioButtons()
     outputRadioButtons->addButton(ui->radioButtonCustomSystemOutput,   3);
 }
 
-// Slots
-
-void MainWindow::on_inputRadioButtons_clicked()
+/* Slots */
+void MainWindow::getNumSystems(AppContext* context)
 {
-    NumSystem num = TEN;
-    int idx = inputRadioButtons->checkedId(); 
-    switch(idx)
-    {
-    case 0:
-        num = TWO;
-        break;
-    case 1:
-        num = TEN;
-        break;
-    case 2:
-        num = SXTEEN;
-        break;
-    case 3:
-
-    }
-    ctx->iptsys = num;
-    qDebug() << ctx->iptsys;
-}
-
-
-void MainWindow::getNumSystems()
-{
+    // TODO optimize and do better
     int inputIdx = inputRadioButtons->checkedId();
     if(inputIdx == 3) {
-        if(ctx->customInputSystem != NULL)
+        if(context->customInputSystem != NULL)
         {
-            free(ctx->customInputSystem);
-            ctx->customInputSystem = NULL;
+            free(context->customInputSystem);
+            context->customInputSystem = NULL;
         }
-        ctx->customInputSystem = getCustomInputSystem();
+        context->customInputSystem = getCustomInputSystem();
     }
-    ctx->checkedInputRadioButton = inputIdx;
+    context->checkedInputRadioButton = inputIdx;
 
     int outputIdx = inputRadioButtons->checkedId();
     if(outputIdx == 3) {
-        if(ctx->customOutputSystem != NULL)
+        if(context->customOutputSystem != NULL)
         {
-            free(ctx->customOutputSystem);
-            ctx->customOutputSystem = NULL;
+            free(context->customOutputSystem);
+            context->customOutputSystem = NULL;
         }
-        ctx->customOutputSystem = getCustomOutputSystem();
+        context->customOutputSystem = getCustomOutputSystem();
     }
-    ctx->checkedOutputRadioButton = outputIdx;
+    context->checkedOutputRadioButton = outputIdx;
 }
 
 void MainWindow::on_convertButton_clicked()
 {
-    if(ctx->inputText != NULL){
-        free(ctx->inputText);
-        ctx->inputText = NULL;
-    }
-
-    getNumSystems();
     ctx->inputText = getInputText();
-    doOperation(Convert, ctx);
-    updateOutText();
+
+    getNumSystems(ctx);
+    doOperation(CONVERT, ctx);
+    setOutText();
+    doOperation(CLEAR, ctx);
 }
 
 
@@ -158,6 +126,12 @@ void MainWindow::on_CopyToClipboardLeftButton_clicked()
 
 
 void MainWindow::on_CopyToClipboardRightButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_swapNumSystemButton_clicked()
 {
 
 }

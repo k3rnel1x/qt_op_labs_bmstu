@@ -3,16 +3,23 @@
 
 void updateClickCount(Operation operation, AppContext* context);
 
-void doOperation(Operation operation, AppContext* ctx) {
+void doOperation(Operation operation, AppContext* ctx)
+{
     switch(operation) {
-    case Convert:
-        convert(ctx);
+    case CONVERT:
+        doConvert(ctx);
         break;
-    case Initialization:
-        initialize(ctx);
+
+    case INIT:
+        doInit(ctx);
         break;
-    case DeInitialization:
-        deinitialize(ctx);
+
+    case DEINIT:
+        doDeInit(ctx);
         break;
-	}
+
+    case CLEAR:
+        doClear(ctx);
+        break;
+    }
 }

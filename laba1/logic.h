@@ -2,10 +2,11 @@
 #define LOGIC_H
 
 #include "appcontext.h"
-#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void doConvert(AppContext* ctx);
-void doInit(AppContext* ctx);
-void doDeInit(AppContext* ctx);
+void doInit   (AppContext* ctx);
+void doDeInit (AppContext* ctx);
 
 #endif // LOGIC_H
