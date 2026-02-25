@@ -8,8 +8,6 @@
 #include "errors.h"
 #include "./ui_mainwindow.h"
 
-// TODO: add handlers to doOperation() calls
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -32,18 +30,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->outputCustomSystemField->setEnabled(0);
 
 	// Create connections
-    connect(
-    ui->convertButton, &QPushButton::clicked,
-                 this, &MainWindow::on_convertButton_clicked);
+    // connect(
+    // ui->convertButton, &QPushButton::clicked,
+    //              this, &MainWindow::on_convertButton_clicked);
+    // fuk ths sht
 
     connect(
     inputRadioButtons, &QButtonGroup::buttonClicked,
                  this, &MainWindow::on_radioButtonCustomSystemInput_clicked);
-
-    // TODO: А почему так нельзя?
-    // connect(
-    // inputRadioButtons, &inputRadioButtons->buttonClicked,
-    //              this, &this->on_radioButtonCustomSystemInput_clicked);
 
     connect(
     outputRadioButtons, &QButtonGroup::buttonClicked,
@@ -137,10 +131,13 @@ void MainWindow::getNumSystems(AppContext* context)
 
 void MainWindow::on_convertButton_clicked()
 {
+    // qDebug() << "on_convertButton_clicked executed";
     ctx->inputText = getInputText();
 
     getNumSystems(ctx);
-    doOperation(CONVERT, ctx);
+    Result convertRes = doOperation(CONVERT, ctx);
+    handleResult(convertRes);
+
     setOutText(ctx);
     doOperation(CLEAR, ctx);
 }
@@ -184,18 +181,21 @@ void MainWindow::on_radioButtonCustomSystemOutput_clicked()
 // Utils
 void MainWindow::handleResult(Result res)
 {
-    // TODO implement
     switch (res) {
     case INPUT_ERROR:
+        QMessageBox::critical(this, "Error", "Bad input in input field");
         break;
 
     case NUM_RANGE_ERROR:
+        QMessageBox::critical(this, "Error", "Bad num range input");
         break;
 
     case INPUT_ALPHABET_ERROR:
+        QMessageBox::critical(this, "Error", "Bad alphabet in input");
         break;
 
     case SUCCEED:
+        QMessageBox::information(this, "Succeed", "Succeed convert");
         break;
     }
 }

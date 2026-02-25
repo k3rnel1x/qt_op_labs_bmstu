@@ -8,6 +8,4 @@ typedef enum Result {
     INPUT_ALPHABET_ERROR
 } Result;
 
-
-
 #endif // ERRORS_H

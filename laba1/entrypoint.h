@@ -11,7 +11,6 @@ enum Operation {
     DEINIT,
     CLEAR,
     SWAP,
-    SHOWERR
 };
 
 

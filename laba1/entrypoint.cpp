@@ -28,6 +28,3 @@ Result doOperation(Operation operation, AppContext* ctx)
 
     return result;
 }
-
-// void handlError(Result res)
-
