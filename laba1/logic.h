@@ -13,4 +13,6 @@ Result doDeInit (AppContext* ctx);
 Result doClear  (AppContext* ctx);
 Result doSwap   (AppContext* ctx);
 
+void swapPtr(char** ptr1, char** ptr2);
+
 #endif // LOGIC_H

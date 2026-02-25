@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QButtonGroup>
+#include <QClipboard>
 
 // #include <iostream>
 #include <qabstractbutton.h>
@@ -46,18 +47,22 @@ private:
     AppContext*     ctx;
     QButtonGroup*   inputRadioButtons;
     QButtonGroup*   outputRadioButtons;
+    QClipboard*     clipboard;
 
     // Init
     void groupRadioButtons();
 
     // Getters
     void getNumSystems(AppContext* context);
-    char* getInputText();
-    char* getCustomOutputSystem();
-    char* getCustomInputSystem();
+    void getInputText(AppContext* context);
+    void getCustomOutputSystem(AppContext* context);
+    void getCustomInputSystem(AppContext* context);
 
     // Setters
-    void setOutText(AppContext* context);
+    void setOutputText(AppContext* context);
+    void setInputText(AppContext* context);
+    void setInputSystemText(AppContext* context);
+    void setOutputSystemText(AppContext* context);
 
     // Utils
     void handleResult(Result res);

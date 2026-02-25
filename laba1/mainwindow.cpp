@@ -14,26 +14,41 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Init (context)
+    // Init Context
     ctx = (AppContext*)calloc(1, sizeof(AppContext));
     doOperation(INIT, ctx);
+    // Init Clipboard
+    clipboard = QGuiApplication::clipboard();
 
-    // Group and Init RadioButtons
-    inputRadioButtons  = new QButtonGroup(this);
-	outputRadioButtons = new QButtonGroup(this);
-    groupRadioButtons();
-
-    ui->radioButtonTenInput->setChecked (1);
-    ui->radioButtonTwoOutput->setChecked(1);
+    // Init Text fields
+    setOutputText(ctx);
+    setInputText(ctx);
 
     ui->inputCustomSystemField->setEnabled (0);
     ui->outputCustomSystemField->setEnabled(0);
+
+    // Init Radio buttons
+    inputRadioButtons->button(ctx->checkedInputRadioButton)->setEnabled  (1);
+    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setEnabled(1);
+
+    // Group RadioButtons
+    inputRadioButtons  = new QButtonGroup(this);
+	outputRadioButtons = new QButtonGroup(this);
+    groupRadioButtons();
 
 	// Create connections
     // connect(
     // ui->convertButton, &QPushButton::clicked,
     //              this, &MainWindow::on_convertButton_clicked);
-    // fuk ths sht
+
+    // connect(
+    // ui->CopyToClipboardLeftButton, &QPushButton::clicked,
+    //              this, &MainWindow::on_CopyToClipboardLeftButton_clicked);
+
+    // connect(
+    // ui->CopyToClipboardRightButton, &QPushButton::clicked,
+    //              this, &MainWindow::on_CopyToClipboardRightButton_clicked);
+    // // fuk ths sht
 
     connect(
     inputRadioButtons, &QButtonGroup::buttonClicked,
@@ -51,40 +66,68 @@ MainWindow::~MainWindow()
 }
 
 /* Getters */
-char* MainWindow::getInputText()
+void MainWindow::getInputText(AppContext* context)
 {
     QString qtext = ui->inputNumberTextField->toPlainText();
     QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
     char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
     strcpy(str, ctxt);
-    return str;
+
+    if(context->inputText != NULL)
+        free(context->inputText);
+
+    context->inputText = str;
+    qDebug() << context->inputText;
 }
 
-char* MainWindow::getCustomInputSystem()
+void MainWindow::getCustomInputSystem(AppContext* context)
 {
     QString qtext = ui->inputCustomSystemField->toPlainText();
     QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
     char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
     strcpy(str, ctxt);
-    return str;
+
+    if(context->customInputSystem != NULL)
+        free(context->customInputSystem);
+
+    context->customInputSystem = str;
 }
 
-char* MainWindow::getCustomOutputSystem()
+void MainWindow::getCustomOutputSystem(AppContext* context)
 {
     QString qtext = ui->outputCustomSystemField->toPlainText();
     QByteArray qbytes = qtext.toLocal8Bit();
     char* ctxt = qbytes.data();
     char* str = (char*)calloc(strlen(ctxt)+1, sizeof(char));
     strcpy(str, ctxt);
-    return str;
+
+    if(context->customOutputSystem != NULL)
+        free(context->customOutputSystem);
+
+    context->customOutputSystem = str;
 }
 
 /* Setters */
-void MainWindow::setOutText(AppContext* context)
+void MainWindow::setOutputText(AppContext* context)
 {
     ui->outputNumberTextField->setPlainText(context->outputText);
+}
+
+void MainWindow::setInputText(AppContext* context)
+{
+    ui->inputNumberTextField->setPlainText(context->inputText);
+}
+
+void MainWindow::setInputSystemText(AppContext* context)
+{
+    ui->inputCustomSystemField->setPlainText(context->customInputSystem);
+}
+
+void MainWindow::setOutputSystemText(AppContext* context)
+{
+    ui->outputCustomSystemField->setPlainText(context->customOutputSystem);
 }
 
 void MainWindow::groupRadioButtons()
@@ -103,82 +146,64 @@ void MainWindow::groupRadioButtons()
 }
 
 /* Slots */
-void MainWindow::getNumSystems(AppContext* context)
-{
-    // TODO optimize and do better
-    int inputIdx = inputRadioButtons->checkedId();
-    if(inputIdx == 3) {
-        if(context->customInputSystem != NULL)
-        {
-            free(context->customInputSystem);
-            context->customInputSystem = NULL;
-        }
-        context->customInputSystem = getCustomInputSystem();
-    }
-    context->checkedInputRadioButton = inputIdx;
 
-    int outputIdx = outputRadioButtons->checkedId();
-    if(outputIdx == 3) {
-        if(context->customOutputSystem != NULL)
-        {
-            free(context->customOutputSystem);
-            context->customOutputSystem = NULL;
-        }
-        context->customOutputSystem = getCustomOutputSystem();
-    }
-    context->checkedOutputRadioButton = outputIdx;
-}
 
 void MainWindow::on_convertButton_clicked()
 {
-    // qDebug() << "on_convertButton_clicked executed";
-    ctx->inputText = getInputText();
-
+    getInputText(ctx);
     getNumSystems(ctx);
+
     Result convertRes = doOperation(CONVERT, ctx);
     handleResult(convertRes);
 
-    setOutText(ctx);
+    setOutputText(ctx);
     doOperation(CLEAR, ctx);
 }
 
 
 void MainWindow::on_CopyToClipboardLeftButton_clicked()
 {
-
+    QString qtext = ui->inputNumberTextField->toPlainText();
+    clipboard->setText(qtext);
 }
 
 
 void MainWindow::on_CopyToClipboardRightButton_clicked()
 {
-
+    QString qtext = ui->outputNumberTextField->toPlainText();
+    clipboard->setText(qtext);
 }
 
-
+// TODO implement swap func: does not work
 void MainWindow::on_swapNumSystemButton_clicked()
 {
+    // qDebug() << "Before swap:" << ctx->customInputSystem << ctx->customOutputSystem;
+    doOperation(SWAP, ctx);
+    // qDebug() << "After swap:" << ctx->customInputSystem << ctx->customOutputSystem;
 
+    // Set all after convert
+    inputRadioButtons->button(ctx->checkedInputRadioButton)->setEnabled  (1);
+    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setEnabled(1);
+
+    setInputSystemText (ctx);
+    setOutputSystemText(ctx);
+    setOutputText(ctx);
+    setInputText (ctx);
 }
 
 void MainWindow::on_radioButtonCustomSystemInput_clicked()
 {
     int idx = inputRadioButtons->checkedId();
-    if(idx == 3)
-        ui->inputCustomSystemField->setEnabled(1);
-    else
-        ui->inputCustomSystemField->setEnabled(0);
+    ui->inputCustomSystemField->setEnabled(idx == 3);
 }
 
 void MainWindow::on_radioButtonCustomSystemOutput_clicked()
 {
     int idx = outputRadioButtons->checkedId();
-    if(idx == 3)
-        ui->outputCustomSystemField->setEnabled(1);
-    else
-        ui->outputCustomSystemField->setEnabled(0);
+    ui->outputCustomSystemField->setEnabled(idx == 3);
 }
 
-// Utils
+/* Utils */
 void MainWindow::handleResult(Result res)
 {
     switch (res) {
@@ -198,4 +223,19 @@ void MainWindow::handleResult(Result res)
         QMessageBox::information(this, "Succeed", "Succeed convert");
         break;
     }
+}
+// TODO fix: does not work
+void MainWindow::getNumSystems(AppContext* context)
+{
+    int inputIdx = inputRadioButtons->checkedId();
+    if(inputIdx == 3)
+        getCustomInputSystem(context);
+
+    context->checkedInputRadioButton = inputIdx;
+
+    int outputIdx = outputRadioButtons->checkedId();
+    if(outputIdx == 3)
+        getCustomOutputSystem(context);
+    qDebug() << context->customOutputSystem;
+    context->checkedOutputRadioButton = outputIdx;
 }
