@@ -3,6 +3,8 @@
 #include "entrypoint.h"
 #include <string.h>
 
+
+// TODO implement convert logic for any system
 Result doConvert(AppContext* ctx)
 {
     Result res = SUCCEED;
@@ -18,12 +20,25 @@ Result doInit(AppContext* ctx)
     Result res = SUCCEED;
     ctx->checkedInputRadioButton  = 2; // 10
     ctx->checkedOutputRadioButton = 0; // 2
+
+    // Init text fields
+    ctx->inputText = (char*)calloc(2, sizeof(char));
+    ctx->inputText[0] = '0';
+
+    ctx->outputText = (char*)calloc(2, sizeof(char));
+    ctx->outputText[0] = '0';
+
     return res;
 }
 
 Result doDeInit(AppContext* ctx)
 {
     Result res = SUCCEED;
+    if(ctx->inputText != NULL)
+        free(ctx->inputText);
+
+    if(ctx->outputText != NULL)
+        free(ctx->outputText);
     return res;
 }
 
@@ -53,8 +68,28 @@ Result doClear(AppContext* ctx)
     return res;
 }
 
-Result doSwap(AppContext *ctx)
+Result doSwap(AppContext* ctx)
 {
     Result res = SUCCEED;
+
+    // qDebug() << ctx->inputText << ctx->outputText;
+    // Swap int's
+    int* input = &ctx->checkedInputRadioButton;
+    int* output = &ctx->checkedOutputRadioButton;
+    int tmp = *output;
+    *output = *input;
+    *input = tmp;
+
+
+    // Swap ptr's
+    swapPtr(&ctx->inputText, &ctx->outputText);
+    swapPtr(&ctx->customInputSystem, &ctx->customOutputSystem);
     return res;
+}
+
+void swapPtr(char** ptr1, char** ptr2)
+{
+    char* tmp = *ptr2;
+    *ptr2 = *ptr1;
+    *ptr1 = tmp;
 }
