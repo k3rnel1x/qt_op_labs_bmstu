@@ -28,13 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->outputCustomSystemField->setEnabled(0);
 
     // Init Radio buttons
-    inputRadioButtons->button(ctx->checkedInputRadioButton)->setEnabled  (1);
-    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setEnabled(1);
-
-    // Group RadioButtons
     inputRadioButtons  = new QButtonGroup(this);
-	outputRadioButtons = new QButtonGroup(this);
-    groupRadioButtons();
+    outputRadioButtons = new QButtonGroup(this);
+    initRadioButtons();
 
 	// Create connections
     // connect(
@@ -130,7 +126,7 @@ void MainWindow::setOutputSystemText(AppContext* context)
     ui->outputCustomSystemField->setPlainText(context->customOutputSystem);
 }
 
-void MainWindow::groupRadioButtons()
+void MainWindow::initRadioButtons()
 {
     // Init input radio-buttons
     inputRadioButtons->addButton(ui->radioButtonTwoInput,   0);
@@ -143,6 +139,9 @@ void MainWindow::groupRadioButtons()
     outputRadioButtons->addButton(ui->radioButtonEightOutput, 1);
     outputRadioButtons->addButton(ui->radioButtonTenOutput,   2);
     outputRadioButtons->addButton(ui->radioButtonCustomSystemOutput,   3);
+
+    inputRadioButtons->button(ctx->checkedInputRadioButton)->setChecked(1);
+    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setChecked(1);
 }
 
 /* Slots */

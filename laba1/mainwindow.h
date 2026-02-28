@@ -50,7 +50,7 @@ private:
     QClipboard*     clipboard;
 
     // Init
-    void groupRadioButtons();
+    void initRadioButtons();
 
     // Getters
     void getNumSystems(AppContext* context);
