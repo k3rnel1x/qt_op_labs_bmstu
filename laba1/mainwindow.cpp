@@ -74,9 +74,8 @@ void MainWindow::getInputText(AppContext* context)
         free(context->inputText);
 
     context->inputText = str;
-    qDebug() << context->inputText;
+    // qDebug() << context->inputText;
 }
-
 void MainWindow::getCustomInputSystem(AppContext* context)
 {
     QString qtext = ui->inputCustomSystemField->toPlainText();
@@ -140,7 +139,7 @@ void MainWindow::initRadioButtons()
     outputRadioButtons->addButton(ui->radioButtonTenOutput,   2);
     outputRadioButtons->addButton(ui->radioButtonCustomSystemOutput,   3);
 
-    inputRadioButtons->button(ctx->checkedInputRadioButton)->setChecked(1);
+    inputRadioButtons ->button(ctx->checkedInputRadioButton) ->setChecked(1);
     outputRadioButtons->button(ctx->checkedOutputRadioButton)->setChecked(1);
 }
 
@@ -149,6 +148,7 @@ void MainWindow::initRadioButtons()
 
 void MainWindow::on_convertButton_clicked()
 {
+    doOperation(CLEAR, ctx);
     getInputText(ctx);
     getNumSystems(ctx);
 
@@ -156,7 +156,8 @@ void MainWindow::on_convertButton_clicked()
     handleResult(convertRes);
 
     setOutputText(ctx);
-    doOperation(CLEAR, ctx);
+    setInputText(ctx);
+    // doOperation(CLEAR, ctx);
 }
 
 
@@ -176,18 +177,21 @@ void MainWindow::on_CopyToClipboardRightButton_clicked()
 // TODO implement swap func: does not work
 void MainWindow::on_swapNumSystemButton_clicked()
 {
-    // qDebug() << "Before swap:" << ctx->customInputSystem << ctx->customOutputSystem;
+    // Get all to context
+    getNumSystems(ctx);
+    getInputText(ctx);
     doOperation(SWAP, ctx);
-    // qDebug() << "After swap:" << ctx->customInputSystem << ctx->customOutputSystem;
 
-    // Set all after convert
-    inputRadioButtons->button(ctx->checkedInputRadioButton)->setEnabled  (1);
-    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setEnabled(1);
+    // Set all from context
+    inputRadioButtons->button(ctx->checkedInputRadioButton)->setChecked(1);
+    outputRadioButtons->button(ctx->checkedOutputRadioButton)->setChecked(1);
 
     setInputSystemText (ctx);
     setOutputSystemText(ctx);
     setOutputText(ctx);
     setInputText (ctx);
+    on_radioButtonCustomSystemInput_clicked();
+    on_radioButtonCustomSystemOutput_clicked();
 }
 
 void MainWindow::on_radioButtonCustomSystemInput_clicked()
@@ -235,6 +239,5 @@ void MainWindow::getNumSystems(AppContext* context)
     int outputIdx = outputRadioButtons->checkedId();
     if(outputIdx == 3)
         getCustomOutputSystem(context);
-    qDebug() << context->customOutputSystem;
     context->checkedOutputRadioButton = outputIdx;
 }
