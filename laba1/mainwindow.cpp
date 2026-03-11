@@ -153,6 +153,7 @@ void MainWindow::on_convertButton_clicked()
     getNumSystems(ctx);
 
     Result convertRes = doOperation(CONVERT, ctx);
+    // qDebug() << convertRes;
     handleResult(convertRes);
 
     setOutputText(ctx);
@@ -210,16 +211,25 @@ void MainWindow::on_radioButtonCustomSystemOutput_clicked()
 void MainWindow::handleResult(Result res)
 {
     switch (res) {
+
+    case ERROR:
+        QMessageBox::critical(this, "Error", "Internal error");
+        break;
+
+    case INPUT_ALPHABET_ERROR:
+        QMessageBox::critical(this, "Error", "Bad input alphabet");
+        break;
+
+    case OUTPUT_ALPHABET_ERROR:
+        QMessageBox::critical(this, "Error", "Bad output alphabet");
+        break;
+
     case INPUT_ERROR:
         QMessageBox::critical(this, "Error", "Bad input in input field");
         break;
 
     case NUM_RANGE_ERROR:
         QMessageBox::critical(this, "Error", "Bad num range input");
-        break;
-
-    case INPUT_ALPHABET_ERROR:
-        QMessageBox::critical(this, "Error", "Bad alphabet in input");
         break;
 
     case SUCCEED:
@@ -231,12 +241,14 @@ void MainWindow::handleResult(Result res)
 void MainWindow::getNumSystems(AppContext* context)
 {
     int inputIdx = inputRadioButtons->checkedId();
+    // qDebug() << "inputRadioButtons->checkedId() = " << inputRadioButtons->checkedId();
     if(inputIdx == 3)
         getCustomInputSystem(context);
 
     context->checkedInputRadioButton = inputIdx;
 
     int outputIdx = outputRadioButtons->checkedId();
+    // qDebug() << "outputRadioButtons->checkedId() = " << outputRadioButtons->checkedId();
     if(outputIdx == 3)
         getCustomOutputSystem(context);
     context->checkedOutputRadioButton = outputIdx;

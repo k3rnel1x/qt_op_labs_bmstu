@@ -33,6 +33,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         appcontext.h
         entrypoint.cpp
         errors.h
+        utils.cpp
+        utils.h
 
 
     )
