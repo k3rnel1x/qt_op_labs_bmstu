@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "utils.h"
+#include <QDebug>
 
 Result doConvert(AppContext* ctx)
 {
@@ -15,16 +16,24 @@ Result doConvert(AppContext* ctx)
         int outputSys = getSystemById(ctx, 1);
         int pwrTwo    = getPowerTwo(outputSys);
 
-        int decNum = parseToDec(ctx->inputText, inputSys);
+        int* decNum = parseToDec(ctx->inputText, inputSys);
+        qDebug() << "decNum = " << decNum;
+        // if(!(-2147483648 <= decNum && decNum <= 2147483647))
+            // return TOO_LARGE_NUM_ERROR;
+        if(!decNum)
+            return TOO_LARGE_NUM_ERROR;
+
         char* outStr = NULL;
         if(pwrTwo)
         {
-            outStr = btwTwoPwr(decNum, pwrTwo);
+            outStr = btwTwoPwr(*decNum, pwrTwo);
         } else {
-            outStr = decToCustom(decNum, outputSys);
+            outStr = decToCustom(*decNum, outputSys);
         }
         // printf("decNum = %d\n", decNum);
         ctx->outputText = outStr;
+
+        free(decNum);
     }
 
     return res;

@@ -7,7 +7,8 @@ typedef enum Result {
     INPUT_ERROR,
     NUM_RANGE_ERROR,
     INPUT_ALPHABET_ERROR,
-    OUTPUT_ALPHABET_ERROR
+    OUTPUT_ALPHABET_ERROR,
+    TOO_LARGE_NUM_ERROR
 } Result;
 
 #endif // ERRORS_H

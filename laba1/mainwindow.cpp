@@ -232,9 +232,15 @@ void MainWindow::handleResult(Result res)
         QMessageBox::critical(this, "Error", "Bad num range input");
         break;
 
+    case TOO_LARGE_NUM_ERROR:
+        QMessageBox::critical(this, "Error", "Too large num in input");
+        break;
+
     case SUCCEED:
         QMessageBox::information(this, "Succeed", "Succeed convert");
         break;
+
+
     }
 }
 // TODO fix: does not work

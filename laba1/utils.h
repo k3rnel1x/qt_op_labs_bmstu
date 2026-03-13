@@ -13,7 +13,7 @@ int   strToNum(char c);
 char  numToStr(int n);
 void  reverseStr(char* str);
 char* decToCustom(int dec, int system);
-int   parseToDec(const char* str, int sys);
+int*  parseToDec(const char* str, int sys);
 int   getSystemById(AppContext* ctx , int is_output);
 int   getPowerTwo(int sys);
 char* btwTwoPwr(int decNum, int outPwr);
