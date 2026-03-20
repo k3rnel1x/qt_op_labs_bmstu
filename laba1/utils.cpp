@@ -4,6 +4,10 @@
 #include <math.h>
 #include <QDebug>
 
+#define INVERT_CHAR(ch, base) numToStr((base) - 1 - strToNum((ch)))
+#define MAX_INT32 2147483647
+#define MIN_INT32 -2147483648
+
 void reverseStr(char* str) {
     int len = strlen(str);
     for (int i = 0; i < len / 2; i++) {
@@ -62,18 +66,59 @@ int getSystemById(AppContext* ctx, int is_output)
     return sys;
 }
 
-char* decToCustom(int dec, int system)
+char* cnvDecToBase(int dec, int base)
 {
-    char* res = (char*)calloc(100, sizeof(char));
-    char* ptr = res;
-
-    for(int i = 0; dec != 0; i++)
+    char* buff = (char*)calloc(100, sizeof(char));
+    char chars[] = "0123456789ABCDEF";
+    int i = 0;
+    unsigned int num = (unsigned int)dec;
+    if(base == 10)
     {
-        *ptr++ = numToStr(dec % system);
-        dec /= system;
+        sprintf(buff, "%d", dec);
+        return buff;
     }
-    reverseStr(res);
-    return res;
+
+
+    if (num == 0) {
+        strcpy(buff, "0");
+        return buff;
+    }
+
+    while (num > 0) {
+        buff[i++] = chars[num % base];
+        num /= base;
+    }
+
+    reverseStr(buff);
+    return buff;
+}
+
+Result cnvFromBaseToDec(const char* target, int target_base, int* dec)
+{
+    if(!target || !dec || target_base <= 1) return ERROR;
+
+    int maxLen = strlen(cnvDecToBase(*dec, target_base));
+    qDebug() << "maxLen = " << maxLen;
+
+    long int ldec = strtol(target, NULL, target_base);
+    qDebug() << "ldec = " << ldec;
+    if(strlen(target) == maxLen){
+        if(2147483647L <= ldec && ldec <= 4294967295L)
+        {
+            *dec = (int)ldec;
+            qDebug() << "dec = " << *dec;
+            return SUCCEED;
+        }
+    } else {
+        if(-2147483648L <= ldec && ldec <= 2147483647L)
+        {
+            *dec = (int)ldec;
+            // qDebug() << "dec = " << *dec;
+            return SUCCEED;
+        }
+    }
+
+    return TOO_LARGE_NUM_ERROR;
 }
 
 int getIntLen(int n)
@@ -153,82 +198,4 @@ char* btwTwoPwr(int decNum, int outPwr) // TODO fix this
     return res;
 }
 
-int isInCorrectSystem(char* str, char system)
-{
-    if(*str == '-')
-        str++;
-
-    for(int i = 0; str[i] != 0; i++)
-        if(!('0' <= str[i] && str[i] < system))
-            return 0;
-    return 1;
-}
-
-int isValidCustomSys(const char* customSys)
-{
-    int res = 0;
-    if(*customSys != 0) {
-        int intCustomSys = atoi(customSys);
-        if( (1 < intCustomSys) && (intCustomSys < 36) )
-            res = 1;
-    }
-    return res;
-}
-
-Result validateData(AppContext* ctx)
-{
-    // Validate output
-    if(ctx->checkedOutputRadioButton == 3 && !isValidCustomSys(ctx->customOutputSystem))
-        return OUTPUT_ALPHABET_ERROR;
-
-    qDebug() << "ctx->checkedInputRadioButton = " << ctx->checkedInputRadioButton;
-    // Validate input
-    Result res = SUCCEED;
-    switch(ctx->checkedInputRadioButton)
-    {
-
-    case 0:
-        res = isInCorrectSystem(ctx->inputText, '2')? SUCCEED : INPUT_ERROR;
-        // qDebug() << "isInCorrectSystem() = " << res;
-        break;
-    case 1:
-        res = isInCorrectSystem(ctx->inputText, '8')? SUCCEED : INPUT_ERROR;
-        break;
-    case 2:
-        res = isInCorrectSystem(ctx->inputText, 'A')? SUCCEED : INPUT_ERROR;;
-        break;
-    case 3:
-        if(!isValidCustomSys(ctx->customInputSystem)){
-            res = INPUT_ALPHABET_ERROR;
-            break;
-        }
-        int num = atoi(ctx->customInputSystem);
-        // qDebug() << "num = " << num;
-        char chrNum = numToStr(num);
-        // qDebug() << "chrNum = " << chrNum;
-        res = isInCorrectSystem(ctx->inputText, chrNum)? SUCCEED : INPUT_ERROR;
-        break;
-    }
-    // qDebug() << "res from validateData() = " << res;
-
-
-    return res;
-}
-
-
-
-Result validateInput(AppContext* ctx)
-{
-    if(!(ctx && ctx->inputText))
-        return ERROR;
-
-    Result res = ERROR;
-    if( (0 <= ctx->checkedInputRadioButton  && ctx->checkedInputRadioButton  <= 3) &&
-        (0 <= ctx->checkedOutputRadioButton && ctx->checkedOutputRadioButton <= 3))
-    {
-        res = validateData(ctx);
-    }
-
-    return res;
-}
 

@@ -35,6 +35,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         errors.h
         utils.cpp
         utils.h
+        validate.cpp
+        validate.h
 
 
     )

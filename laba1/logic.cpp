@@ -3,37 +3,27 @@
 #include <string.h>
 #include <math.h>
 #include "utils.h"
+#include "validate.h"
 #include <QDebug>
 
 Result doConvert(AppContext* ctx)
 {
-    // Result res = SUCCEED;
-    Result res = validateInput(ctx);
+    Result res = validateCustomInputSystem(ctx);
+    if(res == SUCCEED)
+        res = validateCustomOutputSystem(ctx);
+
+    if(res == SUCCEED)
+        res = validateInputText(ctx);
+
     if(res == SUCCEED)
     {
 
         int inputSys  = getSystemById(ctx, 0);
         int outputSys = getSystemById(ctx, 1);
-        int pwrTwo    = getPowerTwo(outputSys);
-
-        int* decNum = parseToDec(ctx->inputText, inputSys);
-        qDebug() << "decNum = " << decNum;
-        // if(!(-2147483648 <= decNum && decNum <= 2147483647))
-            // return TOO_LARGE_NUM_ERROR;
-        if(!decNum)
-            return TOO_LARGE_NUM_ERROR;
-
-        char* outStr = NULL;
-        if(pwrTwo)
-        {
-            outStr = btwTwoPwr(*decNum, pwrTwo);
-        } else {
-            outStr = decToCustom(*decNum, outputSys);
-        }
-        // printf("decNum = %d\n", decNum);
-        ctx->outputText = outStr;
-
-        free(decNum);
+        int dec;
+        res = cnvFromBaseToDec(ctx->inputText, inputSys, &dec);
+        if(res == SUCCEED)
+            ctx->outputText = cnvDecToBase(dec, outputSys);
     }
 
     return res;
