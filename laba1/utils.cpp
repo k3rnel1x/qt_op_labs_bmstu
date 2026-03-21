@@ -69,7 +69,7 @@ int getSystemById(AppContext* ctx, int is_output)
 char* cnvDecToBase(int dec, int base)
 {
     char* buff = (char*)calloc(100, sizeof(char));
-    char chars[] = "0123456789ABCDEF";
+    char chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int i = 0;
     unsigned int num = (unsigned int)dec;
     if(base == 10)
@@ -77,6 +77,7 @@ char* cnvDecToBase(int dec, int base)
         sprintf(buff, "%d", dec);
         return buff;
     }
+    qDebug() << "num = " << num;
 
 
     if (num == 0) {

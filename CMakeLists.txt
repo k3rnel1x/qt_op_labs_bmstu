@@ -13,14 +13,14 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        logic.cpp
-        logic.h
-        entrypoint.cpp
-        entrypoint.h
+        laba1/main.cpp
+        laba1/mainwindow.cpp
+        laba1/mainwindow.h
+        laba1/mainwindow.ui
+        laba1/logic.cpp
+        laba1/logic.h
+        laba1/entrypoint.cpp
+        laba1/entrypoint.h
 
 )
 
@@ -30,13 +30,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
 
 
-        appcontext.h
-        entrypoint.cpp
-        errors.h
-        utils.cpp
-        utils.h
-        validate.cpp
-        validate.h
+        laba1/appcontext.h
+        laba1/entrypoint.cpp
+        laba1/errors.h
+        laba1/utils.cpp
+        laba1/utils.h
+        laba1/validate.cpp
+        laba1/validate.h
 
 
     )

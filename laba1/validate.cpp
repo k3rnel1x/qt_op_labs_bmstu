@@ -61,10 +61,16 @@ Result validateInputText(AppContext* ctx)
     case 3: sys = numToStr(atoi(ctx->customInputSystem)); break;}
     // qDebug() << "sys = " << sys << " "
     char* text = ctx->inputText;
-    if(text[0] == ' ')
+    if(text[0] == 0)
+        res = INPUT_ERROR;
+
+    if(text[0] == ' ' || (text[0] == '-' && text[1] == 0))
         res = INPUT_ERROR;
 
     if(res == SUCCEED && (getSystemById(ctx, 0) != 10 && *text == '-'))
+        res = INPUT_ERROR;
+
+    if(res == SUCCEED && (text[0] == '-' && (text[0] == 0 || text[0] == ' ')))
         res = INPUT_ERROR;
 
     if(res == SUCCEED && getSystemById(ctx, 0) == 10 && *text == '-')
