@@ -2,6 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTableView>
+#include <QHeaderView>
+#include <QStandardItemModel>
+
+#include "appcontext.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -17,7 +22,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_loadButton_clicked();
+
 private:
-    Ui::MainWindow *ui;
+    AppContext* ctx = nullptr;
+    QStandardItemModel* model = nullptr;
+    Ui::MainWindow* ui;
 };
 #endif // MAINWINDOW_H

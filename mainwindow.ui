@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1105</width>
-    <height>766</height>
+    <width>735</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -22,12 +22,19 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="10,1">
     <item>
-     <widget class="QTableView" name="tableView"/>
+     <widget class="QTableView" name="tableView">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="fileNameLabel">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -43,7 +50,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="openButton">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -56,11 +63,18 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="loadButton">
+        <property name="text">
+         <string>Load table</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QTextEdit" name="textEdit">
+           <widget class="QTextEdit" name="regionInputTextField">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -73,7 +87,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTextEdit" name="textEdit_2">
+           <widget class="QTextEdit" name="collumInputTextField">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -106,7 +120,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTextEdit" name="textEdit_3">
+           <widget class="QTextEdit" name="minTextField">
             <property name="minimumSize">
              <size>
               <width>35</width>
@@ -147,7 +161,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit_4">
+         <widget class="QTextEdit" name="maxTextField">
           <property name="minimumSize">
            <size>
             <width>35</width>
@@ -186,7 +200,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit_5">
+         <widget class="QTextEdit" name="midTextField">
           <property name="minimumSize">
            <size>
             <width>35</width>
@@ -210,16 +224,9 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="calcButton">
         <property name="text">
-         <string>PushButton</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string>PushButton</string>
+         <string>Calculate metrix</string>
         </property>
        </widget>
       </item>
@@ -235,13 +242,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>PushButton</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </item>
