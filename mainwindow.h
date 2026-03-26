@@ -25,7 +25,12 @@ public:
 private slots:
     void on_loadButton_clicked();
 
+    void on_openButton_clicked();
+
+    void on_calcButton_clicked();
+
 private:
+    void clear_labels();
     AppContext* ctx = nullptr;
     QStandardItemModel* model = nullptr;
     Ui::MainWindow* ui;

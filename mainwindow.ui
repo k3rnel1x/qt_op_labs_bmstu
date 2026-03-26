@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="10,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="3,1">
     <item>
      <widget class="QTableView" name="tableView">
       <property name="enabled">
@@ -71,6 +71,19 @@
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="errorsLabel">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
@@ -139,6 +152,9 @@
             <property name="horizontalScrollBarPolicy">
              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
             </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -180,6 +196,9 @@
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
           </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -218,6 +237,9 @@
           </property>
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

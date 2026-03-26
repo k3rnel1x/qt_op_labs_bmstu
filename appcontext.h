@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include "vector.h"
 
-#define VALID_APPCONTEXT(ctx) ((ctx) && (ctx)->opened_file && (ctx)->lines.inited == 1 && (ctx)->choised_region && (ctx)->choised_collum < 8)
+#define VALID_APPCONTEXT(ctx) ((ctx) && (ctx)->filename && (ctx)->lines.inited == 1 && (ctx)->choised_region && (ctx)->choised_collum < 8)
 
 typedef struct AppContext {
     // mainwindow
-    FILE*  opened_file;
-    char*  choised_region;
-    size_t choised_collum;
+    const char*  filename;
+    const char*  choised_region;
+    char*  choised_collum;
 
     // logic
     Vector lines;

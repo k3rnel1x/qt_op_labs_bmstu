@@ -4,8 +4,8 @@ Line* get_line()
 {
     Line* line = (Line*)calloc(1, sizeof(Line));
     if(!line) return NULL;
-    line->by_idx[0] = &line->year;
-    line->by_idx[1] = NULL;
+    line->by_idx[0] = NULL; // count of all lines
+    line->by_idx[1] = &line->year;
     line->by_idx[2] = &line->natural_grow;
     line->by_idx[3] = &line->birth_rate;
     line->by_idx[4] = &line->death_rate;

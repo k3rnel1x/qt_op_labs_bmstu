@@ -19,10 +19,11 @@ result_code load_table(AppContext* ctx)
 {
     // if(!VALID_APPCONTEXT(ctx)) return ERROR;
     if(!ctx) return ERROR;
-    if(!ctx->choised_region) return ERROR;
-    if(!ctx->opened_file) return ERROR;
 
-    FILE* f = ctx->opened_file;
+    if(!ctx->filename) return NO_FILE;
+    qDebug() << ctx->filename;
+    FILE* f = fopen(ctx->filename, "r");
+    if(!f) return NO_FILE;
 
     size_t curr_line = 0;
 
@@ -42,6 +43,9 @@ result_code load_table(AppContext* ctx)
         memset(buff, 0, BUFF_SIZE);
         if (!fgets(buff, BUFF_SIZE-1, f))
             continue;
+
+        if(buff[strlen(buff)-1] == 0) buff[strlen(buff)-1] = '\n';
+
         curr_line++;
 
         if ((!feof(f) && buff[strlen(buff)-1] != '\n') || char_count(buff, ',') != 6){
@@ -128,31 +132,62 @@ result_code load_table(AppContext* ctx)
     // push to appcontext
     ctx->errors_count = errors_count;
     ctx->lines = v;
+    fclose(f);
     return SUCCESS;
 }
 
 result_code calc_metrix(AppContext* ctx)
 {
-    if(!VALID_APPCONTEXT(ctx))   return ERROR;
-    if(ctx->choised_collum == 2) return NAME_COLLUM;
+    // null-validating ctx
+    if(!ctx)                   return ERROR;
+    if(!ctx->filename)         return NO_FILE;
+    if(ctx->lines.inited == 0) return ERROR;
 
+    // null-validating user input
+    if(!ctx->choised_region || !*ctx->choised_region)   return EMPTY_REGION;
+    if(!ctx->choised_collum || !*ctx->choised_collum)   return EMPTY_COLLUM;
+
+    // validate user input
+    char* end;
+    long int collum = std::strtol(ctx->choised_collum, &end, 10);
+    if(end == ctx->choised_collum) return INVALID_COLLUM;
+
+    if(collum == 3)                return NAME_COLLUM;
+    if(collum <= 0 || collum > 7)  return OUTRANGE_COLLUM;
+
+    // 1 considered separately
     Vector* v = &ctx->lines;
-    size_t user_choice = ctx->choised_collum - 1;
+    size_t user_choice = collum - 1;
+    if(user_choice == 0)
+    {
+        ctx->min = 1;
+        ctx->max = v->count;
+        ctx->mid = (ctx->max + ctx->min) / 2.0;
+        return SUCCESS;
+    }
 
-    double* min = v_item(v, 0)->by_idx[user_choice];
-    double* max = v_item(v, 0)->by_idx[user_choice];
+
+    // all other
+    int flag = 0;
+    double min = *v_item(v, 0)->by_idx[user_choice];
+    double max = *v_item(v, 0)->by_idx[user_choice];
     for(int i = 0; i < v->count; i++)
     {
         Line* line = v_item(v, i);
         if(strcmp(line->region, ctx->choised_region) == 0)
         {
+            if(!flag) flag = 1;
             double* line_choised_collum = line->by_idx[user_choice];
-            *min = *min < *line_choised_collum? *min : *line_choised_collum;
-            *max = *max > *line_choised_collum? *max : *line_choised_collum;
+            min = min < *line_choised_collum? min : *line_choised_collum;
+            max = max > *line_choised_collum? max : *line_choised_collum;
         }
     }
 
-    ctx->min = *min;
-    ctx->max = *max;
-    ctx->mid = (*max + *min) / 2.0;
+    if(!flag)
+       return NO_REGION;
+
+    ctx->min = min;
+    ctx->max = max;
+    ctx->mid = (max + min) / 2.0;
+    return SUCCESS;
 }
