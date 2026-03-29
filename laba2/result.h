@@ -3,6 +3,7 @@
 
 typedef enum result_code {
     SUCCESS,
+    // errors
     ERROR,
     FILE_EMPTY,
     TABLE_EMPTY,
@@ -12,7 +13,9 @@ typedef enum result_code {
     OUTRANGE_COLLUM,
     EMPTY_COLLUM,
     EMPTY_REGION,
-    NO_REGION
+    NO_REGION,
+    INVALID_HEADER,
+    NO_FILE_SELECTED
 } result_code;
 
 #endif // RESULT_H

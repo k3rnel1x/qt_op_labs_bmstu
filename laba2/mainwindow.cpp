@@ -56,10 +56,20 @@ void MainWindow::on_loadButton_clicked()
         clear_labels();
         return;
 
+    case NO_FILE_SELECTED:
+        QMessageBox::critical(this, "Error", "NO_FILE_SELECTED");
+        clear_labels();
+        return;
+
+    case INVALID_HEADER:
+        QMessageBox::critical(this, "Error", "INVALID_HEADER");
+        clear_labels();
+        return;
+
     case SUCCESS:
-    case NAME_COLLUM:
         break;
     }
+
 
     ui->errorsLabel->setText( "Errors count: " + QString::number(ctx->errors_count));
 
@@ -68,7 +78,7 @@ void MainWindow::on_loadButton_clicked()
     for(int i = 0; i < v->count; i++)
     {
         Line* line = v_item(v, i);
-
+        // qDebug() << "in mainwindow, i = " << i;
         model->setItem(i, 0, new QStandardItem( QString::number(i+1)  ));
         model->setItem(i, 1, new QStandardItem( QString::number(line->year)         ));
         model->setItem(i, 2, new QStandardItem( line->region ));
@@ -77,6 +87,7 @@ void MainWindow::on_loadButton_clicked()
         model->setItem(i, 5, new QStandardItem( QString::number(line->death_rate)   ));
         model->setItem(i, 6, new QStandardItem( QString::number(line->urbanization) ));
     }
+
 
     model->setHeaderData(0, Qt::Horizontal, "Number");
     model->setHeaderData(1, Qt::Horizontal, "Year");
@@ -88,6 +99,7 @@ void MainWindow::on_loadButton_clicked()
 
     ui->tableView->setModel(model);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
 }
 
 
@@ -103,8 +115,7 @@ void MainWindow::on_openButton_clicked()
     const char* c_str = filename_bytearray.constData();
     char* const_ptr = (char*)calloc(filename.length() + 1, sizeof(char));
     strcpy(const_ptr, c_str);
-    ctx->filename = const_ptr;
-    ui->fileNameLabel->setText(QString(strrchr(ctx->filename, '/') + 1));
+    ctx->filename = const_ptr; ui->fileNameLabel->setText(QString(strrchr(ctx->filename, '/') + 1));
 }
 
 
@@ -152,6 +163,10 @@ void MainWindow::on_calcButton_clicked()
 
     case OUTRANGE_COLLUM:
         QMessageBox::critical(this, "Error", "OUTRANGE_COLLUM");
+        return;
+
+    case TABLE_EMPTY:
+        QMessageBox::critical(this, "Error", "TABLE_EMPTY");
         return;
 
     case SUCCESS:

@@ -13,7 +13,11 @@
 #include "result.h"
 #include "logic.h"
 
-#define BUFF_SIZE 1024
+int check_header(char* buff)
+{
+    if(!buff) return ERROR;
+    return strcmp(buff, HEADER) == 0;
+}
 
 result_code load_table(AppContext* ctx)
 {
@@ -31,20 +35,27 @@ result_code load_table(AppContext* ctx)
     if (!buff) return ERROR;
 
     if(!fgets(buff, BUFF_SIZE-1, f)) return FILE_EMPTY;
-    curr_line++;
+    if(!check_header(buff))
+    {
+        free(buff);
+        return INVALID_HEADER;
+    }
+    // curr_line++;
 
     Vector v = v_init();
-    size_t  errors_count = 0;
-    size_t  max_name_size = 0;
-    size_t  total_count = 0;
+    size_t errors_count = 0;
+    size_t max_name_size = 0;
+    size_t total_count = 0;
 
     while (!feof(f))
     {
         memset(buff, 0, BUFF_SIZE);
         if (!fgets(buff, BUFF_SIZE-1, f))
             continue;
+        // qDebug() << "buff = " << buff;
+        if(*buff == '\n') break;
 
-        if(buff[strlen(buff)-1] == 0) buff[strlen(buff)-1] = '\n';
+        if(buff[strlen(buff)-1] != '\n') buff[strlen(buff)-1] = '\n';
 
         curr_line++;
 
@@ -63,7 +74,7 @@ result_code load_table(AppContext* ctx)
         }
 
         *strchr(buff, '\n') = 0;
-
+        // qDebug() << buff << "is ready";
         Line* line = get_line();
         if (!line) return ERROR;
         char* ptr = buff;
@@ -127,8 +138,8 @@ result_code load_table(AppContext* ctx)
     }
     free(buff);
 
-    if(curr_line == 1) return TABLE_EMPTY;
-
+    // if(curr_line == 1) return TABLE_EMPTY;
+    // qDebug() << "End";
     // push to appcontext
     ctx->errors_count = errors_count;
     ctx->lines = v;
@@ -152,12 +163,16 @@ result_code calc_metrix(AppContext* ctx)
     long int collum = std::strtol(ctx->choised_collum, &end, 10);
     if(end == ctx->choised_collum) return INVALID_COLLUM;
 
-    if(collum == 3)                return NAME_COLLUM;
-    if(collum <= 0 || collum > 7)  return OUTRANGE_COLLUM;
+    if(collum == NAME_COLLUM_NUM)              return NAME_COLLUM;
+    if(collum <= 0 || collum > MAX_COLUM_IDX)  return OUTRANGE_COLLUM;
 
-    // 1 considered separately
     Vector* v = &ctx->lines;
     size_t user_choice = collum - 1;
+    // handle empty table
+    if(!v_item(v, 0)) return TABLE_EMPTY;
+
+
+    // 1 considered separately;
     if(user_choice == 0)
     {
         ctx->min = 1;
@@ -167,7 +182,7 @@ result_code calc_metrix(AppContext* ctx)
     }
 
 
-    // all other
+    // considering all other
     int flag = 0;
     double min = *v_item(v, 0)->by_idx[user_choice];
     double max = *v_item(v, 0)->by_idx[user_choice];

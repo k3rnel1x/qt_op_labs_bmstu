@@ -30,6 +30,7 @@ private slots:
     void on_calcButton_clicked();
 
 private:
+    // void update_table(AppConctx);
     void clear_labels();
     AppContext* ctx = nullptr;
     QStandardItemModel* model = nullptr;

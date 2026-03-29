@@ -61,3 +61,37 @@ void v_destroy(Vector* v)
     free(v->data);
     v->inited = 0;
 }
+
+// Iterator begin(Vector* v)
+// {
+// 	if(!v) return (Iterator){0};
+// 	
+// 	return (Iterator){ 
+// 		.curr = v->data[0];
+// 		.data = v->data,
+// 		.size = v->count,
+// 	};
+// }
+// 
+// Iterator end(Vector* v)
+// {
+// 	if(!v) return (Iterator){ .curr = NULL; };
+// 	Iterator iter = begin(v);	
+// 	while()
+// }
+// Line*    get(Iterator* it);
+// void next(Iterator* iter)
+// {
+// 	if(!iter) return;
+// 	
+// }
+// void set(Iterator& it, Book* book);
+// int  is_end(Iterator* it, Line* line)
+// {
+// 	if(!it || !line)
+// 		return 1;
+// 
+// 	return it->curr;
+// }
+
+
