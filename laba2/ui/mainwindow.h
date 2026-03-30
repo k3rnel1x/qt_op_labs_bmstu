@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTableView>
+#include <QTableWidget>
 #include <QHeaderView>
 #include <QStandardItemModel>
 
-#include "appcontext.h"
+#include "../logic/appcontext.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,16 +24,18 @@ public:
 
 private slots:
     void on_loadButton_clicked();
-
     void on_openButton_clicked();
-
-    void on_calcButton_clicked();
+    // void on_calcButton_clicked();
 
 private:
-    // void update_table(AppConctx);
-    void clear_labels();
+
+    // void update_metrix(double max, double min);
+    void update_filelabel();
+    void update_window_header();
+    // void update_regions();
+    // void update_collums();
     AppContext* ctx = nullptr;
-    QStandardItemModel* model = nullptr;
-    Ui::MainWindow* ui;
+    QTableWidget* table_view = nullptr;
+    Ui::MainWindow* ui = nullptr;
 };
 #endif // MAINWINDOW_H
