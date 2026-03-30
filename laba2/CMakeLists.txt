@@ -13,32 +13,28 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        logic.cpp
-        appcontext.h
-        vector.h
-        utils.h
-        logic.h
-        result.h
+        logic/appcontext.h
+        logic/logic.cpp
+        logic/logic.h
+        logic/result.h
+        ui/main.cpp
+        ui/mainwindow.cpp
+        ui/mainwindow.h
+        ui/mainwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(qt-op-labs-bmstu
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        logic.cpp
-        appcontext.h
-        vector.h
-        utils.h
-        logic.h
-        result.h
-        entrypoint.h
-        appcontext.cpp
-        vector.cpp
-        utils.cpp
+            logic/appcontext.h
+            logic/logic.cpp
+            logic/logic.h
+            logic/result.h
+            ui/main.cpp
+            ui/mainwindow.cpp
+            ui/mainwindow.h
+            ui/mainwindow.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET qt-op-labs-bmstu APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -58,7 +54,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(qt-op-labs-bmstu PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(qt-op-labs-bmstu PRIVATE Qt${QT_VERSION_MAJOR}::Widgets stdc++)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
