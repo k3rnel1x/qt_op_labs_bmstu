@@ -10,12 +10,12 @@
 #include "result.h"
 
 #define STR_SIZE 200
+#define SEP ','
 #define TABLE_BASE_LENGHT 100
 #define TABLE_LENGHT_SCALE 2
 
 int set_pointers(char** ptrs, size_t len, char* str)
 {
-    static char sep = ',';
     size_t i = 0;
     // for (char* ptr = str; *ptr && i < COLLUMS_COUNT;)
     for (char* ptr = str; *ptr;)
@@ -23,7 +23,7 @@ int set_pointers(char** ptrs, size_t len, char* str)
         char* print_ptr = ptr;
         // while (*print_ptr == ' ') print_ptr++;
 
-        while (*ptr && *ptr != sep && *ptr != '\n') ptr++;
+        while (*ptr && *ptr != SEP && *ptr != '\n') ptr++;
         if (*ptr) {
             *ptr = 0;
             ptr++;
@@ -37,8 +37,9 @@ int set_pointers(char** ptrs, size_t len, char* str)
     return 1;
 }
 
-Result load_table(AppContext* ctx)
+Result parse_table(AppContext* ctx)
 {
+    ctx->load_time = -1;
     clock_t start = clock();
 
     // ### checks ###
@@ -56,8 +57,6 @@ Result load_table(AppContext* ctx)
     char*** table = (char***)malloc(table_capacity*sizeof(char**));
     if (!table) return RUNTIME_ERROR;
     size_t errors_count = 0;
-
-
 
     // ### start parsing ###
     size_t parsed_str_size = COLLUMS_COUNT * sizeof(char*) + STR_SIZE;
@@ -86,6 +85,8 @@ Result load_table(AppContext* ctx)
         table[table_idx++] = raw;
     }
 
+    // ## parse lines ##
+    ctx->progress_value = 0;
     do{
         // alloc new line
         char** raw = (char**)calloc(parsed_str_size, sizeof(char));
@@ -119,6 +120,7 @@ Result load_table(AppContext* ctx)
 
         // put to table
         table[table_idx++] = raw;
+        ctx->progress_value++;
     } while (!feof(f));
 
     // stop timer //

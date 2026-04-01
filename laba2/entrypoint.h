@@ -5,7 +5,7 @@
 #include "logic/logic.h"
 
 typedef enum OperationType {
-    LOAD_TABLE,
+    PARCE_TABLE,
     CALC_METRIX
 } OperationType;
 
@@ -15,8 +15,8 @@ Result perform_operation(OperationType type, AppContext* ctx)
     Result res_code = SUCCESS;
 
     switch (type) {
-    case LOAD_TABLE:
-        res_code = load_table(ctx);
+    case PARCE_TABLE:
+        res_code = parse_table(ctx);
         break;
     // case CALC_METRIX:
     //     res_code = calc_metrix(ctx);

@@ -8,8 +8,10 @@
 #include <QStandardItemModel>
 #include <qmessagebox.h>
 #include <QFileDialog>
+#include <QProgressDialog>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 // TODO handle errors method
 // TODO delete context method
 // TODO pricolchiki
@@ -24,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->regionList->setEnabled(false);
     ui->collumList->setEnabled(false);
+    setAttribute(Qt::WA_TranslucentBackground, false);
 
     update_filelabel();
 }
@@ -57,43 +60,51 @@ void MainWindow::on_loadButton_clicked()
     }
     ctx->table = NULL;
 
-    switch(perform_operation(LOAD_TABLE, ctx))
+    ctx->load_time = -1;
+    // ### parce ###
+
+    Result result_code = perform_operation(PARCE_TABLE, ctx);
+    switch(result_code)
     {
         case RUNTIME_ERROR:
-        QMessageBox::critical(this, "Error", "RUNTIME_ERROR");
-        update_filelabel();
-        return;
+            QMessageBox::critical(this, "Error", "RUNTIME_ERROR");
+            update_filelabel();
+            return;
 
-    case EMPTY_FILE:
-        QMessageBox::critical(this, "Error", "EMPTY_FILE");
-        ctx->load_time = -1;
-        update_filelabel();
-        return;
+        case EMPTY_FILE:
+            QMessageBox::critical(this, "Error", "EMPTY_FILE");
+            ctx->load_time = -1;
+            update_filelabel();
+            return;
 
-    case NO_FILE:
-    case NO_FILE_SELECTED:
-        QMessageBox::critical(this, "Error", "NO_FILE");
-        ctx->load_time = -1;
-        update_filelabel();
-        return;
+        case NO_FILE:
+        case NO_FILE_SELECTED:
+            QMessageBox::critical(this, "Error", "NO_FILE");
+            ctx->load_time = -1;
+            update_filelabel();
+            return;
 
-    case INVALID_HEADER:
-        QMessageBox::critical(this, "Error", "INVALID_HEADER");
-        update_filelabel();
-        return;
+        case INVALID_HEADER:
+            QMessageBox::critical(this, "Error", "INVALID_HEADER");
+            update_filelabel();
+            return;
 
-    case SUCCESS:
-        break;
+        case SUCCESS:
+            break;
     }
-    update_window_header();
+    // update_window_header();
 
-    QMessageBox msgBox(this);
-    msgBox.setText("Load time: " + QString::number(ctx->load_time));
-    msgBox.exec();
+    // ### visualize ##
+    // QMessageBox msgBox(this);
+    // msgBox.setText("Load time: " + QString::number(ctx->load_time));
+    // msgBox.exec();
 
     ui->tableWidget->clear();
     ui->tableWidget->setColumnCount(COLLUMS_COUNT);
     ui->tableWidget->setRowCount(ctx->table_len-1);
+    // ui->tableWidget->setUpdatesEnabled(false);
+    // ui->tableWidget->setEnabled(false);
+    block_ui();
 
     char*** table = ctx->table;
     size_t table_len = ctx->table_len;
@@ -104,16 +115,34 @@ void MainWindow::on_loadButton_clicked()
         ui->tableWidget->setHorizontalHeaderItem(c, new QTableWidgetItem( table[0][c] ));
     }
 
+    // set sells
+    QProgressDialog progress;
+    progress.setRange(0, table_len-1);
+    progress.setCancelButtonText("Cancel");
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setWindowFlag(Qt::WindowStaysOnTopHint);
+    progress.show();
 
+    clock_t start = clock();
     for (size_t r = 0; r < table_len-1; r++)
     {
+        progress.setLabelText("Visualize... " + QString::number((clock() - start) / CLOCKS_PER_SEC) + " sec");
         for (size_t c = 0; c < COLLUMS_COUNT; c++)
         {
             ui->tableWidget->setItem(r, c, new QTableWidgetItem( table[r+1][c] ));
             // qDebug() << table[r][c];
+            if (progress.wasCanceled()) {
+                unblock_ui();
+                ui->tableWidget->update();
+                return;
+            }
+            // TODO used memory overheap
         }
+        progress.setValue(r);
+        QApplication::processEvents(QEventLoop::DialogExec);
     }
-
+    unblock_ui();
+    ui->tableWidget->update();
 }
 
 void MainWindow::on_openButton_clicked()
@@ -146,6 +175,16 @@ void MainWindow::update_window_header()
     else
         this->setWindowTitle("Load time: " + QString::number(ctx->load_time));
 
+}
+
+void MainWindow::block_ui()
+{
+    ui->centralwidget->setEnabled(false);
+}
+
+void MainWindow::unblock_ui()
+{
+    ui->centralwidget->setEnabled(true);
 }
 
 // void MainWindow::on_calcButton_clicked()

@@ -32,6 +32,8 @@ private:
     // void update_metrix(double max, double min);
     void update_filelabel();
     void update_window_header();
+    void block_ui();
+    void unblock_ui();
     // void update_regions();
     // void update_collums();
     AppContext* ctx = nullptr;

@@ -8,6 +8,6 @@
 #include "appcontext.h"
 #include "result.h"
 
-Result load_table(AppContext* ctx);
+Result parse_table(AppContext* ctx);
 
 #endif //LOGIC_H

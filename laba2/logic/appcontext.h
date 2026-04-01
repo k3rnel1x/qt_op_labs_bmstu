@@ -1,7 +1,7 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 #define COLLUMS_COUNT 7
-
+#include <QProgressDialog>
 struct AppContext {
     const char*  filename;
 
@@ -18,6 +18,11 @@ struct AppContext {
     double mid;
 
     double load_time;
+
+    // util info
+    int progress_value;
+
+    QProgressDialog* process;
 };
 
 #endif // APPCONTEXT_H
