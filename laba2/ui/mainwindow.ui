@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>AXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAXAX</string>
+   <string>Ultrafast mega thin and functional increrable pedantic amazing creeper 2014 melancholic supervised AI ChatGeminiSeek pro SALE 50% nice cute strong cool table viewer and calculate metriX application in qt</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -75,6 +75,31 @@
        </widget>
       </item>
       <item>
+       <widget class="QPlainTextEdit" name="loadRegionField">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Region to load (empty for all)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLabel" name="label_4">
@@ -90,13 +115,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="regionList">
-          <item>
-           <property name="text">
-            <string>Nothing</string>
-           </property>
-          </item>
-         </widget>
+         <widget class="QComboBox" name="regionList"/>
         </item>
        </layout>
       </item>
@@ -116,13 +135,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="collumList">
-          <item>
-           <property name="text">
-            <string>Nothing</string>
-           </property>
-          </item>
-         </widget>
+         <widget class="QComboBox" name="collumList"/>
         </item>
        </layout>
       </item>
@@ -237,6 +250,13 @@
          </layout>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="calcButton">
+        <property name="text">
+         <string>Calculate metrix</string>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">

@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 
 #include "../logic/appcontext.h"
+#include "../logic/result.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,19 +26,25 @@ public:
 private slots:
     void on_loadButton_clicked();
     void on_openButton_clicked();
-    // void on_calcButton_clicked();
+    void on_calcButton_clicked();
 
 private:
 
     // void update_metrix(double max, double min);
-    void update_filelabel();
-    void update_window_header();
+    void update_filelabel(const char* full_filename);
+    // void update_window_header();
     void block_ui();
     void unblock_ui();
-    // void update_regions();
-    // void update_collums();
-    AppContext* ctx = nullptr;
-    QTableWidget* table_view = nullptr;
-    Ui::MainWindow* ui = nullptr;
+    void handle_parce_table_error(Result code);
+    void handle_calc_metrix_error(Result code);
+    const char* get_region_to_load();
+    void metrix_fields_state(bool enabled);
+    void set_calc_regions(char** regions, size_t len);
+    void set_calc_collums(char** collums, size_t len, size_t region_collum_num);
+
+    char* qstrtoc(QString& qstr);
+    AppContext* ctx;
+    QTableWidget* table_view;
+    Ui::MainWindow* ui;
 };
 #endif // MAINWINDOW_H

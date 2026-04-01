@@ -18,9 +18,9 @@ Result perform_operation(OperationType type, AppContext* ctx)
     case PARCE_TABLE:
         res_code = parse_table(ctx);
         break;
-    // case CALC_METRIX:
-    //     res_code = calc_metrix(ctx);
-    //     break;
+    case CALC_METRIX:
+        res_code = calc_metrix(ctx);
+        break;
     }
     return res_code;
 }

@@ -3,26 +3,27 @@
 #define COLLUMS_COUNT 7
 #include <QProgressDialog>
 struct AppContext {
-    const char*  filename;
+    const char* filename;
+    const char* region_to_load;
 
     char*** table;
     size_t table_len;
-    const char** regions; // all regions without duplicating
+    char** regions; // all regions without duplicating
     size_t regions_count;
 
-    size_t curr_region_index;
-    size_t curr_collum_number;
+    char** collums; // header collums
+    size_t collums_count;
 
+    // calc
+    char* calc_region;
+    char* calc_collum;
     double min;
     double max;
     double mid;
 
-    double load_time;
+    double parse_time;
 
-    // util info
-    int progress_value;
-
-    QProgressDialog* process;
+    // TODO hash?
 };
 
 #endif // APPCONTEXT_H
