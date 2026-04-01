@@ -9,5 +9,6 @@
 #include "result.h"
 
 Result parse_table(AppContext* ctx);
+Result calc_metrix(AppContext* ctx);
 
 #endif //LOGIC_H
