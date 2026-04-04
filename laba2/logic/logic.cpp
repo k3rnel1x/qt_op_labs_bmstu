@@ -1,6 +1,5 @@
 // TODO split this file
 
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,13 +11,82 @@
 #define STR_SIZE 200
 #define SEP ','
 
-#define TABLE_BASE_LENGHT   100
-#define TABLE_LENGHT_SCALE 2
+// #define TABLE_BASE_LENGHT   100
+// #define TABLE_LENGHT_SCALE 2
 
-#define REGIONS_BASE_LENGHT 100
-#define REGIONS_LENGHT_SCALE 2
+// #define REGIONS_BASE_LENGHT 100
+// #define REGIONS_LENGHT_SCALE 2
 #define REGION_COLLUM_NUM 2
 
+#define ARR_INIT_SIZE  100
+#define ARR_SIZE_SCALE 2
+
+struct Array {
+    size_t capacity;
+    size_t count;
+    void** data;
+};
+
+Array* get_array()
+{
+    Array* arr = (Array*)calloc(1, sizeof(Array));
+    if (!arr) return NULL;
+    arr->data = (void**)calloc(ARR_INIT_SIZE, sizeof(void*));
+    if (!arr->data) return NULL;
+
+    arr->capacity = ARR_INIT_SIZE;
+    arr->count = 0;
+    return arr;
+}
+
+void push(Array* arr, void* item)
+{
+    if (!arr || !item) return;
+
+    // resize if needed
+    if (arr->capacity == arr->count) {
+        void** old_data = arr->data;
+        arr->data = (void**)realloc(arr->data, (arr->capacity *= ARR_SIZE_SCALE) * sizeof(void*));
+        if (!arr->data) {
+            arr->data = old_data;
+            return;
+        }
+    }
+
+    // insert item
+    arr->data[arr->count++] = item;
+}
+
+void delete_arr(Array** arr_ptr)
+{
+    if (!arr_ptr) return;
+
+    Array* arr = *arr_ptr;
+
+    for (int i = 0; i < arr->count; i++) {
+        free(arr->data[i]);
+    }
+    free(arr->data);
+    free(arr);
+
+    arr = NULL;
+}
+
+inline
+char** get_charpp(Array* arr, size_t index)
+{
+    if (index >= arr->count) return NULL;
+    return (char**)arr->data[index];
+}
+
+inline
+char* get_charp(Array* arr, size_t index)
+{
+    if (index >= arr->count) return NULL;
+    return (char*)arr->data[index];
+}
+
+// incapsulated in logic.cpp
 int set_pointers(char** ptrs, size_t len, char* str)
 {
     size_t i = 0;
@@ -44,10 +112,10 @@ int set_pointers(char** ptrs, size_t len, char* str)
 
 Result parse_table(AppContext* ctx)
 {
-
     // ### checks ###
     if (!ctx) return RUNTIME_ERROR;
 
+    // ### clear ###
     // clear table pointer
     if (ctx->table) {
         for (size_t i = 0; i < ctx->table_len; i++)
@@ -70,29 +138,22 @@ Result parse_table(AppContext* ctx)
     if (!f) return NO_FILE;
     if (feof(f)) return EMPTY_FILE;
 
-
-    // ### init table, regions, collums ###
-    size_t table_capacity = TABLE_BASE_LENGHT;
-    char*** table = (char***)malloc(table_capacity*sizeof(char**));
+    // ### init ###
+    // init arrays
+    Array* table   = get_array(); // char**
     if (!table) return RUNTIME_ERROR;
-    size_t errors_count = 0;
-
-    size_t regions_capacity = REGIONS_BASE_LENGHT;
-    char** regions = (char**)calloc(regions_capacity, sizeof(char*));
+    Array* regions = get_array(); // char*
     if (!regions) return RUNTIME_ERROR;
-
-    char** collums = (char**)calloc(COLLUMS_COUNT, sizeof(char*));
+    Array* collums = get_array(); // char*
     if (!collums) return RUNTIME_ERROR;
 
     // ### start parsing ###
     clock_t start = clock();
     const char* region_filter = NULL;
-    if (ctx->region_to_load && *ctx->region_to_load)
-        region_filter = ctx->region_to_load;
+    if (ctx->region_filter && *ctx->region_filter)
+        region_filter = ctx->region_filter;
 
     size_t parsed_str_size = COLLUMS_COUNT * sizeof(char*) + STR_SIZE;
-    size_t table_idx = 0;
-    size_t region_idx = 0;
 
     // # parse header #
     {
@@ -104,25 +165,21 @@ Result parse_table(AppContext* ctx)
 
         if (!set_pointers(raw, COLLUMS_COUNT, str)) {
             free(raw);
-            free(table);
-            free(regions);
-            free(collums);
+            delete_arr(&table); delete_arr(&regions); delete_arr(&collums);
             return INVALID_HEADER;
         }
 
         for (size_t i = 0; i < COLLUMS_COUNT; i++)
             if (!raw[i]) {
                 free(raw);
-                free(table);
-                free(regions);
-                free(collums);
+                delete_arr(&table); delete_arr(&regions); delete_arr(&collums);
                 return INVALID_HEADER;
             }
 
         // insert header to table and collums
-        table[table_idx++] = raw;
+        push(table, raw);
         for (int i = 0; i < COLLUMS_COUNT; i++)
-            collums[i] = raw[i];
+            push(collums, raw[i]);
     }
 
     // # parse lines #
@@ -141,7 +198,7 @@ Result parse_table(AppContext* ctx)
         // parse str
         if (!set_pointers(raw, COLLUMS_COUNT, str)) {
             free(raw);
-            errors_count++;
+            // errors_count++;
             continue; // skip line if invalid
         }
 
@@ -149,61 +206,35 @@ Result parse_table(AppContext* ctx)
         if (region_filter && strcmp(raw[REGION_COLLUM_NUM-1], region_filter) != 0 )
             continue;
 
-        // resize table and regions if needed
-        if (table_idx == table_capacity) {
-            char*** old_table = table;
-            table = (char***)realloc(old_table, (table_capacity *= TABLE_LENGHT_SCALE) * sizeof(char**));
-            if (!table) {
-                for (size_t i = 0; i < table_idx; i++)
-                    free(old_table[i]);
-                free(old_table);
-                free(raw);
-                return RUNTIME_ERROR;
-            }
-        }
-
-        if (region_idx == regions_capacity) {
-            char** old_regions = regions;
-            regions = (char**)realloc(old_regions, (regions_capacity *= REGIONS_LENGHT_SCALE) * sizeof(char*));
-            if (!regions) {
-                for (size_t i = 0; i < region_idx; i++)
-                    free(old_regions[i]);
-                free(old_regions);
-                return RUNTIME_ERROR;
-            }
-        }
-
         // put to table
-        table[table_idx++] = raw;
+        push(table, raw);
         // ctx->progress_value++;
 
         // put region if new
         int new_region = 1;
-        for (size_t i = 0; new_region && i < region_idx; i++)
-            new_region = strcmp( regions[i], raw[REGION_COLLUM_NUM-1] );
+        for (size_t i = 0; new_region && i < regions->count; i++)
+            new_region = strcmp(  get_charp(regions, i), raw[REGION_COLLUM_NUM-1] );
 
         if (new_region)
-            regions[region_idx++] = raw[REGION_COLLUM_NUM-1];
+            push(regions, raw[REGION_COLLUM_NUM-1]);
     } while (!feof(f));
 
     // stop timer //
     clock_t end = clock();
     double parse_time = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    if (region_idx == 0){
-        free(regions);
-        regions = NULL;
-    }
+    if (regions->count == 0)
+        delete_arr(&regions);
 
     // ### push results to context ###
-    ctx->table = table;
-    ctx->table_len = table_idx;
+    ctx->table = (char***)table->data;
+    ctx->table_len = table->count;
     ctx->parse_time = parse_time;
 
-    ctx->regions = regions;
-    ctx->regions_count = region_idx;
+    ctx->regions = (char**)regions->data? (char**)regions->data : NULL;
+    ctx->regions_count = regions? regions->count : 0;
 
-    ctx->collums = collums;
+    ctx->collums = (char**)collums->data;
     ctx->collums_count = COLLUMS_COUNT;
     return SUCCESS;
 }

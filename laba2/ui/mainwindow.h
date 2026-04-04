@@ -31,14 +31,15 @@ private slots:
 private:
 
     // void update_metrix(double max, double min);
-    void update_filelabel(const char* full_filename);
+    // void update_filelabel(const char* full_filename);
     // void update_window_header();
     void block_ui();
     void unblock_ui();
     void handle_parce_table_error(Result code);
     void handle_calc_metrix_error(Result code);
-    const char* get_region_to_load();
+    const char* get_region_filter();
     void metrix_fields_state(bool enabled);
+    void set_available_regions(char** regions, size_t len);
     void set_calc_regions(char** regions, size_t len);
     void set_calc_collums(char** collums, size_t len, size_t region_collum_num);
 

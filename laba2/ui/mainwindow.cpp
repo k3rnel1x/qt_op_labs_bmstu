@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "../entrypoint.h"
+#include "../logic/entrypoint.h"
 #include "../logic/appcontext.h"
 
 #define REGION_COLLUM_NUM 2
@@ -22,16 +22,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ctx = (AppContext*)calloc(1, sizeof(AppContext));
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSortingEnabled(true);
-    ctx = (AppContext*)calloc(1, sizeof(AppContext));
 
-    ui->regionList->setEnabled(false);
-    ui->collumList->setEnabled(false);
-    setAttribute(Qt::WA_TranslucentBackground, false);
+    // hide all interfaces
+    ui->calcInterface->setVisible(false);
+    ui->loadInterface->setVisible(false);
+
     metrix_fields_state(false);
-
-    update_filelabel(NULL);
 }
 
 MainWindow::~MainWindow()
@@ -51,8 +50,8 @@ MainWindow::~MainWindow()
         free((char*)ctx->filename);
 
     // delete regions
-    if (ctx->region_to_load)
-        free((char*)ctx->region_to_load);
+    if (ctx->region_filter)
+        free((char*)ctx->region_filter);
 
     if (ctx->regions)
         free(ctx->regions);
@@ -64,15 +63,25 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_openButton_clicked()
 {
-    // open filedialog in
+    // get filename
     QByteArray value = qgetenv("USER");
+    // QString filename = QFileDialog::getOpenFileName(this,
+    //                                         tr("Open CSV"),
+    //                                         "/home/" + value,
+    //                                         tr("*.csv"));
+
     QString filename = QFileDialog::getOpenFileName(this,
                                             tr("Open CSV"),
-                                            "/home/" + value,
+                                            "/home/" + value + "/Programing/qt-op-labs-bmstu/laba2/test_files",
                                             tr("*.csv"));
-    if(filename.isEmpty()) return;
 
-    // convert to char*
+    // if leaved return
+    if(filename.isEmpty()) {
+        ui->openButton->setText("Open your cool file");
+        ui->loadInterface->setVisible(false);
+        return;
+    };
+
     char* c_str = qstrtoc(filename);
 
     // insert to context
@@ -80,13 +89,29 @@ void MainWindow::on_openButton_clicked()
         free((char*)ctx->filename);
     ctx->filename = c_str;
 
-    // set filelabel
-    update_filelabel(ctx->filename);
+    // parse_file
+    block_ui();
+
+    Result result_code = perform_operation(PARCE_TABLE, ctx);
+    if (result_code != SUCCESS) {
+        handle_parce_table_error(result_code);
+        ui->openButton->setText("Open your cool file");
+        ui->loadInterface->setVisible(false);
+        unblock_ui();
+        return;
+    }
+
+    // show
+    ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
+    set_available_regions(ctx->regions, ctx->regions_count);
+    ui->loadInterface->setVisible(true);
+
+    unblock_ui();
 }
 
 void MainWindow::on_loadButton_clicked()
 {
-    ctx->region_to_load = get_region_to_load();
+    ctx->region_filter = get_region_filter();
     // ### parce ###
     Result result_code = perform_operation(PARCE_TABLE, ctx);
     if (result_code != SUCCESS) {
@@ -145,19 +170,6 @@ void MainWindow::on_loadButton_clicked()
     ui->tableWidget->update();
 }
 
-void MainWindow::update_filelabel(const char* full_filename)
-{
-    if (!full_filename)
-        ui->fileNameLabel->setText("No file selected");
-    else
-        ui->fileNameLabel->setText(QString(strrchr(ctx->filename, '/') + 1));
-}
-
-// void MainWindow::update_window_header()
-// {
-//
-// }
-
 void MainWindow::block_ui()
 {
     ui->centralwidget->setEnabled(false);
@@ -202,9 +214,9 @@ void MainWindow::handle_calc_metrix_error(Result code)
 {
 }
 
-const char* MainWindow::get_region_to_load()
+const char* MainWindow::get_region_filter()
 {
-    QString region = ui->loadRegionField->toPlainText();
+    QString region = ui->availableRegions->currentText();
     char* c_str = qstrtoc(region);
     if (!c_str || !*c_str) return NULL;
 
@@ -226,6 +238,15 @@ void MainWindow::set_calc_regions(char** regions, size_t len)
 
     for (int i = 0; i < len; i++)
         ui->regionList->addItem(regions[i]);
+}
+
+void MainWindow::set_available_regions(char** regions, size_t len)
+{
+    if (!regions) return;
+    ui->availableRegions->clear();
+
+    for (int i = 0; i < len; ++i)
+        ui->availableRegions->addItem(regions[i]);
 }
 
 void MainWindow::set_calc_collums(char** collums, size_t len, size_t region_collum_num)

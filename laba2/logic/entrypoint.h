@@ -1,8 +1,8 @@
 #ifndef ENTRYPOINT_H
 #define ENTRYPOINT_H
 
-#include "logic/result.h"
-#include "logic/logic.h"
+#include "result.h"
+#include "logic.h"
 
 typedef enum OperationType {
     PARCE_TABLE,

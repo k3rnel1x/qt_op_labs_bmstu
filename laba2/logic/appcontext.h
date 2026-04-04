@@ -4,7 +4,7 @@
 #include <QProgressDialog>
 struct AppContext {
     const char* filename;
-    const char* region_to_load;
+    const char* region_filter;
 
     char*** table;
     size_t table_len;
