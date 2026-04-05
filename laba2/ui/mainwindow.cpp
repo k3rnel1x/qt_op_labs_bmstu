@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 // TODO delete context method
 // TODO pricolchiki
 
@@ -30,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->calcInterface->setVisible(false);
     ui->loadInterface->setVisible(false);
 
-    metrix_fields_state(false);
 }
 
 MainWindow::~MainWindow()
@@ -50,8 +50,8 @@ MainWindow::~MainWindow()
         free((char*)ctx->filename);
 
     // delete regions
-    if (ctx->region_filter)
-        free((char*)ctx->region_filter);
+    // if (ctx->region_filter)
+        // free((char*)ctx->region_filter);
 
     if (ctx->regions)
         free(ctx->regions);
@@ -61,6 +61,7 @@ MainWindow::~MainWindow()
         free(ctx->collums);
 }
 
+// ############### slots ###############
 void MainWindow::on_openButton_clicked()
 {
     // get filename
@@ -77,67 +78,81 @@ void MainWindow::on_openButton_clicked()
 
     // if leaved return
     if(filename.isEmpty()) {
-        ui->openButton->setText("Open your cool file");
-        ui->loadInterface->setVisible(false);
+        if (!ctx->filename)
+        {
+            ui->openButton->setText("Open your cool file");
+            ui->loadInterface->setVisible(false);
+        }
         return;
     };
 
-    char* c_str = qstrtoc(filename);
 
+    char* c_str = qstrtoc(filename);
     // insert to context
-    if (ctx->filename)
-        free((char*)ctx->filename);
+    const char* old_filename = ctx->filename;
     ctx->filename = c_str;
 
     // parse_file
+    ui->openButton->setText("File is opening..");
     block_ui();
+    QApplication::processEvents();
 
     Result result_code = perform_operation(PARCE_TABLE, ctx);
     if (result_code != SUCCESS) {
+        ctx->filename = old_filename;
+        ui->openButton->setText(ctx->filename? strrchr(ctx->filename, '/') + 1 : "Open your cool file");
         handle_parce_table_error(result_code);
-        ui->openButton->setText("Open your cool file");
-        ui->loadInterface->setVisible(false);
         unblock_ui();
         return;
     }
 
-    // show
-    ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
-    set_available_regions(ctx->regions, ctx->regions_count);
-    ui->loadInterface->setVisible(true);
+    free((char*)old_filename);
+    // if (result_code != SUCCESS) {
+    //     ui->tableWidget->setRowCount(0);
+    //     ui->tableWidget->setColumnCount(0);
+    //     ui->tableWidget->clear();
+    //     ui->openButton->setText("Open your cool file");
+    //     ui->loadInterface->setVisible(false);
+    //
+    //     handle_parce_table_error(result_code);
+    //     unblock_ui();
+    //     return;
+    // }
 
+
+    // setup load ui
+    ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
+    set_available_regions(ctx->regions, ctx->regions_count); // with all item
+
+    // show load ui
+    ui->loadInterface->setVisible(true);
     unblock_ui();
 }
 
-void MainWindow::on_loadButton_clicked()
+void MainWindow::on_loadSelectedButton_clicked()
 {
-    ctx->region_filter = get_region_filter();
-    // ### parce ###
-    Result result_code = perform_operation(PARCE_TABLE, ctx);
-    if (result_code != SUCCESS) {
-        handle_parce_table_error(result_code);
+    block_ui();
+    ctx->region_filter = get_choisen_region_filter();
+
+    ui->tableWidget->clear();
+    ui->tableWidget->clearContents();
+
+    if (perform_operation(GET_LOAD_TABLE, ctx) == RUNTIME_ERROR)
+    {
+        ui->tableWidget->setRowCount(0);
+        ui->tableWidget->setColumnCount(0);
+        QMessageBox::critical(this, "ERROR", "RUNTIME_ERROR");
         return;
     }
 
-    // ### visualize ##
+    char*** table = ctx->load_table;
+    size_t  table_len = ctx->load_table_len;
 
-    // set regions to calc
-    set_calc_regions(ctx->regions, ctx->regions_count);
-    set_calc_collums(ctx->collums, ctx->collums_count, REGION_COLLUM_NUM);
-
-    // init table
-    ui->tableWidget->clear();
+    ui->tableWidget->setRowCount(table_len-1);
     ui->tableWidget->setColumnCount(COLLUMS_COUNT);
-    ui->tableWidget->setRowCount(ctx->table_len-1);
-
-    block_ui();
-
-    char*** table = ctx->table;
-    size_t  table_len = ctx->table_len;
 
     // set header
-    for (size_t c = 0; c < COLLUMS_COUNT; c++)
-    {
+    for (size_t c = 0; c < COLLUMS_COUNT; c++) {
         ui->tableWidget->setHorizontalHeaderItem(c, new QTableWidgetItem( table[0][c] ));
     }
 
@@ -153,10 +168,15 @@ void MainWindow::on_loadButton_clicked()
         for (size_t c = 0; c < COLLUMS_COUNT; c++)
         {
             ui->tableWidget->setItem(r, c, new QTableWidgetItem( table[r+1][c] ));
-            // qDebug() << table[r][c];
             if (progress.wasCanceled()) {
-                unblock_ui();
+                progress.close();
+                ui->tableWidget->clear();
+                ui->tableWidget->clearContents();
+                ui->tableWidget->setRowCount(0);
+                ui->tableWidget->setColumnCount(0);
                 ui->tableWidget->update();
+                unblock_ui();
+                QMessageBox::critical(this, tr("Error"), tr("Table is not loaded"));
                 return;
             }
             // TODO used memory overheap(platform specific)
@@ -170,67 +190,7 @@ void MainWindow::on_loadButton_clicked()
     ui->tableWidget->update();
 }
 
-void MainWindow::block_ui()
-{
-    ui->centralwidget->setEnabled(false);
-}
-
-void MainWindow::unblock_ui()
-{
-    if (!ui->regionList->isEnabled())
-        ui->regionList->setEnabled(true);
-    if (!ui->collumList->isEnabled())
-        ui->collumList->setEnabled(true);
-
-    ui->centralwidget->setEnabled(true);
-}
-
-void MainWindow::handle_parce_table_error(Result code)
-{
-    if (code == SUCCESS) return;
-    const char* err_text = NULL;
-    switch(code)
-    {
-        case RUNTIME_ERROR:
-            err_text = "RUNTIME_ERROR";
-            break;
-
-        case EMPTY_FILE:
-            err_text = "EMPTY_FILE";
-            break;
-
-        case NO_FILE:
-            err_text = "NO_FILE";
-            break;
-
-        case INVALID_HEADER:
-            err_text = "INVALID_HEADER(PROBABLY MUST BE 7 COLLUMS)";
-            break;
-    }
-    QMessageBox::critical(this, "Error", err_text);
-}
-
-void MainWindow::handle_calc_metrix_error(Result code)
-{
-}
-
-const char* MainWindow::get_region_filter()
-{
-    QString region = ui->availableRegions->currentText();
-    char* c_str = qstrtoc(region);
-    if (!c_str || !*c_str) return NULL;
-
-    return c_str;
-}
-
-void MainWindow::metrix_fields_state(bool enabled)
-{
-    ui->maxField->setEnabled(enabled);
-    ui->minField->setEnabled(enabled);
-    ui->midField->setEnabled(enabled);
-}
-
-
+// ############### ui private ###############
 void MainWindow::set_calc_regions(char** regions, size_t len)
 {
     ui->regionList->clear();
@@ -242,11 +202,20 @@ void MainWindow::set_calc_regions(char** regions, size_t len)
 
 void MainWindow::set_available_regions(char** regions, size_t len)
 {
-    if (!regions) return;
     ui->availableRegions->clear();
 
+    if (!regions || len == 0) {
+        ui->availableRegions->addItem("Nothing available");
+        ui->loadSelectedButton->setVisible(false);
+        ui->availableRegions->setEnabled(false);
+        return;
+    }
+
+    ui->availableRegions->addItem("All");
     for (int i = 0; i < len; ++i)
         ui->availableRegions->addItem(regions[i]);
+    ui->loadSelectedButton->setVisible(true);
+    ui->availableRegions->setEnabled(true);
 }
 
 void MainWindow::set_calc_collums(char** collums, size_t len, size_t region_collum_num)
@@ -257,6 +226,16 @@ void MainWindow::set_calc_collums(char** collums, size_t len, size_t region_coll
     for (int i = 0; i < len; i++)
         if (i+1 != region_collum_num)
             ui->collumList->addItem(collums[i]);
+}
+
+// ############### utils ###############
+const char* MainWindow::get_choisen_region_filter()
+{
+    QString region = ui->availableRegions->currentText();
+    char* c_str = qstrtoc(region);
+    if (!c_str || !*c_str) return NULL;
+
+    return c_str;
 }
 
 char* MainWindow::qstrtoc(QString& qstr)
@@ -290,9 +269,49 @@ void MainWindow::on_calcButton_clicked()
     // ui->maxTextField->setText(QString::number(ctx->max));
     // ui->midTextField->setText(QString::number(ctx->mid));
 }
-//
-// void MainWindow::clear_labels()
-// {
-//     ui->errorsLabel->clear();
-//     ui->fileNameLabel->setText("No file selected");
-// }
+
+void MainWindow::block_ui()
+{
+    ui->centralwidget->setEnabled(false);
+}
+
+void MainWindow::unblock_ui()
+{
+    if (!ui->regionList->isEnabled())
+        ui->regionList->setEnabled(true);
+    if (!ui->collumList->isEnabled())
+        ui->collumList->setEnabled(true);
+
+    ui->centralwidget->setEnabled(true);
+}
+
+// ############### handlers ###############
+void MainWindow::handle_parce_table_error(Result code)
+{
+    if (code == SUCCESS) return;
+    const char* err_text = NULL;
+    switch(code)
+    {
+        case RUNTIME_ERROR:
+            err_text = "RUNTIME_ERROR";
+            break;
+
+        case EMPTY_FILE:
+            err_text = "EMPTY_FILE";
+            break;
+
+        case NO_FILE:
+            err_text = "NO_FILE";
+            break;
+
+        case INVALID_HEADER:
+            err_text = "INVALID_HEADER(PROBABLY MUST BE 7 COLLUMS)";
+            break;
+    }
+    QMessageBox::critical(this, "Error", err_text);
+}
+
+void MainWindow::handle_calc_metrix_error(Result code)
+{
+}
+

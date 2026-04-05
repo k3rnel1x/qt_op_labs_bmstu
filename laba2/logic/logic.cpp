@@ -1,12 +1,16 @@
 // TODO split this file
 
+#include <qlogging.h>
+#include <QDebug>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "appcontext.h"
+#include "entrypoint.h"
 #include "result.h"
+#include "array.h"
 
 #define STR_SIZE 200
 #define SEP ','
@@ -17,74 +21,6 @@
 // #define REGIONS_BASE_LENGHT 100
 // #define REGIONS_LENGHT_SCALE 2
 #define REGION_COLLUM_NUM 2
-
-#define ARR_INIT_SIZE  100
-#define ARR_SIZE_SCALE 2
-
-struct Array {
-    size_t capacity;
-    size_t count;
-    void** data;
-};
-
-Array* get_array()
-{
-    Array* arr = (Array*)calloc(1, sizeof(Array));
-    if (!arr) return NULL;
-    arr->data = (void**)calloc(ARR_INIT_SIZE, sizeof(void*));
-    if (!arr->data) return NULL;
-
-    arr->capacity = ARR_INIT_SIZE;
-    arr->count = 0;
-    return arr;
-}
-
-void push(Array* arr, void* item)
-{
-    if (!arr || !item) return;
-
-    // resize if needed
-    if (arr->capacity == arr->count) {
-        void** old_data = arr->data;
-        arr->data = (void**)realloc(arr->data, (arr->capacity *= ARR_SIZE_SCALE) * sizeof(void*));
-        if (!arr->data) {
-            arr->data = old_data;
-            return;
-        }
-    }
-
-    // insert item
-    arr->data[arr->count++] = item;
-}
-
-void delete_arr(Array** arr_ptr)
-{
-    if (!arr_ptr) return;
-
-    Array* arr = *arr_ptr;
-
-    for (int i = 0; i < arr->count; i++) {
-        free(arr->data[i]);
-    }
-    free(arr->data);
-    free(arr);
-
-    arr = NULL;
-}
-
-inline
-char** get_charpp(Array* arr, size_t index)
-{
-    if (index >= arr->count) return NULL;
-    return (char**)arr->data[index];
-}
-
-inline
-char* get_charp(Array* arr, size_t index)
-{
-    if (index >= arr->count) return NULL;
-    return (char*)arr->data[index];
-}
 
 // incapsulated in logic.cpp
 int set_pointers(char** ptrs, size_t len, char* str)
@@ -110,12 +46,11 @@ int set_pointers(char** ptrs, size_t len, char* str)
     return 1;
 }
 
-Result parse_table(AppContext* ctx)
+void clear_pointers(AppContext* ctx)
 {
-    // ### checks ###
-    if (!ctx) return RUNTIME_ERROR;
+    if (!ctx) return;
 
-    // ### clear ###
+
     // clear table pointer
     if (ctx->table) {
         for (size_t i = 0; i < ctx->table_len; i++)
@@ -133,31 +68,34 @@ Result parse_table(AppContext* ctx)
     if (ctx->collums)
         free(ctx->collums);
     ctx->collums = NULL;
+}
+
+Result parse_table(AppContext* ctx)
+{
+    // ######## checks ########
+    if (!ctx) return RUNTIME_ERROR;
 
     FILE* f = fopen(ctx->filename, "r");
     if (!f) return NO_FILE;
-    if (feof(f)) return EMPTY_FILE;
+    if (feof(f) || getc(f) == EOF) return EMPTY_FILE;
+    rewind(f);
 
-    // ### init ###
+    // ######## init ########
+
     // init arrays
     Array* table   = get_array(); // char**
     if (!table) return RUNTIME_ERROR;
-    Array* regions = get_array(); // char*
-    if (!regions) return RUNTIME_ERROR;
     Array* collums = get_array(); // char*
     if (!collums) return RUNTIME_ERROR;
 
-    // ### start parsing ###
-    clock_t start = clock();
-    const char* region_filter = NULL;
-    if (ctx->region_filter && *ctx->region_filter)
-        region_filter = ctx->region_filter;
+    size_t parsed_raw_size = COLLUMS_COUNT * sizeof(char*) + STR_SIZE;
 
-    size_t parsed_str_size = COLLUMS_COUNT * sizeof(char*) + STR_SIZE;
+    // ######## start parsing ########
+    clock_t start_time = clock();
 
-    // # parse header #
+    // parse header separately
     {
-        char** raw = (char**)calloc(parsed_str_size, sizeof(char));
+        char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
         char*  str = (char*)(raw + COLLUMS_COUNT);
 
         // fill header
@@ -165,14 +103,14 @@ Result parse_table(AppContext* ctx)
 
         if (!set_pointers(raw, COLLUMS_COUNT, str)) {
             free(raw);
-            delete_arr(&table); delete_arr(&regions); delete_arr(&collums);
+            delete_arr(&table); delete_arr(&collums);
             return INVALID_HEADER;
         }
 
         for (size_t i = 0; i < COLLUMS_COUNT; i++)
             if (!raw[i]) {
                 free(raw);
-                delete_arr(&table); delete_arr(&regions); delete_arr(&collums);
+                delete_arr(&table); delete_arr(&collums);
                 return INVALID_HEADER;
             }
 
@@ -182,11 +120,13 @@ Result parse_table(AppContext* ctx)
             push(collums, raw[i]);
     }
 
-    // # parse lines #
-    // ctx->progress_value = 0;
+    Array* regions = get_array(); // char*
+    if (!regions) return RUNTIME_ERROR;
+
+    // parse all other
     do{
         // alloc new line
-        char** raw = (char**)calloc(parsed_str_size, sizeof(char));
+        char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
         char*  str = (char*)(raw + COLLUMS_COUNT);
 
         // fill str
@@ -202,13 +142,8 @@ Result parse_table(AppContext* ctx)
             continue; // skip line if invalid
         }
 
-        // filtering
-        if (region_filter && strcmp(raw[REGION_COLLUM_NUM-1], region_filter) != 0 )
-            continue;
-
         // put to table
         push(table, raw);
-        // ctx->progress_value++;
 
         // put region if new
         int new_region = 1;
@@ -220,18 +155,21 @@ Result parse_table(AppContext* ctx)
     } while (!feof(f));
 
     // stop timer //
-    clock_t end = clock();
-    double parse_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    clock_t end_time = clock();
+    double parse_time = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
 
     if (regions->count == 0)
         delete_arr(&regions);
+
+    // ### clear ###
+    clear_pointers(ctx);
 
     // ### push results to context ###
     ctx->table = (char***)table->data;
     ctx->table_len = table->count;
     ctx->parse_time = parse_time;
 
-    ctx->regions = (char**)regions->data? (char**)regions->data : NULL;
+    ctx->regions = regions? (char**)regions->data : NULL;
     ctx->regions_count = regions? regions->count : 0;
 
     ctx->collums = (char**)collums->data;
@@ -239,9 +177,93 @@ Result parse_table(AppContext* ctx)
     return SUCCESS;
 }
 
+Result get_load_table(AppContext* ctx)
+{
+    if (!ctx) return RUNTIME_ERROR;
+
+    if (!ctx->region_filter || !strcmp(ctx->region_filter, "All"))
+    {
+        ctx->load_table = ctx->table;
+        ctx->load_table_len = ctx->table_len;
+        return SUCCESS;
+    }
+
+    Array* load_table = get_array();
+    if (!load_table) return RUNTIME_ERROR;
+
+    for (int i = 0; i < ctx->table_len; ++i) {
+        if (strcmp(ctx->table[i][REGION_COLLUM_NUM-1], ctx->region_filter) == 0) {
+            push(load_table, ctx->table[i]);
+        }
+    }
+
+    if (load_table->count == 0) {
+        free(load_table);
+        ctx->load_table = NULL;
+        ctx->load_table_len = 0;
+        return SUCCESS;
+    }
+
+    // insert to context
+    ctx->load_table = (char***)load_table->data;
+    ctx->load_table_len = load_table->count;
+    return SUCCESS;
+}
+
 Result calc_metrix(AppContext* ctx)
 {
-    qDebug() << "Calc metrix!";
+    // qDebug() << "Calc metrix!";
+    return SUCCESS;
+}
+
+Result clear_context(AppContext* ctx)
+{
+    if (!ctx) return RUNTIME_ERROR;
+
+    if (ctx->filename) {
+        free((char*)ctx->filename);
+        ctx->filename = NULL;
+    }
+
+    // if (ctx->region_filter) {
+    //     free((char*)ctx->region_filter);
+    //     ctx->region_filter = NULL;
+    // }
+
+    if (ctx->table) {
+        for (int i = 0; i < ctx->table_len; i++)
+            free(ctx->table[i]);
+        free(ctx->table);
+        ctx->table = NULL;
+        ctx->table_len = 0;
+    }
+
+    if (ctx->regions) {
+        for (int i = 0; i < ctx->regions_count; i++)
+            free(ctx->regions[i]);
+        free(ctx->regions);
+        ctx->regions = NULL;
+        ctx->regions_count = 0;
+    }
+
+    if (ctx->collums) {
+        for (int i = 0; i < ctx->collums_count; i++)
+            free(ctx->collums[i]);
+        free(ctx->collums);
+        ctx->collums = NULL;
+        ctx->collums_count = 0;
+    }
+
+    if (ctx->calc_collum) {
+        free(ctx->calc_collum);
+        ctx->calc_collum = NULL;
+    }
+
+    if (ctx->calc_region) {
+        free(ctx->calc_region);
+        ctx->calc_region = NULL;
+    }
+
     return SUCCESS;
 }
 

@@ -1,0 +1,27 @@
+//
+// Created by k3rnel1x on 05.04.2026.
+//
+
+#ifndef ARRAY_H
+#define ARRAY_H
+
+#include <stdlib.h>
+
+#define ARR_INIT_SIZE  100
+#define ARR_SIZE_SCALE 2
+
+struct Array {
+    size_t capacity;
+    size_t count;
+    void** data;
+};
+
+Array* get_array();
+void push(Array* arr, void* item);
+void delete_arr(Array** arr_ptr);
+
+// get content
+char** get_charpp(Array* arr, size_t index);
+char*  get_charp(Array* arr, size_t index);
+
+#endif //ARRAY_H
