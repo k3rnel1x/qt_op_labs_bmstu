@@ -17,24 +17,29 @@ set(PROJECT_SOURCES
         logic/logic.cpp
         logic/logic.h
         logic/result.h
+        logic/array.cpp
+        logic/array.h
         ui/main.cpp
         ui/mainwindow.cpp
         ui/mainwindow.h
         ui/mainwindow.ui
+        logic/entrypoint.h
+        logic/entrypoint.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(qt-op-labs-bmstu
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-            logic/appcontext.h
-            logic/logic.cpp
-            logic/logic.h
-            logic/result.h
-            ui/main.cpp
-            ui/mainwindow.cpp
-            ui/mainwindow.h
-            ui/mainwindow.ui
+#            logic/appcontext.h
+#            logic/entrypoint.h
+#            logic/logic.cpp
+#            logic/logic.h
+#            logic/result.h
+#            ui/main.cpp
+#            ui/mainwindow.cpp
+#            ui/mainwindow.h
+#            ui/mainwindow.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET qt-op-labs-bmstu APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

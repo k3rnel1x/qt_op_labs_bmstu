@@ -7,8 +7,11 @@
 
 #include "appcontext.h"
 #include "result.h"
+#include "entrypoint.h"
 
 Result parse_table(AppContext* ctx);
 Result calc_metrix(AppContext* ctx);
+Result clear_context(AppContext* ctx);
+Result get_load_table(AppContext* ctx);
 
 #endif //LOGIC_H

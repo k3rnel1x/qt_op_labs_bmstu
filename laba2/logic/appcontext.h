@@ -1,13 +1,17 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 #define COLLUMS_COUNT 7
-#include <QProgressDialog>
+
+#include <cstddef>
+
 struct AppContext {
     const char* filename;
     const char* region_filter;
 
     char*** table;
     size_t table_len;
+    char*** load_table;
+    size_t load_table_len;
     char** regions; // all regions without duplicating
     size_t regions_count;
 

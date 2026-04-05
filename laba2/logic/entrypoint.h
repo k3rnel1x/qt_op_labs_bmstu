@@ -2,27 +2,16 @@
 #define ENTRYPOINT_H
 
 #include "result.h"
+#include "appcontext.h"
 #include "logic.h"
 
 typedef enum OperationType {
     PARCE_TABLE,
-    CALC_METRIX
+    CALC_METRIX,
+    CLEAR_CTX,
+    GET_LOAD_TABLE,
 } OperationType;
 
-Result perform_operation(OperationType type, AppContext* ctx)
-{
-    if(!ctx) return RUNTIME_ERROR;
-    Result res_code = SUCCESS;
-
-    switch (type) {
-    case PARCE_TABLE:
-        res_code = parse_table(ctx);
-        break;
-    case CALC_METRIX:
-        res_code = calc_metrix(ctx);
-        break;
-    }
-    return res_code;
-}
+Result perform_operation(OperationType type, AppContext* ctx);
 
 #endif // ENTRYPOINT_H

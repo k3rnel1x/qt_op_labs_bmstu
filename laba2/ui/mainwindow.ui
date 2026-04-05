@@ -68,10 +68,17 @@
        <widget class="QWidget" name="loadInterface" native="true">
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Regions to load:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QComboBox" name="availableRegions"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="loadSelectedButton">
            <property name="text">
             <string>Load selected</string>
            </property>
