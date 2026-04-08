@@ -4,10 +4,14 @@
 typedef enum Result {
     SUCCESS,
     RUNTIME_ERROR,
-    
-    NO_FILE, // logic error
+
+    // logic error
+    NO_FILE,
     EMPTY_FILE,
-    INVALID_HEADER
+    INVALID_HEADER,
+
+    // calc error
+    NOT_ENOUGH_INFO,
 } Result;
 
 #endif // RESULT_H

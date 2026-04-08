@@ -10,7 +10,7 @@ Array* get_array()
     Array* arr = (Array*)calloc(1, sizeof(Array));
     if (!arr) return NULL;
     arr->data = (void**)calloc(ARR_INIT_SIZE, sizeof(void*));
-    if (!arr->data) return NULL;
+    if (!arr->data) { free(arr); return NULL; };
 
     arr->capacity = ARR_INIT_SIZE;
     arr->count = 0;
@@ -33,6 +33,26 @@ void push(Array* arr, void* item)
 
     // insert item
     arr->data[arr->count++] = item;
+}
+
+Array* link(Array* arr)
+{
+    // validate
+    if (!arr) return NULL;
+    if (!arr->data) return NULL;
+
+    // alloc
+    Array* cpy_arr = (Array*)calloc(1, sizeof(Array));
+    if (!cpy_arr) return NULL;
+    cpy_arr->data = (void**)calloc(ARR_INIT_SIZE, sizeof(void*));
+    if (!cpy_arr->data) return NULL;
+
+    // link
+    cpy_arr->capacity = arr->capacity;
+    cpy_arr->count    = arr->count;
+    cpy_arr->data     = arr->data;
+
+    return cpy_arr;
 }
 
 void delete_arr(Array** arr_ptr)

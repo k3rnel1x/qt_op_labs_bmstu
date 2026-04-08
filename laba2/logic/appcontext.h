@@ -9,14 +9,16 @@ struct AppContext {
     const char* region_filter;
 
     char*** table;
-    size_t table_len;
-    char*** load_table;
-    size_t load_table_len;
-    char** regions; // all regions without duplicating
+    size_t  table_len;
+    char*** load_table; // loaded regions
+    size_t  load_table_len;
+
+    char** regions; // all regions
     size_t regions_count;
 
     char** collums; // header collums
     size_t collums_count;
+
 
     // calc
     char* calc_region;
@@ -26,6 +28,7 @@ struct AppContext {
     double mid;
 
     double parse_time;
+    size_t errors_count;
 
     // TODO hash?
 };

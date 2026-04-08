@@ -18,6 +18,7 @@ struct Array {
 
 Array* get_array();
 void push(Array* arr, void* item);
+Array* link(Array* arr);
 void delete_arr(Array** arr_ptr);
 
 // get content

@@ -41,7 +41,7 @@ private:
     void handle_calc_metrix_error(Result code);
     const char* get_choisen_region_filter();
     void set_available_regions(char** regions, size_t len);
-    void set_calc_regions(char** regions, size_t len);
+    void set_calc_regions(const char** regions, size_t len);
     void set_calc_collums(char** collums, size_t len, size_t region_collum_num);
 
     char* qstrtoc(QString& qstr);

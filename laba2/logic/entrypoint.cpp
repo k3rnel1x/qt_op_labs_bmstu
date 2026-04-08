@@ -16,9 +16,6 @@ Result perform_operation(OperationType type, AppContext* ctx)
         case CALC_METRIX:
             res_code = calc_metrix(ctx);
             break;
-        case CLEAR_CTX:
-            res_code = clear_context(ctx);
-            break;
         case GET_LOAD_TABLE:
             res_code = get_load_table(ctx);
             break;

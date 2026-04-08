@@ -8,7 +8,6 @@
 typedef enum OperationType {
     PARCE_TABLE,
     CALC_METRIX,
-    CLEAR_CTX,
     GET_LOAD_TABLE,
 } OperationType;
 

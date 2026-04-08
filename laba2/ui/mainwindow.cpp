@@ -61,7 +61,6 @@ MainWindow::~MainWindow()
         free(ctx->collums);
 }
 
-// ############### slots ###############
 void MainWindow::on_openButton_clicked()
 {
     // get filename
@@ -81,6 +80,7 @@ void MainWindow::on_openButton_clicked()
         if (!ctx->filename)
         {
             ui->openButton->setText("Open your cool file");
+            ui->calcInterface->setVisible(false);
             ui->loadInterface->setVisible(false);
         }
         return;
@@ -107,18 +107,6 @@ void MainWindow::on_openButton_clicked()
     }
 
     free((char*)old_filename);
-    // if (result_code != SUCCESS) {
-    //     ui->tableWidget->setRowCount(0);
-    //     ui->tableWidget->setColumnCount(0);
-    //     ui->tableWidget->clear();
-    //     ui->openButton->setText("Open your cool file");
-    //     ui->loadInterface->setVisible(false);
-    //
-    //     handle_parce_table_error(result_code);
-    //     unblock_ui();
-    //     return;
-    // }
-
 
     // setup load ui
     ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
@@ -126,6 +114,7 @@ void MainWindow::on_openButton_clicked()
 
     // show load ui
     ui->loadInterface->setVisible(true);
+    ui->calcInterface->setVisible(false);
     unblock_ui();
 }
 
@@ -152,11 +141,11 @@ void MainWindow::on_loadSelectedButton_clicked()
     ui->tableWidget->setColumnCount(COLLUMS_COUNT);
 
     // set header
-    for (size_t c = 0; c < COLLUMS_COUNT; c++) {
+    for (size_t c = 0; c < COLLUMS_COUNT; c++)  {
         ui->tableWidget->setHorizontalHeaderItem(c, new QTableWidgetItem( table[0][c] ));
     }
 
-    // visualize progress dialog
+
     QProgressDialog progress("Table is loading...", "Cancel", 0, table_len-1, this);
     progress.setWindowModality(Qt::WindowModal);
     progress.setWindowFlag(Qt::WindowStaysOnTopHint);
@@ -175,6 +164,7 @@ void MainWindow::on_loadSelectedButton_clicked()
                 ui->tableWidget->setRowCount(0);
                 ui->tableWidget->setColumnCount(0);
                 ui->tableWidget->update();
+                ui->calcInterface->setVisible(false);
                 unblock_ui();
                 QMessageBox::critical(this, tr("Error"), tr("Table is not loaded"));
                 return;
@@ -185,16 +175,43 @@ void MainWindow::on_loadSelectedButton_clicked()
         QApplication::processEvents(QEventLoop::DialogExec);
     }
 
-    // unblock ui and show table
-    unblock_ui();
     ui->tableWidget->update();
+
+    progress.close();
+
+    QMessageBox msg;
+    msg.setWindowTitle(tr("Table is loaded!"));
+    msg.setBaseSize(400, 250);
+    msg.setFixedSize(400, 250);
+    msg.setText("Load info:");
+    msg.setInformativeText(QString("Total lines: %1\nErrors count: %2").arg(ctx->load_table_len-1).arg(ctx->errors_count));
+    msg.exec();
+
+    if (ctx->region_filter && strcmp(ctx->region_filter, "All")) {
+        ui->loadedRegionField->setText(ctx->region_filter);
+        set_calc_regions(&ctx->region_filter, 1);
+    } else
+    {
+        ui->loadedRegionField->setText("All");
+        set_calc_regions((const char**)ctx->regions, ctx->regions_count);
+    }
+
+    set_calc_collums(ctx->collums, ctx->collums_count, REGION_COLLUM_NUM);
+
+    ui->maxField->clear();
+    ui->minField->clear();
+    ui->midField->clear();
+    ui->calcInterface->setVisible(true);
+    unblock_ui();
 }
 
-// ############### ui private ###############
-void MainWindow::set_calc_regions(char** regions, size_t len)
+void MainWindow::set_calc_regions(const char** regions, size_t len)
 {
     ui->regionList->clear();
     if (!regions) return;
+
+    if (len > 1)
+        ui->regionList->addItem("All");
 
     for (int i = 0; i < len; i++)
         ui->regionList->addItem(regions[i]);
@@ -228,7 +245,6 @@ void MainWindow::set_calc_collums(char** collums, size_t len, size_t region_coll
             ui->collumList->addItem(collums[i]);
 }
 
-// ############### utils ###############
 const char* MainWindow::get_choisen_region_filter()
 {
     QString region = ui->availableRegions->currentText();
@@ -252,6 +268,10 @@ char* MainWindow::qstrtoc(QString& qstr)
 
 void MainWindow::on_calcButton_clicked()
 {
+    block_ui();
+    ui->calcButton->setText("Please wait..");
+    QApplication::processEvents();
+
     QString qregion = ui->regionList->currentText();
     ctx->calc_region = qstrtoc(qregion);
 
@@ -265,9 +285,12 @@ void MainWindow::on_calcButton_clicked()
         return;
     }
 
-    // ui->minTextField->setText(QString::number(ctx->min));
-    // ui->maxTextField->setText(QString::number(ctx->max));
-    // ui->midTextField->setText(QString::number(ctx->mid));
+    ui->minField->setText(QString::number(ctx->min));
+    ui->maxField->setText(QString::number(ctx->max));
+    ui->midField->setText(QString::number(ctx->mid));
+
+    ui->calcButton->setText("Calculate metrix");
+    unblock_ui();
 }
 
 void MainWindow::block_ui()
@@ -313,5 +336,6 @@ void MainWindow::handle_parce_table_error(Result code)
 
 void MainWindow::handle_calc_metrix_error(Result code)
 {
+    // TODO !!
 }
 
