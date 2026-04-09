@@ -5,28 +5,33 @@
 #include <cstddef>
 
 struct AppContext {
+
+    // Open UI data
     const char* filename;
-    const char* region_filter;
 
-    char*** table;
-    size_t  table_len;
-    char*** load_table; // loaded regions
-    size_t  load_table_len;
+    char**  table_header;
+    size_t  collums_count;
 
-    char** regions; // all regions
-    size_t regions_count;
+    char*** table_content;
+    size_t  table_content_len;
 
-    char** collums; // header collums
-    size_t collums_count;
+    char** table_all_regions;
+    size_t table_all_regions_len;
 
+    // Load UI data
+    const char* region_to_load;
 
-    // calc
-    char* calc_region;
-    char* calc_collum;
+    char*** filtered_table_file;
+    size_t  filtered_table_len;
+
+    // Calc UI data
+    char* region_to_calc;
+    char* collum_to_calc;
     double min;
     double max;
     double mid;
 
+    // other data
     double parse_time;
     size_t errors_count;
 

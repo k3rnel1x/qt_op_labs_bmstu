@@ -83,59 +83,67 @@ void clear_pointers(AppContext* ctx)
     ctx->collums = NULL;
 }
 
+size_t count_collums(char* table_header)
+{
+    if (!table_header || *table_header == SEP || *(strrchr(table_header, SEP) + 1) == 0) return 0;
+
+    size_t count = 0;
+    char* ptr;
+    while (ptr = strchr(table_header, SEP))
+    {
+        if (*ptr != *(ptr-1))
+            ++count;
+    };
+
+    return count;
+}
+
 Result parse_table(AppContext* ctx)
 {
     // ######## checks ########
     if (!ctx) return RUNTIME_ERROR;
 
-    FILE* f = fopen(ctx->filename, "r");
+    FILE *f = fopen(ctx->filename, "r");
     if (!f) return NO_FILE;
     if (feof(f) || getc(f) == EOF) return EMPTY_FILE;
     rewind(f);
 
+    // handle header (ctx->collums_count, ctx->table_header)
+    size_t parsed_raw_size = STR_SIZE;
+    {
+        // get collums count
+        char* table_header = (char*)calloc(STR_SIZE, sizeof(char));
+        if (!table_header) return RUNTIME_ERROR;
+        fgets(table_header, STR_SIZE, f);
+        *strrchr(table_header, '\n') = 0;
+
+        ctx->collums_count = count_collums(table_header);
+        if (!ctx->collums_count) { free(table_header); return INVALID_HEADER; }
+        parsed_raw_size = ctx->collums_count * sizeof(char*) + STR_SIZE;
+
+        // parse header
+        char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
+        char*  str = (char*)raw + ctx->collums_count;
+
+        if (!fgets(str, STR_SIZE, f)) {
+            free(raw);
+            return RUNTIME_ERROR;
+        }
+
+        set_pointers(raw, str); // no need checks
+        ctx->table_header = raw;
+    }
+
     // ######## init ########
-
     // init arrays
-    Array* table   = get_array(); // char**
-    if (!table) return RUNTIME_ERROR;
-    Array* collums = get_array(); // char*
-    if (!collums) return RUNTIME_ERROR;
+    Array* table_content = get_array(); // char**
+    if (!table_content) return RUNTIME_ERROR;
+    Array* table_regions = get_array(); // char*
+    if (!table_regions) return RUNTIME_ERROR;
 
-    size_t parsed_raw_size = COLLUMS_COUNT * sizeof(char*) + STR_SIZE;
 
     // ######## start parsing ########
     clock_t start_time = clock();
-
-    // parse header separately
-    {
-        char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
-        char*  str = (char*)(raw + COLLUMS_COUNT);
-
-        // fill header
-        fgets(str, STR_SIZE, f);
-
-        if (!set_pointers(raw, str)) {
-            free(raw);
-            delete_arr(&table); delete_arr(&collums);
-            return INVALID_HEADER;
-        }
-
-        for (size_t i = 0; i < COLLUMS_COUNT; i++)
-            if (!raw[i]) {
-                free(raw);
-                delete_arr(&table); delete_arr(&collums);
-                return INVALID_HEADER;
-            }
-
-        // insert header to table and collums
-        push(table, raw);
-        for (int i = 0; i < COLLUMS_COUNT; i++)
-            push(collums, raw[i]);
-    }
-
-    Array* regions = get_array(); // char*
-    if (!regions) return RUNTIME_ERROR;
-
 
     // parse all other
     ctx->errors_count = 0;
@@ -158,12 +166,12 @@ Result parse_table(AppContext* ctx)
         }
 
         // put to table
-        push(table, raw);
+        push(table_content, raw);
 
         // put region if new
         int new_region = 1;
         for (size_t i = 0; new_region && i < regions->count; ++i)
-            new_region = strcmp(  get_charp(regions, i), raw[REGION_COLLUM_NUM-1] );
+            new_region = strcmp(  getp(table_regions, i, char*), raw[REGION_COLLUM_NUM-1] );
 
         if (new_region)
             push(regions, raw[REGION_COLLUM_NUM-1]);
