@@ -10,6 +10,9 @@
 #define ARR_INIT_SIZE  100
 #define ARR_SIZE_SCALE 2
 
+
+#define getp(table, index, ptr) (ptr)((table)->data[index])
+
 struct Array {
     size_t capacity;
     size_t count;
@@ -17,7 +20,7 @@ struct Array {
 };
 
 Array* get_array();
-void push(Array* arr, void* item);
+Array* push(Array* arr, void* item);
 Array* link(Array* arr);
 void delete_arr(Array** arr_ptr);
 

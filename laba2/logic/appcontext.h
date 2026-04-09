@@ -16,12 +16,12 @@ struct AppContext {
     size_t  table_content_len;
 
     char** table_all_regions;
-    size_t table_all_regions_len;
+    size_t regions_count;
 
     // Load UI data
     const char* region_to_load;
 
-    char*** filtered_table_file;
+    char*** filtered_table;
     size_t  filtered_table_len;
 
     // Calc UI data

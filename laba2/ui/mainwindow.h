@@ -39,7 +39,7 @@ private:
     void unblock_ui();
     void handle_parce_table_error(Result code);
     void handle_calc_metrix_error(Result code);
-    const char* get_choisen_region_filter();
+    const char* get_load_region();
     void set_available_regions(char** regions, size_t len);
     void set_calc_regions(const char** regions, size_t len);
     void set_calc_collums(char** collums, size_t len, size_t region_collum_num);

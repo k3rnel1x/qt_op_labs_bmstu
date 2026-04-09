@@ -17,9 +17,9 @@ Array* get_array()
     return arr;
 }
 
-void push(Array* arr, void* item)
+Array* push(Array* arr, void* item)
 {
-    if (!arr || !item) return;
+    if (!arr || !item) return NULL;
 
     // resize if needed
     if (arr->capacity == arr->count) {
@@ -27,12 +27,13 @@ void push(Array* arr, void* item)
         arr->data = (void**)realloc(arr->data, (arr->capacity *= ARR_SIZE_SCALE) * sizeof(void*));
         if (!arr->data) {
             arr->data = old_data;
-            return;
+            return NULL;
         }
     }
 
     // insert item
     arr->data[arr->count++] = item;
+    return arr;
 }
 
 Array* link(Array* arr)
@@ -70,7 +71,6 @@ void delete_arr(Array** arr_ptr)
     *arr_ptr = NULL;
 }
 
-#define getp(table, index, ptr) (ptr)((table)->data[index])
 
 // char** get_charpp(Array* arr, size_t index)
 // {

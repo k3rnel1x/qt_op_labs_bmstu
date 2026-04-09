@@ -6,11 +6,17 @@
 #include "logic.h"
 
 typedef enum OperationType {
-    PARCE_TABLE,
+    OPEN_TABLE,
+    LOAD_TABLE,
     CALC_METRIX,
-    GET_LOAD_TABLE,
+    CLEAR_CONTEXT
 } OperationType;
 
-Result perform_operation(OperationType type, AppContext* ctx);
+
+typedef struct Params {
+    CLEAR_TARGET clear_target;
+} Params;
+
+Result perform_operation(OperationType type, AppContext* ctx, Params* params);
 
 #endif // ENTRYPOINT_H
