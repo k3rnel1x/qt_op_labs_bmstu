@@ -8,6 +8,10 @@
 #include "appcontext.h"
 #include "result.h"
 
+// #### Parse config ####
+#define STR_SIZE 200
+#define SEP ','
+
 typedef enum CLEAR_TARGET {
     NOTHING,
     OPEN_UI_DATA,

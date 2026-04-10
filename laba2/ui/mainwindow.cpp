@@ -2,30 +2,62 @@
 #include "./ui_mainwindow.h"
 #include "../logic/entrypoint.h"
 #include "../logic/appcontext.h"
+#include "../config.h"
 
-#define REGION_COLLUM_NUM 2
-
-#include <QTableView>
 #include <QHeaderView>
 #include <QStandardItemModel>
 #include <qmessagebox.h>
 #include <QFileDialog>
 #include <QProgressDialog>
-#include <stdlib.h>
+#include <QMovie>
 #include <string.h>
 #include <time.h>
 
-// TODO delete context method
-// TODO pricolchiki
+#include "../logger.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+
+    clipboard = QApplication::clipboard();
     ui->setupUi(this);
     ctx = (AppContext*)calloc(1, sizeof(AppContext));
+
+#ifdef PRICOLCHICKI
+    load_cursor = new QCursor(QPixmap(LOAD_CURSOR_ICON));
+    ui->promote->setVisible(true);
+    vk_dog = new QMovie(VK_DOG_GIF);
+    ui->promoteGifLabel->setVisible(true);
+    ui->promoteGifLabel->setEnabled(true);
+    ui->promoteGifLabel->setMovie(vk_dog);
+    vk_dog->start();
+#else
+    load_cursor = new QCursor(Qt::WaitCursor);
+    ui->promote->setVisible(false);
+#endif
+
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSortingEnabled(true);
+
+    // set cursors
+    QCursor point_hand_cursor(Qt::PointingHandCursor);
+    ui->calcButton->setCursor(point_hand_cursor);
+    ui->copyLoadedLinesCountButton->setCursor(point_hand_cursor);
+    ui->copyLoadedRegionButton->setCursor(point_hand_cursor);
+    ui->loadSelectedButton->setCursor(point_hand_cursor);
+    ui->openButton->setCursor(point_hand_cursor);
+
+    // QCursor i_beam_cursor(Qt::IBeamCursor);
+    // ui->loadedRegionField->setCursor(i_beam_cursor);
+    // ui->loadedLinesCount->setCursor(i_beam_cursor);
+    // ui->maxField->setCursor(i_beam_cursor);
+    // ui->minField->setCursor(i_beam_cursor);
+    // ui->midField->setCursor(i_beam_cursor);
+
+
+    connect(ui->regionList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
+    connect(ui->collumList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
 
     // hide all interfaces
     ui->calcInterface->setVisible(false);
@@ -35,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete load_cursor;
+
+    delete vk_dog;
 
     // ### delete context ###
     Params p;
@@ -64,12 +99,15 @@ void MainWindow::on_openButton_clicked()
         if (!ctx->filename)
         {
             ui->openButton->setText("Open your cool file");
-            ui->calcInterface->setVisible(false);
-            ui->loadInterface->setVisible(false);
+            // ui->calcInterface->setVisible(false);
+            // ui->loadInterface->setVisible(false);
         }
         return;
-    };
+    }
 
+    Params p;
+    p.clear_target = OPEN_UI_DATA;
+    perform_operation(CLEAR_CONTEXT, ctx, &p);
 
     char* c_str = qstrtoc(filename);
     // insert to context
@@ -77,24 +115,29 @@ void MainWindow::on_openButton_clicked()
     ctx->filename = c_str;
 
     // parse_file
+    QApplication::setOverrideCursor(*load_cursor);
     ui->openButton->setText("File is opening..");
-    block_ui();
     QApplication::processEvents();
+    block_ui();
+
 
     Result result_code = perform_operation(OPEN_TABLE, ctx, NULL);
     if (result_code != SUCCESS) {
+        QApplication::restoreOverrideCursor();
         ctx->filename = old_filename;
         ui->openButton->setText(ctx->filename? strrchr(ctx->filename, '/') + 1 : "Open your cool file");
         handle_parce_table_error(result_code);
         unblock_ui();
         return;
     }
+    QApplication::restoreOverrideCursor();
 
     free((char*)old_filename);
 
     // setup load ui
     ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
     set_available_regions(ctx->table_all_regions, ctx->regions_count); // with all item
+    ui->totalErrorLabel->setText("Total errors: " + QString::number(ctx->errors_count));
 
     // show load ui
     ui->loadInterface->setVisible(true);
@@ -112,20 +155,22 @@ void MainWindow::on_loadSelectedButton_clicked()
 
     ui->tableWidget->clear();
     ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(0);
+    ui->tableWidget->setColumnCount(0);
 
     if (perform_operation(LOAD_TABLE, ctx, NULL) == RUNTIME_ERROR)
     {
-        ui->tableWidget->setRowCount(0);
-        ui->tableWidget->setColumnCount(0);
         QMessageBox::critical(this, "ERROR", "RUNTIME_ERROR");
         return;
     }
+
+    p.clear_target = CALC_UI_DATA;
+    perform_operation(CLEAR_CONTEXT, ctx, &p); // clear calc data
 
     // ################################# init nessesary stuff #############################
 
     char*** table = ctx->filtered_table;
     size_t  table_len = ctx->filtered_table_len;
-    size_t  errors_count = ctx->errors_count;
     size_t  collums_count = ctx->collums_count;
     char**  table_header = ctx->table_header;
 
@@ -133,6 +178,7 @@ void MainWindow::on_loadSelectedButton_clicked()
     ui->tableWidget->setColumnCount(collums_count);
 
     // ##################################### setup header #####################################
+    QApplication::setOverrideCursor(*load_cursor);
     for (size_t c = 0; c < collums_count; c++)  {
         ui->tableWidget->setHorizontalHeaderItem(c, new QTableWidgetItem( table_header[c] ));
     }
@@ -152,7 +198,8 @@ void MainWindow::on_loadSelectedButton_clicked()
             if (progress.wasCanceled()) {
                 progress.close();
                 Params p;
-                p.clear_target = LOAD_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p); // clear load data
+                p.clear_target = LOAD_UI_DATA;
+                perform_operation(CLEAR_CONTEXT, ctx, &p); // clear load data
                 ui->tableWidget->clear();
                 ui->tableWidget->clearContents();
                 ui->tableWidget->setRowCount(0);
@@ -160,6 +207,7 @@ void MainWindow::on_loadSelectedButton_clicked()
                 ui->tableWidget->update();
                 ui->calcInterface->setVisible(false);
                 unblock_ui();
+                QApplication::restoreOverrideCursor();
                 QMessageBox::critical(this, tr("Error"), tr("Table is not loaded"));
                 return;
             }
@@ -173,22 +221,16 @@ void MainWindow::on_loadSelectedButton_clicked()
     progress.close();
 
     // ###################################### show info ############################################
-    QMessageBox msg;
-    msg.setWindowTitle(tr("Table is loaded!"));
-    msg.setBaseSize(400, 250);
-    msg.setFixedSize(400, 250);
-    msg.setText("Load info:");
-    msg.setInformativeText(QString("Total lines: %1\nErrors count: %2").arg(table_len).arg(errors_count));
-    msg.exec();
-
-
-    // ###################################### set comboboxes #######################################
     const char* region_to_load = ctx->region_to_load;
     char** table_all_regions = ctx->table_all_regions;
     size_t regions_count = ctx->regions_count;
 
     // set loaded region
     ui->loadedRegionField->setText(region_to_load && strcmp(region_to_load, "All")? region_to_load : "All");
+    ui->loadedLinesCount->setText(QString::number(table_len));
+
+    // ###################################### set comboboxes #######################################
+
 
     // set calc regions
     if (!region_to_load || !strcmp(region_to_load, "All"))
@@ -203,6 +245,7 @@ void MainWindow::on_loadSelectedButton_clicked()
     ui->minField->clear();
     ui->midField->clear();
     ui->calcInterface->setVisible(true);
+    QApplication::restoreOverrideCursor();
     unblock_ui();
     QApplication::processEvents();
 }
@@ -269,36 +312,71 @@ char* MainWindow::qstrtoc(QString& qstr)
     QByteArray bytearray = qstr.toUtf8();
     const char* c_str = bytearray.constData();
 
-    char* mem = (char*)calloc(qstr.length() + 1, sizeof(char));
-    strcpy(mem, c_str);
-    return mem;
+    return strdup(c_str);
 }
 
 void MainWindow::on_calcButton_clicked()
 {
-    // block_ui();
-    // ui->calcButton->setText("Please wait..");
-    // QApplication::processEvents();
-    //
-    // QString qregion = ui->regionList->currentText();
-    // ctx->calc_region = qstrtoc(qregion);
-    //
-    // QString qcollum = ui->collumList->currentText();
-    // ctx->calc_collum = qstrtoc(qcollum);
-    //
-    // // ### parce ###
-    // Result result_code = perform_operation(CALC_METRIX, ctx);
-    // if (result_code != SUCCESS) {
-    //     handle_calc_metrix_error(result_code);
-    //     return;
-    // }
-    //
-    // ui->minField->setText(QString::number(ctx->min));
-    // ui->maxField->setText(QString::number(ctx->max));
-    // ui->midField->setText(QString::number(ctx->mid));
-    //
-    // ui->calcButton->setText("Calculate metrix");
-    // unblock_ui();
+    ui->maxField->clear();
+    ui->minField->clear();
+    ui->midField->clear();
+    Params p;
+    p.clear_target = CALC_UI_DATA;
+    perform_operation(CLEAR_CONTEXT, ctx, &p);
+
+    block_ui();
+    QApplication::setOverrideCursor(*load_cursor);
+    ui->calcButton->setText("Please wait..");
+    QApplication::processEvents();
+
+    QString qregion = ui->regionList->currentText();
+    ctx->region_to_calc = qstrtoc(qregion);
+
+    QString qcollum = ui->collumList->currentText();
+    ctx->collum_to_calc = qstrtoc(qcollum);
+
+    // ### parce ###
+    Result result_code = perform_operation(CALC_METRIX, ctx, NULL);
+    if (result_code != SUCCESS) {
+        QApplication::restoreOverrideCursor();
+        handle_calc_metrix_error(result_code);
+        ui->calcButton->setText("Calculate metrix");
+        unblock_ui();
+        calculated = false;
+        return;
+    }
+
+    ui->minField->setText(QString::number(ctx->min));
+    ui->maxField->setText(QString::number(ctx->max));
+    ui->midField->setText(QString::number(ctx->mid));
+
+    ui->calcButton->setText("Calculate metrix");
+    QApplication::restoreOverrideCursor();
+    unblock_ui();
+    QApplication::processEvents();
+    calculated = true;
+    on_calc_params_changed();
+}
+
+void MainWindow::on_copyLoadedRegionButton_clicked()
+{
+   clipboard->setText(ui->loadedRegionField->toPlainText());
+}
+
+void MainWindow::on_copyLoadedLinesCountButton_clicked()
+{
+    clipboard->setText(ui->loadedLinesCount->toPlainText());
+}
+
+void MainWindow::on_calc_params_changed()
+{
+    if (calculated)
+    {
+        bool is_enabled = ui->regionList->currentText() == ctx->region_to_calc && ui->collumList->currentText() == ctx->collum_to_calc;
+        ui->maxField->setEnabled(is_enabled);
+        ui->minField->setEnabled(is_enabled);
+        ui->midField->setEnabled(is_enabled);
+    }
 }
 
 void MainWindow::block_ui()
@@ -343,6 +421,22 @@ void MainWindow::handle_parce_table_error(Result code)
 
 void MainWindow::handle_calc_metrix_error(Result code)
 {
-    // TODO !!
+    if (code == SUCCESS) return;
+    const char* err_text = NULL;
+    switch(code)
+    {
+        case RUNTIME_ERROR:
+            err_text = "RUNTIME_ERROR";
+            break;
+
+        case NOT_ENOUGH_INFO:
+#ifdef PRICOLCHICKI
+            err_text = "Ну нельзя посчитать медиану из двух значений, йоу <a href=https://en.wikipedia.org/wiki/Median>см. wiki<a>";
+#else
+            err_text = "NOT_ENOUGH_INFO";
+#endif
+            break;
+    }
+    QMessageBox::critical(this, "Error", err_text);
 }
 

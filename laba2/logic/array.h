@@ -10,7 +10,6 @@
 #define ARR_INIT_SIZE  100
 #define ARR_SIZE_SCALE 2
 
-
 #define getp(table, index, ptr) (ptr)((table)->data[index])
 
 struct Array {

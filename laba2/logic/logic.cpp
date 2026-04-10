@@ -1,5 +1,3 @@
-// TODO split this file
-
 #include <cinttypes>
 #include <qlogging.h>
 #include <QDebug>
@@ -13,16 +11,7 @@
 #include "result.h"
 #include "array.h"
 
-#define STR_SIZE 200
-#define SEP ','
-
-// #define TABLE_BASE_LENGHT   100
-// #define TABLE_LENGHT_SCALE 2
-
-// #define REGIONS_BASE_LENGHT 100
-// #define REGIONS_LENGHT_SCALE 2
-#define REGION_COLLUM_NUM 2
-#define WEIGHT_COLLUM_NUM 6
+#include "../config.h"
 
 int valid_year(char* year)
 {
@@ -75,7 +64,7 @@ size_t count_collums(char* table_header)
 Result open_table(AppContext* ctx)
 {
     // ######## checks ########
-    if (!ctx || !ctx->filename) return RUNTIME_ERROR;
+    if (!ctx || !ctx->filename || ctx->table_header || ctx->table_content) return RUNTIME_ERROR;
 
     FILE *f = fopen(ctx->filename, "r");
     if (!f) return NO_FILE;
@@ -179,19 +168,22 @@ Result open_table(AppContext* ctx)
     if (table_regions->count == 0)
         delete_arr(&table_regions);
 
+    if (table_content->count == 0)
+        delete_arr(&table_content);
 
 
     // ### push results to context ###
     ctx->table_header  = table_header;
     ctx->collums_count = collums_count;
 
-    ctx->table_content = (char***)table_content->data;
-    ctx->table_content_len = table_content->count;
+    ctx->table_content = table_content? (char***)table_content->data : NULL;
+    ctx->table_content_len = table_content? table_content->count : 0;
 
-    ctx->table_all_regions = (char**)table_regions->data;
-    ctx->regions_count = table_regions->count;
+    ctx->table_all_regions = table_regions? (char**)table_regions->data : NULL;
+    ctx->regions_count = table_regions? table_regions->count : 0;
 
     ctx->parse_time = parse_time;
+    ctx->errors_count = errors_count;
 
     return SUCCESS;
 }
@@ -232,97 +224,105 @@ Result load_table(AppContext* ctx)
 // TODO speedup this shit
 Result calc_metrix(AppContext* ctx)
 {
-    // if (!ctx || !ctx->load_table || !ctx->load_table_len || ctx->load_table_len == 1) return RUNTIME_ERROR;
-    // if (!ctx->calc_collum) return RUNTIME_ERROR;
-    //
-    // // get target collum_idx
-    // size_t collum_idx = -1;
-    // for (size_t i = 0; i < COLLUMS_COUNT; ++i)
-    //     if (!strcmp(ctx->load_table[0][i], ctx->calc_collum)) {
-    //         collum_idx = i;
-    //         break;
-    //     }
-    // if (collum_idx == -1) return RUNTIME_ERROR;
-    //
-    // // handle special cases
-    // if (ctx->load_table_len == 2)      // 1 elem = error, wiki: https://en.wikipedia.org/wiki/Median
-    //     return NOT_ENOUGH_INFO;
-    //
-    // if (ctx->load_table_len == 3)
-    // {
-    //     double min = atof(ctx->load_table[0][collum_idx]);
-    //     double max = atof(ctx->load_table[0][collum_idx]);
-    //     if (min > max) {
-    //         double tmp = min;
-    //         min = max;
-    //         max = tmp;
-    //     }
-    //     ctx->max = max;
-    //     ctx->min = min;
-    //     ctx->mid = (max + min) / 2.0;
-    //     return SUCCESS;
-    // } // 2 elems
-    //
-    // // handle other cases
-    //
-    // // qDebug("Count: %lu, Calculated capacity: %lu\n", ctx->load_table_len, ARR_INIT_SIZE * (size_t)pow(2, (int)ceil(log2(ctx->load_table_len / ARR_INIT_SIZE))));
-    //
-    // // fill sorted table
-    // Array* sorted_table = get_array();
-    // if (!sorted_table) return RUNTIME_ERROR;
-    // // peek only calc region
-    // if (!ctx->calc_region || !strcmp(ctx->calc_region, "All"))
-    // {
-    //     for (size_t i = 1; i < ctx->load_table_len; i++)
-    //         push(sorted_table, ctx->load_table[i][collum_idx]);
-    //
-    // } else {
-    //     for (size_t i = 1; i < ctx->load_table_len; i++)
-    //     {
-    //         if (!strcmp(ctx->load_table[i][REGION_COLLUM_NUM-1], ctx->calc_region))
-    //         {
-    //             push(sorted_table, ctx->load_table[i][collum_idx]);
-    //         }
-    //     }
+    if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len) return RUNTIME_ERROR;
+    if (!ctx->collum_to_calc) return RUNTIME_ERROR;
+
+
+    // get target collum_idx
+    size_t collum_idx = -1;
+    for (size_t i = 0; i < ctx->collums_count; ++i)
+        if (!strcmp(ctx->table_header[i], ctx->collum_to_calc)) {
+            collum_idx = i;
+            break;
+        }
+    if (collum_idx == -1) return RUNTIME_ERROR;
+
+    // handle special cases
+    // 1 elem = error, wiki: https://en.wikipedia.org/wiki/Median
+    if (ctx->filtered_table_len == 1)
+        return NOT_ENOUGH_INFO;
+
+    // 2 elems
+    if (ctx->filtered_table_len == 2 &&
+        !strcmp(ctx->filtered_table[0][collum_idx], ctx->region_to_calc) &&
+        !strcmp(ctx->filtered_table[1][collum_idx], ctx->region_to_calc))
+    {
+        double min = atof(ctx->filtered_table[0][collum_idx]);
+        double max = atof(ctx->filtered_table[1][collum_idx]);
+        if (min > max) {
+            double tmp = min;
+            min = max;
+            max = tmp;
+        }
+        ctx->max = max;
+        ctx->min = min;
+        ctx->mid = (max + min) / 2.0;
+        return SUCCESS;
+    }
+
+    // handle other cases
+
+    // qDebug("Count: %lu, Calculated capacity: %lu\n", ctx->load_table_len, ARR_INIT_SIZE * (size_t)pow(2, (int)ceil(log2(ctx->load_table_len / ARR_INIT_SIZE))));
+
+    // fill sorted table
+    Array* sorted_table = get_array();
+    if (!sorted_table) return RUNTIME_ERROR;
+    // peek only calc region
+    if (!ctx->region_to_calc || !strcmp(ctx->region_to_calc, "All"))
+    {
+        for (size_t i = 0; i < ctx->filtered_table_len; i++)
+            push(sorted_table, ctx->filtered_table[i][collum_idx]);
+
+    } else {
+        for (size_t i = 0; i < ctx->filtered_table_len; i++)
+        {
+            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->region_to_calc))
+            {
+                push(sorted_table, ctx->filtered_table[i][collum_idx]);
+            }
+        }
+    }
+
+    // sort table
+    for (size_t i = 0; i < sorted_table->count - 1; ++i)
+    {
+        for (size_t j = i + 1; j < sorted_table->count; ++j)
+        {
+            if (atof((char*)sorted_table->data[i]) > atof((char*)sorted_table->data[j]))
+            {
+                void* tmp = sorted_table->data[i];
+                sorted_table->data[i] = sorted_table->data[j];
+                sorted_table->data[j] = tmp;
+            }
+        }
+    }
+
+    // insert to context
+    double min = atof((char*)sorted_table->data[0]);
+    double max = atof((char*)sorted_table->data[sorted_table->count - 1]);
+
+    double mid;
+    if (sorted_table->count % 2 == 0)
+    {
+        double l = atof((char*)sorted_table->data[sorted_table->count/2]);
+        double r = atof((char*)sorted_table->data[sorted_table->count/2-1]);
+        mid = (l + r) / 2.0;
+    } else {
+        mid = atof((char*)sorted_table->data[sorted_table->count/2]);
+    }
+
+    free(sorted_table->data);
+    free(sorted_table);
+
+    ctx->max = max;
+    ctx->min = min;
+    ctx->mid = mid;
+
+    // for (size_t i = 0; i < sorted_table->count; ++i){
+    //     qDebug("Region: |%s|\n", get_charpp(sorted_table,i)[1]);
     // }
-    //
-    // // sort table
-    // for (size_t i = 0; i < sorted_table->count - 1; ++i)
-    // {
-    //     for (size_t j = i + 1; j < sorted_table->count; ++j)
-    //     {
-    //         if (atof((char*)sorted_table->data[i]) > atof((char*)sorted_table->data[j]))
-    //         {
-    //             void* tmp = sorted_table->data[i];
-    //             sorted_table->data[i] = sorted_table->data[j];
-    //             sorted_table->data[j] = tmp;
-    //         }
-    //     }
-    // }
-    //
-    // // insert to context
-    // double min = atof((char*)sorted_table->data[0]);
-    // double max = atof((char*)sorted_table->data[sorted_table->count - 1]);
-    //
-    // double mid;
-    // if (sorted_table->count % 2 == 0)
-    // {
-    //     double l = atof((char*)sorted_table->data[sorted_table->count/2]);
-    //     double r = atof((char*)sorted_table->data[sorted_table->count/2-1]);
-    //     mid = (l + r) / 2.0;
-    // } else {
-    //     mid = atof((char*)sorted_table->data[sorted_table->count/2]);
-    // }
-    //
-    // ctx->max = max;
-    // ctx->min = min;
-    // ctx->mid = mid;
-    //
-    // // for (size_t i = 0; i < sorted_table->count; ++i){
-    // //     qDebug("Region: |%s|\n", get_charpp(sorted_table,i)[1]);
-    // // }
-    //
-    // return SUCCESS;
+
+    return SUCCESS;
 }
 
 Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)

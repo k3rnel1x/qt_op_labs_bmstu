@@ -1,6 +1,5 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
-#define COLLUMS_COUNT 7
 
 #include <cstddef>
 

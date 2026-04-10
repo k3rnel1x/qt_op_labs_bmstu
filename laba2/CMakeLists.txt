@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
+project(laba2 VERSION 0.1 LANGUAGES CXX)
 
-project(qt-op-labs-bmstu VERSION 0.1 LANGUAGES CXX)
+#set(CMAKE_BUILD_TYPE "RELEASE")
+set(CMAKE_BUILD_TYPE "DEBUG")
+set(ENABLE_PRICOLCHICKI 1)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,60 +33,55 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(qt-op-labs-bmstu
+    qt_add_executable(laba2
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-#            logic/appcontext.h
-#            logic/entrypoint.h
-#            logic/logic.cpp
-#            logic/logic.h
-#            logic/result.h
-#            ui/main.cpp
-#            ui/mainwindow.cpp
-#            ui/mainwindow.h
-#            ui/mainwindow.ui
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET qt-op-labs-bmstu APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(qt-op-labs-bmstu SHARED
+        add_library(laba2 SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(qt-op-labs-bmstu
+        add_executable(laba2
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(qt-op-labs-bmstu PRIVATE Qt${QT_VERSION_MAJOR}::Widgets stdc++ m)
+target_link_libraries(laba2 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets stdc++ m)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.qt-op-labs-bmstu)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.laba2)
 endif()
-set_target_properties(qt-op-labs-bmstu PROPERTIES
+set_target_properties(laba2 PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${maPROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
 include(GNUInstallDirs)
-install(TARGETS qt-op-labs-bmstu
+install(TARGETS laba2
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+    target_compile_definitions(laba2 PRIVATE DEBUG)
+endif()
+
+if( NOT(CMAKE_BUILD_TYPE STREQUAL "RELEASE") AND ( ENABLE_PRICOLCHICKI ) )
+    target_compile_definitions(laba2 PRIVATE PRICOLCHICKI)
+endif()
+
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(qt-op-labs-bmstu)
+    qt_finalize_executable(laba2)
 endif()

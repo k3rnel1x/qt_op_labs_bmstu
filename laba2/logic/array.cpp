@@ -71,7 +71,6 @@ void delete_arr(Array** arr_ptr)
     *arr_ptr = NULL;
 }
 
-
 // char** get_charpp(Array* arr, size_t index)
 // {
 //     if (index >= arr->count) return NULL;
