@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-struct AppContext {
+typedef struct AppContext {
 
     // Open UI data
     const char* filename;
@@ -35,6 +35,6 @@ struct AppContext {
     size_t errors_count;
 
     // TODO hash?
-};
+} AppContext;
 
 #endif // APPCONTEXT_H

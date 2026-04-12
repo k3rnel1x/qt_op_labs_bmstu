@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     clipboard = QApplication::clipboard();
     ui->setupUi(this);
     ctx = (AppContext*)calloc(1, sizeof(AppContext));
+    if (!ctx) throw std::bad_alloc();
 
 #ifdef PRICOLCHICKI
     load_cursor = new QCursor(QPixmap(LOAD_CURSOR_ICON));
@@ -36,8 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
 #else
     load_cursor = new QCursor(Qt::WaitCursor);
     ui->promote->setVisible(false);
-#endif
     this->setWindowTitle("laba2");
+#endif
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSortingEnabled(true);
 
@@ -101,10 +102,8 @@ void MainWindow::on_openButton_clicked()
     // dialog.setFileMode(QFileDialog::ReadOnly);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.exec();
-    QString filename = dialog.selectedFiles().at(0);
 
-    // if leaved return
-    if(filename.isEmpty()) {
+    if(dialog.selectedFiles().isEmpty()) {
         if (!ctx->filename)
         {
             ui->openButton->setText("Open your cool file");
@@ -114,34 +113,36 @@ void MainWindow::on_openButton_clicked()
         return;
     }
 
-    Params p;
-    p.clear_target = OPEN_UI_DATA;
-    perform_operation(CLEAR_CONTEXT, ctx, &p);
-
-    char* c_str = qstrtoc(filename);
-    // insert to context
-    const char* old_filename = ctx->filename;
-    ctx->filename = c_str;
+    QString qfilename = dialog.selectedFiles().at(0);
 
     // parse_file
     QApplication::setOverrideCursor(*load_cursor);
     ui->openButton->setText("File is opening..");
-    QApplication::processEvents();
     block_ui();
+    QApplication::processEvents();
 
+    // insert to params
+    Params p = {0};
+    // p.clear_target = OPEN_UI_DATA;
+    // perform_operation(CLEAR_CONTEXT, ctx, &p);
 
-    Result result_code = perform_operation(OPEN_TABLE, ctx, NULL);
+    // execute operation
+    p.filename = qstrtoc(qfilename);
+    Result result_code = perform_operation(OPEN_TABLE, ctx, &p);
     if (result_code != SUCCESS) {
         QApplication::restoreOverrideCursor();
-        ctx->filename = old_filename;
-        ui->openButton->setText(ctx->filename? strrchr(ctx->filename, '/') + 1 : "Open your cool file");
+        free((char*)p.filename);
+        if (ctx->filename)
+            ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
+        else
+            ui->openButton->setText("Open your cool file");
         handle_parce_table_error(result_code);
         unblock_ui();
         return;
     }
     QApplication::restoreOverrideCursor();
 
-    free((char*)old_filename);
+    ui->openButton->setText(strrchr(ctx->filename, '/') + 1);
 
     // setup load ui
     ui->openButton->setText(strrchr(ctx->filename, '/') + 1);

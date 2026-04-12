@@ -29,7 +29,6 @@ set(PROJECT_SOURCES
         ui/mainwindow.ui
         logic/entrypoint.h
         logic/entrypoint.cpp
-        logic/appcontext.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

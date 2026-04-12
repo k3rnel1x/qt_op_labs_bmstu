@@ -1,3 +1,5 @@
+#include "logic.h"
+
 #include <cinttypes>
 #include <qlogging.h>
 #include <QDebug>
@@ -98,15 +100,16 @@ size_t count_collums(char* table_header)
     return ++count;
 }
 
-Result open_table(AppContext* ctx)
+Result open_table(AppContext* ctx, Params* p)
 {
     // ######## checks ########
-    if (!ctx || !ctx->filename || ctx->table_header || ctx->table_content) return RUNTIME_ERROR;
+    if (!ctx || !p || !p->filename) return RUNTIME_ERROR;
 
-    FILE *f = fopen(ctx->filename, "r");
+    FILE *f = fopen(p->filename, "r");
     if (!f) return NO_FILE;
     if (feof(f) || getc(f) == EOF) return EMPTY_FILE;
     rewind(f);
+
 
     // handle header
     size_t parsed_raw_size = STR_SIZE;
@@ -210,6 +213,11 @@ Result open_table(AppContext* ctx)
 
 
     // ### push results to context ###
+    clear_context(ctx, OPEN_UI_DATA);
+    if (ctx->filename)
+        free((char*)ctx->filename);
+    ctx->filename = p->filename;
+
     ctx->table_header  = table_header;
     ctx->collums_count = collums_count;
 
@@ -258,7 +266,7 @@ Result load_table(AppContext* ctx)
     return SUCCESS;
 }
 
-// TODO speedup this shit
+// TODO i
 Result calc_metrix(AppContext* ctx)
 {
     if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len) return RUNTIME_ERROR;
@@ -324,6 +332,12 @@ Result calc_metrix(AppContext* ctx)
                 push(sorted_table, (char*)ctx->filtered_table[i] + metric_offset);
             }
         }
+    }
+    if (sorted_table->count < 2)
+    {
+        free(sorted_table->data);
+        free(sorted_table);
+        return NOT_ENOUGH_INFO;
     }
 
     // sort table

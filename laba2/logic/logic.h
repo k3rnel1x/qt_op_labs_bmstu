@@ -6,20 +6,16 @@
 #define LOGIC_H
 
 #include "appcontext.h"
+#include "entrypoint.h"
 #include "result.h"
 
 // #### Parse config ####
 #define STR_SIZE 200
 #define SEP ','
 
-typedef enum CLEAR_TARGET {
-    NOTHING,
-    OPEN_UI_DATA,
-    LOAD_UI_DATA,
-    CALC_UI_DATA
-} CLEAR_TARGET;
 
-Result open_table(AppContext* ctx);
+
+Result open_table(AppContext* ctx, Params* p);
 Result load_table(AppContext* ctx);
 Result calc_metrix(AppContext* ctx);
 Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target);
