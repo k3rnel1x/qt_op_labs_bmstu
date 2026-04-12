@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #include "appcontext.h"
 #include "entrypoint.h"
@@ -12,6 +13,42 @@
 #include "array.h"
 
 #include "../config.h"
+
+typedef long double metric_t;
+
+void swapp(double** ptr1, double** ptr2)
+{
+    if(!ptr1 || !ptr2) return;
+
+    double* tmp = *ptr1;
+    *ptr1 = *ptr2;
+    *ptr2 = tmp;
+}
+
+int partition(double** a, int start, int end)
+{
+    double* pivot = a[end];
+    int pIndex = start;
+    for (int i = start; i < end; ++i)
+    {
+        if (*a[i] <= *pivot)
+        {
+            swapp(a + i, a + pIndex);
+            ++pIndex;
+        }
+    }
+
+    swapp (a + pIndex, a + end);
+    return pIndex;
+}
+
+void quicksort(double** a, int start, int end)
+{
+    if (start >= end)  return;
+    int pivot = partition(a, start, end);
+    quicksort(a, start, pivot - 1);
+    quicksort(a, pivot + 1, end);
+}
 
 int valid_year(char* year)
 {
@@ -85,7 +122,7 @@ Result open_table(AppContext* ctx)
         collums_count = count_collums(line);
         free(line);
         if (!collums_count) return INVALID_HEADER;
-        parsed_raw_size = collums_count * sizeof(char*) + STR_SIZE;
+        parsed_raw_size = collums_count * sizeof(char*) + STR_SIZE + sizeof(metric_t);
 
         // parse header
         char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
@@ -263,6 +300,12 @@ Result calc_metrix(AppContext* ctx)
     // handle other cases
 
     // qDebug("Count: %lu, Calculated capacity: %lu\n", ctx->load_table_len, ARR_INIT_SIZE * (size_t)pow(2, (int)ceil(log2(ctx->load_table_len / ARR_INIT_SIZE))));
+    size_t metric_offset = ctx->collums_count * sizeof(char*) + STR_SIZE;
+    for (size_t i = 0; i < ctx->filtered_table_len; i++){
+        double* ptr = (double*)((char*)ctx->filtered_table[i] + metric_offset);
+        *ptr = atof(ctx->filtered_table[i][collum_idx]);
+    }
+
 
     // fill sorted table
     Array* sorted_table = get_array();
@@ -271,44 +314,43 @@ Result calc_metrix(AppContext* ctx)
     if (!ctx->region_to_calc || !strcmp(ctx->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
-            push(sorted_table, ctx->filtered_table[i][collum_idx]);
+            push(sorted_table, (char*)ctx->filtered_table[i] + metric_offset);
 
     } else {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
         {
             if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->region_to_calc))
             {
-                push(sorted_table, ctx->filtered_table[i][collum_idx]);
+                push(sorted_table, (char*)ctx->filtered_table[i] + metric_offset);
             }
         }
     }
 
     // sort table
-    for (size_t i = 0; i < sorted_table->count - 1; ++i)
-    {
-        for (size_t j = i + 1; j < sorted_table->count; ++j)
-        {
-            if (atof((char*)sorted_table->data[i]) > atof((char*)sorted_table->data[j]))
-            {
-                void* tmp = sorted_table->data[i];
-                sorted_table->data[i] = sorted_table->data[j];
-                sorted_table->data[j] = tmp;
-            }
-        }
-    }
+    // for(size_t i = 1 ; i < sorted_table->count; ++i)
+    //     for(size_t j = i; (j > 0) && (atof((char*)sorted_table->data[j-1]) > atof((char*)sorted_table->data[j])); --j)
+    //     {
+    //         void* tmp = sorted_table->data[j];
+    //         sorted_table->data[j] = sorted_table->data[j-1];
+    //         sorted_table->data[j-1] = tmp;
+    //         // qDebug() << i << '/' << sorted_table->count;
+    //     }
+
+    // qDebug() << "sorted_table->count =" << sorted_table->count;
+    // quicksort((double**)sorted_table->data, 0, sorted_table->count - 1);
 
     // insert to context
-    double min = atof((char*)sorted_table->data[0]);
-    double max = atof((char*)sorted_table->data[sorted_table->count - 1]);
+    double min = *(double*)sorted_table->data[0];
+    double max = *(double*)sorted_table->data[sorted_table->count - 1];
 
     double mid;
     if (sorted_table->count % 2 == 0)
     {
-        double l = atof((char*)sorted_table->data[sorted_table->count/2]);
-        double r = atof((char*)sorted_table->data[sorted_table->count/2-1]);
+        double l = *(double*)sorted_table->data[sorted_table->count/2];
+        double r = *(double*)sorted_table->data[sorted_table->count/2-1];
         mid = (l + r) / 2.0;
     } else {
-        mid = atof((char*)sorted_table->data[sorted_table->count/2]);
+        mid = *(double*)sorted_table->data[sorted_table->count/2];
     }
 
     free(sorted_table->data);

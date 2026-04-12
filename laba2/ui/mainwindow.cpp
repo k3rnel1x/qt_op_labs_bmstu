@@ -32,11 +32,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->promoteGifLabel->setEnabled(true);
     ui->promoteGifLabel->setMovie(vk_dog);
     vk_dog->start();
+    this->setWindowTitle("Ultrafast mega thin and functional increrable pedantic amazing creeper 2014 melancholic supervised AI ChatGeminiSeek pro SALE 50% nice cute strong cool table viewer and calculate metriX application in qt");
 #else
     load_cursor = new QCursor(Qt::WaitCursor);
     ui->promote->setVisible(false);
 #endif
-
+    this->setWindowTitle("laba2");
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSortingEnabled(true);
 
@@ -68,9 +69,9 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete load_cursor;
-
+#ifdef PRICOLCHICKI
     delete vk_dog;
-
+#endif
     // ### delete context ###
     Params p;
     p.clear_target = OPEN_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p);
@@ -89,10 +90,18 @@ void MainWindow::on_openButton_clicked()
     //                                         "/home/" + value,
     //                                         tr("*.csv"));
 
-    QString filename = QFileDialog::getOpenFileName(this,
-                                            tr("Open CSV"),
-                                            "/home/" + value + "/Programing/qt-op-labs-bmstu/laba2/test_files",
-                                            tr("*.csv"));
+    // QString filename = QFileDialog::getOpenFileName(this,
+    //                                         tr("Open CSV"),
+    //                                         "/home/" + value + "/Programing/qt-op-labs-bmstu/laba2/test_files",
+    //                                         tr("*.csv"),
+    //                                                 );
+
+    QFileDialog dialog(this);
+    dialog.setNameFilter(tr("Table (*.csv)"));
+    // dialog.setFileMode(QFileDialog::ReadOnly);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.exec();
+    QString filename = dialog.selectedFiles().at(0);
 
     // if leaved return
     if(filename.isEmpty()) {
