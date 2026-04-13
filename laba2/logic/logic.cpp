@@ -148,18 +148,6 @@ Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
         }
         break;
 
-    case CALC_UI_DATA:
-        if (ctx->region_to_calc) {
-            free(ctx->region_to_calc);
-            ctx->region_to_calc = NULL;
-        }
-
-        if (ctx->collum_to_calc) {
-            free(ctx->collum_to_calc);
-            ctx->collum_to_calc = NULL;
-        }
-        break;
-
     case NOTHING:
         break;
     }
@@ -285,6 +273,7 @@ Result open_table(AppContext* ctx, Params* p)
     if (ctx->filename)
         free((char*)ctx->filename);
     ctx->filename = p->filename;
+    p->filename = NULL;
 
     ctx->table_header  = table_header;
     ctx->collums_count = collums_count;
@@ -344,6 +333,7 @@ Result load_table(AppContext* ctx, Params* p)
     /// ####################################################
     clear_context(ctx, LOAD_UI_DATA);
     ctx->region_to_load = region_to_load;
+    p->region_to_calc = NULL;
     ctx->filtered_table = filtered_table;
     ctx->filtered_table_len = filtered_table_len;
     return SUCCESS;
@@ -352,27 +342,27 @@ Result load_table(AppContext* ctx, Params* p)
 Result calc_metrix(AppContext* ctx, Params* p)
 {
     if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len) return RUNTIME_ERROR;
-    if (!ctx->collum_to_calc) return RUNTIME_ERROR;
+    if (!p || !p->region_to_calc || !p->collum_to_calc) return RUNTIME_ERROR;
 
 
-    // get target collum_idx
+    // ########################### get target collum_idx ############################
     size_t collum_idx = -1;
     for (size_t i = 0; i < ctx->collums_count; ++i)
-        if (!strcmp(ctx->table_header[i], ctx->collum_to_calc)) {
+        if (!strcmp(ctx->table_header[i], p->collum_to_calc)) {
             collum_idx = i;
             break;
         }
     if (collum_idx == -1) return RUNTIME_ERROR;
 
-    // handle special cases
+    // ########################## handle special cases ###############################
     // 1 elem = error, wiki: https://en.wikipedia.org/wiki/Median
     if (ctx->filtered_table_len == 1)
         return NOT_ENOUGH_INFO;
 
     // 2 elems
     if (ctx->filtered_table_len == 2 &&
-        !strcmp(ctx->filtered_table[0][collum_idx], ctx->region_to_calc) &&
-        !strcmp(ctx->filtered_table[1][collum_idx], ctx->region_to_calc))
+        !strcmp(ctx->filtered_table[0][collum_idx], p->region_to_calc) &&
+        !strcmp(ctx->filtered_table[1][collum_idx], p->region_to_calc))
     {
         double min = atof(ctx->filtered_table[0][collum_idx]);
         double max = atof(ctx->filtered_table[1][collum_idx]);
@@ -387,55 +377,41 @@ Result calc_metrix(AppContext* ctx, Params* p)
         return SUCCESS;
     }
 
-    // handle other cases
+    // ############################## calc metrix #####################################
 
-    // qDebug("Count: %lu, Calculated capacity: %lu\n", ctx->load_table_len, ARR_INIT_SIZE * (size_t)pow(2, (int)ceil(log2(ctx->load_table_len / ARR_INIT_SIZE))));
+    // fill data field
     size_t byte_metrix_offset = ctx->collums_count * sizeof(char*) + STR_SIZE;
-    for (size_t i = 0; i < ctx->filtered_table_len; i++){
+    for (size_t i = 0; i < ctx->filtered_table_len; ++i){
         metrix_t* ptr = (metrix_t*)((char*)ctx->filtered_table[i] + byte_metrix_offset);
         *ptr = atof(ctx->filtered_table[i][collum_idx]);
     }
 
-
-    // fill sorted table
+    // construct sorted table
     Array* sorted_table = get_array();
     if (!sorted_table) return RUNTIME_ERROR;
-    // peek only calc region
-    if (!ctx->region_to_calc || !strcmp(ctx->region_to_calc, "All"))
+
+    if (!p->region_to_calc || !strcmp(p->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
             push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
 
     } else {
-        for (size_t i = 0; i < ctx->filtered_table_len; i++)
-        {
-            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->region_to_calc))
-            {
+        for (size_t i = 0; i < ctx->filtered_table_len; ++i)
+            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], p->region_to_calc))
                 push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
-            }
-        }
     }
+
     if (sorted_table->count < 2)
     {
         free(sorted_table->data);
         free(sorted_table);
         return NOT_ENOUGH_INFO;
     }
+    // use quicksort to sort table
+    quicksort((double**)sorted_table->data, 0, sorted_table->count - 1);
 
-    // sort table
-    // for(size_t i = 1 ; i < sorted_table->count; ++i)
-    //     for(size_t j = i; (j > 0) && (atof((char*)sorted_table->data[j-1]) > atof((char*)sorted_table->data[j])); --j)
-    //     {
-    //         void* tmp = sorted_table->data[j];
-    //         sorted_table->data[j] = sorted_table->data[j-1];
-    //         sorted_table->data[j-1] = tmp;
-    //         // qDebug() << i << '/' << sorted_table->count;
-    //     }
-
-    // qDebug() << "sorted_table->count =" << sorted_table->count;
-    // quicksort((double**)sorted_table->data, 0, sorted_table->count - 1);
-
-    // insert to context
+    // ############################ get values #################################
+    // getting info
     double min = *(double*)sorted_table->data[0];
     double max = *(double*)sorted_table->data[sorted_table->count - 1];
 
@@ -445,28 +421,25 @@ Result calc_metrix(AppContext* ctx, Params* p)
         double l = *(double*)sorted_table->data[sorted_table->count/2];
         double r = *(double*)sorted_table->data[sorted_table->count/2-1];
         mid = (l + r) / 2.0;
-    } else {
+    } else
         mid = *(double*)sorted_table->data[sorted_table->count/2];
-    }
 
+    // clear
     free(sorted_table->data);
     free(sorted_table);
 
+    // ######################### insert to context ###############################
     ctx->max = max;
     ctx->min = min;
     ctx->mid = mid;
-
-    // for (size_t i = 0; i < sorted_table->count; ++i){
-    //     qDebug("Region: |%s|\n", get_charpp(sorted_table,i)[1]);
-    // }
-
+    ctx->calculated_region = p->region_to_calc;
+    ctx->calculated_collum = p->collum_to_calc;
     return SUCCESS;
 }
 
 Result erase_context(AppContext* ctx)
 {
     if(!ctx) return RUNTIME_ERROR;
-
     clear_context(ctx, OPEN_UI_DATA);
     clear_context(ctx, LOAD_UI_DATA);
     clear_context(ctx, CALC_UI_DATA);

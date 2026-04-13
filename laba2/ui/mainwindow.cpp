@@ -326,23 +326,21 @@ void MainWindow::on_calcButton_clicked()
     ui->maxField->clear();
     ui->minField->clear();
     ui->midField->clear();
-    Params p;
-    p.clear_target = CALC_UI_DATA;
-    // perform_operation(CLEAR_CONTEXT, ctx, &p);
 
     block_ui();
     QApplication::setOverrideCursor(*load_cursor);
     ui->calcButton->setText("Please wait..");
     QApplication::processEvents();
 
+    Params p;
     QString qregion = ui->regionList->currentText();
-    ctx->region_to_calc = qstrtoc(qregion);
+    p.region_to_calc = qstrtoc(qregion);
 
     QString qcollum = ui->collumList->currentText();
-    ctx->collum_to_calc = qstrtoc(qcollum);
+    p.collum_to_calc = qstrtoc(qcollum);
 
     // ### parce ###
-    Result result_code = perform_operation(CALC_METRIX, ctx, NULL);
+    Result result_code = perform_operation(CALC_METRIX, ctx, &p);
     if (result_code != SUCCESS) {
         QApplication::restoreOverrideCursor();
         handle_calc_metrix_error(result_code);
@@ -378,7 +376,7 @@ void MainWindow::on_calc_params_changed()
 {
     if (calculated)
     {
-        bool is_enabled = ui->regionList->currentText() == ctx->region_to_calc && ui->collumList->currentText() == ctx->collum_to_calc;
+        bool is_enabled = (ctx->calculated_region  == ui->regionList->currentText()) && ( ctx->calculated_collum == ui->collumList->currentText());
         ui->maxField->setEnabled(is_enabled);
         ui->minField->setEnabled(is_enabled);
         ui->midField->setEnabled(is_enabled);

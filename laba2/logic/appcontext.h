@@ -24,13 +24,13 @@ typedef struct AppContext {
     size_t  filtered_table_len;
 
     // Calc UI data
-    char* region_to_calc;
-    char* collum_to_calc;
     double min;
     double max;
     double mid;
 
     // other data
+    const char* calculated_region;
+    const char* calculated_collum;
     double parse_time;
     size_t errors_count;
 
