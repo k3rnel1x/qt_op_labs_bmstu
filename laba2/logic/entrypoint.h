@@ -32,7 +32,7 @@ typedef struct Params {
     const char* collum_to_calc;
 
     // CLEAR_CONTEXT data
-    // CLEAR_TARGET clear_target;
+    CLEAR_TARGET clear_target;
 
 } Params;
 

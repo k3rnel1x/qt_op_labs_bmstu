@@ -75,9 +75,9 @@ MainWindow::~MainWindow()
 #endif
     // ### delete context ###
     Params p;
-    p.clear_target = OPEN_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p);
-    p.clear_target = LOAD_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p);
-    p.clear_target = CALC_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p);
+    p.clear_target = OPEN_UI_DATA; perform_operation(ERASE_CONTEXT, ctx, &p);
+    p.clear_target = LOAD_UI_DATA; perform_operation(ERASE_CONTEXT, ctx, &p);
+    p.clear_target = CALC_UI_DATA; perform_operation(ERASE_CONTEXT, ctx, &p);
 
     free(ctx);
 }
@@ -158,9 +158,9 @@ void MainWindow::on_openButton_clicked()
 void MainWindow::on_loadSelectedButton_clicked()
 {
     block_ui();
-    // ################################### get load region ######################################
+    // ################################### Prepare params ######################################
     Params p;
-    p->region_to_load = get_load_region();
+    p.region_to_load = get_load_region();
 
     ui->tableWidget->clear();
     ui->tableWidget->clearContents();
@@ -175,10 +175,11 @@ void MainWindow::on_loadSelectedButton_clicked()
 
     // ################################# init nessesary stuff #############################
 
-    char*** table = ctx->filtered_table;
-    size_t  table_len = ctx->filtered_table_len;
-    size_t  collums_count = ctx->collums_count;
-    char**  table_header = ctx->table_header;
+    const char*** table     = (const char***)ctx->filtered_table;
+    const size_t  table_len = ctx->filtered_table_len;
+
+    const char**  table_header  = (const char**)ctx->table_header;
+    const size_t  collums_count = ctx->collums_count;
 
     ui->tableWidget->setRowCount(table_len);
     ui->tableWidget->setColumnCount(collums_count);
@@ -205,7 +206,6 @@ void MainWindow::on_loadSelectedButton_clicked()
                 progress.close();
                 Params p;
                 p.clear_target = LOAD_UI_DATA;
-                perform_operation(CLEAR_CONTEXT, ctx, &p); // clear load data
                 ui->tableWidget->clear();
                 ui->tableWidget->clearContents();
                 ui->tableWidget->setRowCount(0);
@@ -292,7 +292,7 @@ void MainWindow::set_available_regions(char** regions, size_t len)
     ui->availableRegions->setEnabled(true);
 }
 
-void MainWindow::set_calc_collums(char** collums, size_t len, size_t region_collum_num)
+void MainWindow::set_calc_collums(const char** collums, size_t len, size_t region_collum_num)
 {
     ui->collumList->clear();
     if (!collums) return;
@@ -328,7 +328,7 @@ void MainWindow::on_calcButton_clicked()
     ui->midField->clear();
     Params p;
     p.clear_target = CALC_UI_DATA;
-    perform_operation(CLEAR_CONTEXT, ctx, &p);
+    // perform_operation(CLEAR_CONTEXT, ctx, &p);
 
     block_ui();
     QApplication::setOverrideCursor(*load_cursor);

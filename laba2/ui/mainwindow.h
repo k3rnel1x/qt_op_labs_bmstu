@@ -48,7 +48,7 @@ private:
 
     // Calc UI
     void set_calc_regions(const char** regions, size_t len);
-    void set_calc_collums(char** collums, size_t len, size_t region_collum_num);
+    void set_calc_collums(const char** collums, size_t len, size_t region_collum_num);
 
     // ui utils
     void block_ui();

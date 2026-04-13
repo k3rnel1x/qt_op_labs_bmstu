@@ -17,7 +17,7 @@ Result perform_operation(OperationType type, AppContext* ctx, Params* ui_params)
             res_code = load_table(ctx, ui_params);
             break;
         case CALC_METRIX:
-            res_code = calc_metrix(ctx);
+            res_code = calc_metrix(ctx, ui_params);
             break;
         case ERASE_CONTEXT:
             res_code = erase_context(ctx);

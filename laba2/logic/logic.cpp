@@ -100,7 +100,6 @@ size_t count_collums(char* table_header)
     return ++count;
 }
 
-
 Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
 {
     if (!ctx) return RUNTIME_ERROR;
@@ -168,6 +167,7 @@ Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
     return SUCCESS;
 }
 
+// Operations
 Result open_table(AppContext* ctx, Params* p)
 {
     // ######## checks ########
@@ -303,39 +303,53 @@ Result open_table(AppContext* ctx, Params* p)
 
 Result load_table(AppContext* ctx, Params* p)
 {
-    if (!ctx || !p) return RUNTIME_ERROR;
+    if (!ctx || !p || !p->region_to_load) return RUNTIME_ERROR;
 
-    if (!p->region_to_load || !strcmp(p->region_to_load, "All"))
+    // All regions
+    /// ####################################################
+    if (!strcmp(p->region_to_load, "All"))
     {
         ctx->filtered_table = ctx->table_content;
         ctx->filtered_table_len = ctx->table_content_len;
         return SUCCESS;
     }
 
+    // Filtering....
+    /// ####################################################
+    const char* region_to_load = p->region_to_load;
+    char*** filtered_table = NULL;
+    size_t  filtered_table_len = 0;
     Array* load_table = get_array();
     if (!load_table) return RUNTIME_ERROR;
 
     for (int i = 0; i < ctx->table_content_len; ++i) {
-        if (strcmp(ctx->table_content[i][REGION_COLLUM_NUM-1], ctx->region_to_load) == 0) {
+        if (strcmp(ctx->table_content[i][REGION_COLLUM_NUM-1], region_to_load) == 0) {
             push(load_table, ctx->table_content[i]);
         }
     }
+    /// ####################################################
 
+    // Nothing match
     if (load_table->count == 0) {
         delete_arr(&load_table);
-        ctx->filtered_table = NULL;
-        ctx->filtered_table_len = 0;
-        return SUCCESS;
+        filtered_table = NULL;
+        filtered_table_len = 0;
+    // other match
+    } else {
+        filtered_table = (char***)load_table->data;
+        filtered_table_len = load_table->count;
     }
 
     // insert to context
-    ctx->filtered_table = (char***)load_table->data;
-    ctx->filtered_table_len = load_table->count;
+    /// ####################################################
+    clear_context(ctx, LOAD_UI_DATA);
+    ctx->region_to_load = region_to_load;
+    ctx->filtered_table = filtered_table;
+    ctx->filtered_table_len = filtered_table_len;
     return SUCCESS;
 }
 
-// TODO i
-Result calc_metrix(AppContext* ctx)
+Result calc_metrix(AppContext* ctx, Params* p)
 {
     if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len) return RUNTIME_ERROR;
     if (!ctx->collum_to_calc) return RUNTIME_ERROR;
