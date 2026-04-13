@@ -3,6 +3,7 @@
 #include "../logic/entrypoint.h"
 #include "../logic/appcontext.h"
 #include "../config.h"
+#include "graph.h"
 
 #include <QHeaderView>
 #include <QStandardItemModel>
@@ -50,20 +51,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->loadSelectedButton->setCursor(point_hand_cursor);
     ui->openButton->setCursor(point_hand_cursor);
 
-    // QCursor i_beam_cursor(Qt::IBeamCursor);
-    // ui->loadedRegionField->setCursor(i_beam_cursor);
-    // ui->loadedLinesCount->setCursor(i_beam_cursor);
-    // ui->maxField->setCursor(i_beam_cursor);
-    // ui->minField->setCursor(i_beam_cursor);
-    // ui->midField->setCursor(i_beam_cursor);
-
-
     connect(ui->regionList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
     connect(ui->collumList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
 
     // hide all interfaces
     ui->calcInterface->setVisible(false);
     ui->loadInterface->setVisible(false);
+    ui->tabWidget->setCurrentIndex(0);
+    ui->tab_graph_widget->setEnabled(false);
+    ui->tab_table_widget->setEnabled(false);
+    ui->tabWidget->setTabVisible(1, false);
 }
 
 MainWindow::~MainWindow()
@@ -152,6 +149,7 @@ void MainWindow::on_openButton_clicked()
     // show load ui
     ui->loadInterface->setVisible(true);
     ui->calcInterface->setVisible(false);
+    ui->tabWidget->setTabVisible(1, false);
     unblock_ui();
 }
 
@@ -161,7 +159,6 @@ void MainWindow::on_loadSelectedButton_clicked()
     // ################################### Prepare params ######################################
     Params p;
     p.region_to_load = get_load_region();
-
     ui->tableWidget->clear();
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(0);
@@ -172,7 +169,6 @@ void MainWindow::on_loadSelectedButton_clicked()
         QMessageBox::critical(this, "ERROR", "RUNTIME_ERROR");
         return;
     }
-
     // ################################# init nessesary stuff #############################
 
     const char*** table     = (const char***)ctx->filtered_table;
@@ -211,6 +207,8 @@ void MainWindow::on_loadSelectedButton_clicked()
                 ui->tableWidget->setRowCount(0);
                 ui->tableWidget->setColumnCount(0);
                 ui->tableWidget->update();
+                ui->tab_table_widget->setEnabled(false);
+                ui->tabWidget->setTabVisible(1, false);
                 ui->calcInterface->setVisible(false);
                 unblock_ui();
                 QApplication::restoreOverrideCursor();
@@ -251,9 +249,66 @@ void MainWindow::on_loadSelectedButton_clicked()
     ui->minField->clear();
     ui->midField->clear();
     ui->calcInterface->setVisible(true);
+    ui->tab_table_widget->setEnabled(true);
+    ui->visualizateButton->setEnabled(false);
     QApplication::restoreOverrideCursor();
     unblock_ui();
     QApplication::processEvents();
+}
+
+void MainWindow::on_visualizateButton_clicked()
+{
+    if (!graph)
+        graph = new MetrixGraph{};
+
+
+    graph->update_data();
+
+    ui->tabWidget->setTabVisible(1, true);
+    ui->tab_graph_widget->setEnabled(true);
+    graph->setParent(ui->tab_graph_widget);
+    graph->show();
+}
+
+void MainWindow::on_calcButton_clicked()
+{
+    ui->maxField->clear();
+    ui->minField->clear();
+    ui->midField->clear();
+
+    block_ui();
+    QApplication::setOverrideCursor(*load_cursor);
+    ui->calcButton->setText("Please wait..");
+    QApplication::processEvents();
+
+    Params p;
+    QString qregion = ui->regionList->currentText();
+    p.region_to_calc = qstrtoc(qregion);
+
+    QString qcollum = ui->collumList->currentText();
+    p.collum_to_calc = qstrtoc(qcollum);
+
+    // ### parce ###
+    Result result_code = perform_operation(CALC_METRIX, ctx, &p);
+    if (result_code != SUCCESS) {
+        QApplication::restoreOverrideCursor();
+        handle_calc_metrix_error(result_code);
+        ui->calcButton->setText("Calculate metrix");
+        unblock_ui();
+        is_calculated = false;
+        return;
+    }
+
+    ui->minField->setText(QString::number(ctx->min));
+    ui->maxField->setText(QString::number(ctx->max));
+    ui->midField->setText(QString::number(ctx->mid));
+
+    ui->calcButton->setText("Calculate metrix");
+    QApplication::restoreOverrideCursor();
+    unblock_ui();
+    QApplication::processEvents();
+    is_calculated = true;
+    on_calc_params_changed();
 }
 
 void MainWindow::set_calc_regions(const char** regions, size_t len)
@@ -321,47 +376,6 @@ char* MainWindow::qstrtoc(QString& qstr)
     return strdup(c_str);
 }
 
-void MainWindow::on_calcButton_clicked()
-{
-    ui->maxField->clear();
-    ui->minField->clear();
-    ui->midField->clear();
-
-    block_ui();
-    QApplication::setOverrideCursor(*load_cursor);
-    ui->calcButton->setText("Please wait..");
-    QApplication::processEvents();
-
-    Params p;
-    QString qregion = ui->regionList->currentText();
-    p.region_to_calc = qstrtoc(qregion);
-
-    QString qcollum = ui->collumList->currentText();
-    p.collum_to_calc = qstrtoc(qcollum);
-
-    // ### parce ###
-    Result result_code = perform_operation(CALC_METRIX, ctx, &p);
-    if (result_code != SUCCESS) {
-        QApplication::restoreOverrideCursor();
-        handle_calc_metrix_error(result_code);
-        ui->calcButton->setText("Calculate metrix");
-        unblock_ui();
-        calculated = false;
-        return;
-    }
-
-    ui->minField->setText(QString::number(ctx->min));
-    ui->maxField->setText(QString::number(ctx->max));
-    ui->midField->setText(QString::number(ctx->mid));
-
-    ui->calcButton->setText("Calculate metrix");
-    QApplication::restoreOverrideCursor();
-    unblock_ui();
-    QApplication::processEvents();
-    calculated = true;
-    on_calc_params_changed();
-}
-
 void MainWindow::on_copyLoadedRegionButton_clicked()
 {
    clipboard->setText(ui->loadedRegionField->toPlainText());
@@ -374,12 +388,14 @@ void MainWindow::on_copyLoadedLinesCountButton_clicked()
 
 void MainWindow::on_calc_params_changed()
 {
-    if (calculated)
+    if (is_calculated)
     {
         bool is_enabled = (ctx->calculated_region  == ui->regionList->currentText()) && ( ctx->calculated_collum == ui->collumList->currentText());
         ui->maxField->setEnabled(is_enabled);
         ui->minField->setEnabled(is_enabled);
         ui->midField->setEnabled(is_enabled);
+        ui->visualizateButton->setEnabled(is_enabled);
+        ui->tabWidget->setTabVisible(1, is_enabled);
     }
 }
 

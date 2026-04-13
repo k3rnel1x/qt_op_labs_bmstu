@@ -132,6 +132,9 @@ Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
             ctx->regions_count = 0;
         }
         break;
+    case CALC_UI_DATA:
+        ctx->calculated_collum_idx = -1;
+        break;
 
     case LOAD_UI_DATA:
         if (ctx->region_to_load)
@@ -145,6 +148,15 @@ Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
             // free(ctx->filtered_table);
             ctx->filtered_table = NULL;
             ctx->filtered_table_len = 0;
+        }
+        break;
+
+    case CALC_VISUALIZATION_DATA:
+        if (ctx->year_sorted_table)
+        {
+            free(ctx->year_sorted_table);
+            ctx->year_sorted_table = NULL;
+            ctx->year_sorted_table_len = 0;
         }
         break;
 
@@ -390,7 +402,7 @@ Result calc_metrix(AppContext* ctx, Params* p)
     Array* sorted_table = get_array();
     if (!sorted_table) return RUNTIME_ERROR;
 
-    if (!p->region_to_calc || !strcmp(p->region_to_calc, "All"))
+    if (!strcmp(p->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
             push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
@@ -434,7 +446,42 @@ Result calc_metrix(AppContext* ctx, Params* p)
     ctx->mid = mid;
     ctx->calculated_region = p->region_to_calc;
     ctx->calculated_collum = p->collum_to_calc;
+    ctx->calculated_collum_idx = collum_idx;
     return SUCCESS;
+}
+
+Result get_year_sorted_table(AppContext* ctx)
+{
+    if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len || !ctx->table_header) return RUNTIME_ERROR;
+    if (!ctx->calculated_collum || !ctx->calculated_region) return RUNTIME_ERROR;
+
+    Array* year_sorted_table = get_array();
+    if (!year_sorted_table) return RUNTIME_ERROR;
+
+    size_t byte_metrix_offset = ctx->collums_count * sizeof(char*) + STR_SIZE;
+    for (size_t i = 0; i < ctx->filtered_table_len; ++i){
+        metrix_t* ptr = (metrix_t*)((char*)ctx->filtered_table[i] + byte_metrix_offset);
+        *ptr = atof(ctx->filtered_table[i][0]);
+    }
+
+    if (!strcmp(ctx->calculated_region, "All"))
+    {
+        for (size_t i = 0; i < ctx->filtered_table_len; i++)
+            push(year_sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
+    } else {
+        for (size_t i = 0; i < ctx->filtered_table_len; ++i)
+            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->calculated_region))
+                push(year_sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
+    }
+
+    quicksort((double**)year_sorted_table->data, 0, year_sorted_table->count - 1);
+
+
+    // insert to context
+    ctx->year_sorted_table = (char***)year_sorted_table->data;
+
+
+    free(year_sorted_table);
 }
 
 Result erase_context(AppContext* ctx)
@@ -443,6 +490,7 @@ Result erase_context(AppContext* ctx)
     clear_context(ctx, OPEN_UI_DATA);
     clear_context(ctx, LOAD_UI_DATA);
     clear_context(ctx, CALC_UI_DATA);
+    clear_context(ctx, CALC_VISUALIZATION_DATA);
 
     return SUCCESS;
 }

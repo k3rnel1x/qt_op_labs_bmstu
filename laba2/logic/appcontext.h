@@ -28,9 +28,14 @@ typedef struct AppContext {
     double max;
     double mid;
 
+    // Visualizate UI data
+    char*** year_sorted_table;
+    size_t  year_sorted_table_len;
+
     // other data
     const char* calculated_region;
     const char* calculated_collum;
+    int calculated_collum_idx;
     double parse_time;
     size_t errors_count;
 

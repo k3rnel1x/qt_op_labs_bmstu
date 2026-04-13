@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QClipboard>
 
+#include "graph.h"
 #include "../config.h"
 #include "../logic/appcontext.h"
 #include "../logic/result.h"
@@ -36,12 +37,13 @@ private slots:
     void on_calcButton_clicked();
     void on_copyLoadedRegionButton_clicked();
     void on_copyLoadedLinesCountButton_clicked();
+    void on_visualizateButton_clicked();
 
     // utils for ui
     void on_calc_params_changed();
 
 private:
-    bool calculated = false; // is calc was already performed
+    bool is_calculated = false; // is calc was already performed
 
     // Load UI
     void set_available_regions(char** regions, size_t len);
@@ -70,6 +72,7 @@ private:
     AppContext* ctx;
     QTableWidget* table_view;
     Ui::MainWindow* ui;
+    MetrixGraph* graph = nullptr;
     QClipboard* clipboard;
     QCursor* load_cursor;
 };

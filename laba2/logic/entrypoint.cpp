@@ -22,6 +22,9 @@ Result perform_operation(OperationType type, AppContext* ctx, Params* ui_params)
         case ERASE_CONTEXT:
             res_code = erase_context(ctx);
             break;
+        case CALC_VISUALIZATION:
+            res_code = get_year_sorted_table(ctx);
+            break;
     }
     return res_code;
 }

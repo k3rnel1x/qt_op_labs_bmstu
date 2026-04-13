@@ -8,14 +8,16 @@ typedef enum OperationType {
     OPEN_TABLE,
     LOAD_TABLE,
     CALC_METRIX,
-    ERASE_CONTEXT
+    ERASE_CONTEXT,
+    CALC_VISUALIZATION
 } OperationType;
 
 typedef enum CLEAR_TARGET {
     NOTHING,
     OPEN_UI_DATA,
     LOAD_UI_DATA,
-    CALC_UI_DATA
+    CALC_UI_DATA,
+    CALC_VISUALIZATION_DATA
 } CLEAR_TARGET;
 
 
@@ -33,6 +35,8 @@ typedef struct Params {
 
     // CLEAR_CONTEXT data
     CLEAR_TARGET clear_target;
+
+    // CALC_VISUALIZATION data
 
 } Params;
 

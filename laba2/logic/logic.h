@@ -19,5 +19,6 @@ Result open_table(AppContext*  ctx, Params* p);
 Result load_table(AppContext*  ctx, Params* p);
 Result calc_metrix(AppContext* ctx, Params* p);
 Result erase_context(AppContext* ctx);
+Result get_year_sorted_table(AppContext* ctx);
 
 #endif //LOGIC_H
