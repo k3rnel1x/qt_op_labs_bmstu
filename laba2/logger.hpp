@@ -1,4 +1,4 @@
-//
+f//
 // Created by k3rnel1x on 10.04.2026.
 //
 
@@ -35,6 +35,7 @@ public:
         const char* c_str = bytearray.constData();
         writeLog(debug_stream, c_str);
     }
+
 
 protected:
     void writeLog(FILE* f, const char* message) const noexcept

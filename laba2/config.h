@@ -11,7 +11,7 @@
 #define WEIGHT_COLLUM_NUM 6
 
 // #### Log config ####
-#define BASE_PATH        "/home/k3rnel1x/Programing/qt-op-labs-bmstu/laba2"
+#define BASE_PATH        "/home/xiaomi/Programming/qt_op_labs_bmstu/laba2"
 #define ABSOLUTE_LOG_DIR BASE_PATH
 
 #ifdef PRICOLCHICKI

@@ -160,22 +160,18 @@ void MainWindow::on_loadSelectedButton_clicked()
     block_ui();
     // ################################### get load region ######################################
     Params p;
-    p.clear_target = LOAD_UI_DATA; perform_operation(CLEAR_CONTEXT, ctx, &p); // clear load data
-    ctx->region_to_load = get_load_region();
+    p->region_to_load = get_load_region();
 
     ui->tableWidget->clear();
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(0);
     ui->tableWidget->setColumnCount(0);
 
-    if (perform_operation(LOAD_TABLE, ctx, NULL) == RUNTIME_ERROR)
+    if (perform_operation(LOAD_TABLE, ctx, &p) != SUCCESS)
     {
         QMessageBox::critical(this, "ERROR", "RUNTIME_ERROR");
         return;
     }
-
-    p.clear_target = CALC_UI_DATA;
-    perform_operation(CLEAR_CONTEXT, ctx, &p); // clear calc data
 
     // ################################# init nessesary stuff #############################
 

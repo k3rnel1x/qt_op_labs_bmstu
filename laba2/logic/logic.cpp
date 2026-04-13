@@ -16,7 +16,7 @@
 
 #include "../config.h"
 
-typedef long double metric_t;
+typedef double metrix_t;
 
 void swapp(double** ptr1, double** ptr2)
 {
@@ -100,6 +100,74 @@ size_t count_collums(char* table_header)
     return ++count;
 }
 
+
+Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
+{
+    if (!ctx) return RUNTIME_ERROR;
+
+    switch (clear_target)
+    {
+    case OPEN_UI_DATA:
+        if (ctx->filename) {
+            free((char *) ctx->filename);
+            ctx->filename = NULL;
+        }
+
+        if (ctx->table_header) {
+            free(ctx->table_header);
+            ctx->table_header = NULL;
+            ctx->collums_count = 0;
+        }
+
+        if (ctx->table_content) {
+            for (size_t i = 0; i < ctx->table_content_len; i++)
+                free(ctx->table_content[i]);
+            free(ctx->table_content);
+            ctx->table_content = NULL;
+            ctx->table_content_len = 0;
+        }
+
+        if (ctx->table_all_regions) {
+            free(ctx->table_all_regions);
+            ctx->table_all_regions = NULL;
+            ctx->regions_count = 0;
+        }
+        break;
+
+    case LOAD_UI_DATA:
+        if (ctx->region_to_load)
+        {
+            free((char *) ctx->region_to_load);
+            ctx->region_to_load = NULL;
+        }
+
+        if (ctx->filtered_table)
+        {
+            // free(ctx->filtered_table);
+            ctx->filtered_table = NULL;
+            ctx->filtered_table_len = 0;
+        }
+        break;
+
+    case CALC_UI_DATA:
+        if (ctx->region_to_calc) {
+            free(ctx->region_to_calc);
+            ctx->region_to_calc = NULL;
+        }
+
+        if (ctx->collum_to_calc) {
+            free(ctx->collum_to_calc);
+            ctx->collum_to_calc = NULL;
+        }
+        break;
+
+    case NOTHING:
+        break;
+    }
+
+    return SUCCESS;
+}
+
 Result open_table(AppContext* ctx, Params* p)
 {
     // ######## checks ########
@@ -125,7 +193,7 @@ Result open_table(AppContext* ctx, Params* p)
         collums_count = count_collums(line);
         free(line);
         if (!collums_count) return INVALID_HEADER;
-        parsed_raw_size = collums_count * sizeof(char*) + STR_SIZE + sizeof(metric_t);
+        parsed_raw_size = collums_count * sizeof(char*) + STR_SIZE + sizeof(metrix_t);
 
         // parse header
         char** raw = (char**)calloc(parsed_raw_size, sizeof(char));
@@ -233,11 +301,11 @@ Result open_table(AppContext* ctx, Params* p)
     return SUCCESS;
 }
 
-Result load_table(AppContext* ctx)
+Result load_table(AppContext* ctx, Params* p)
 {
-    if (!ctx) return RUNTIME_ERROR;
+    if (!ctx || !p) return RUNTIME_ERROR;
 
-    if (!ctx->region_to_load || !strcmp(ctx->region_to_load, "All"))
+    if (!p->region_to_load || !strcmp(p->region_to_load, "All"))
     {
         ctx->filtered_table = ctx->table_content;
         ctx->filtered_table_len = ctx->table_content_len;
@@ -308,9 +376,9 @@ Result calc_metrix(AppContext* ctx)
     // handle other cases
 
     // qDebug("Count: %lu, Calculated capacity: %lu\n", ctx->load_table_len, ARR_INIT_SIZE * (size_t)pow(2, (int)ceil(log2(ctx->load_table_len / ARR_INIT_SIZE))));
-    size_t metric_offset = ctx->collums_count * sizeof(char*) + STR_SIZE;
+    size_t byte_metrix_offset = ctx->collums_count * sizeof(char*) + STR_SIZE;
     for (size_t i = 0; i < ctx->filtered_table_len; i++){
-        double* ptr = (double*)((char*)ctx->filtered_table[i] + metric_offset);
+        metrix_t* ptr = (metrix_t*)((char*)ctx->filtered_table[i] + byte_metrix_offset);
         *ptr = atof(ctx->filtered_table[i][collum_idx]);
     }
 
@@ -322,14 +390,14 @@ Result calc_metrix(AppContext* ctx)
     if (!ctx->region_to_calc || !strcmp(ctx->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
-            push(sorted_table, (char*)ctx->filtered_table[i] + metric_offset);
+            push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
 
     } else {
         for (size_t i = 0; i < ctx->filtered_table_len; i++)
         {
             if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->region_to_calc))
             {
-                push(sorted_table, (char*)ctx->filtered_table[i] + metric_offset);
+                push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
             }
         }
     }
@@ -381,69 +449,13 @@ Result calc_metrix(AppContext* ctx)
     return SUCCESS;
 }
 
-Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target)
+Result erase_context(AppContext* ctx)
 {
-    if (!ctx) return RUNTIME_ERROR;
+    if(!ctx) return RUNTIME_ERROR;
 
-    switch (clear_target)
-    {
-        case OPEN_UI_DATA:
-            if (ctx->filename) {
-                free((char *) ctx->filename);
-                ctx->filename = NULL;
-            }
-
-            if (ctx->table_header) {
-                free(ctx->table_header);
-                ctx->table_header = NULL;
-                ctx->collums_count = 0;
-            }
-
-            if (ctx->table_content) {
-                for (size_t i = 0; i < ctx->table_content_len; i++)
-                    free(ctx->table_content[i]);
-                free(ctx->table_content);
-                ctx->table_content = NULL;
-                ctx->table_content_len = 0;
-            }
-
-            if (ctx->table_all_regions) {
-                free(ctx->table_all_regions);
-                ctx->table_all_regions = NULL;
-                ctx->regions_count = 0;
-            }
-            break;
-
-        case LOAD_UI_DATA:
-            if (ctx->region_to_load)
-            {
-                free((char *) ctx->region_to_load);
-                ctx->region_to_load = NULL;
-            }
-
-            if (ctx->filtered_table)
-            {
-                // free(ctx->filtered_table);
-                ctx->filtered_table = NULL;
-                ctx->filtered_table_len = 0;
-            }
-            break;
-
-        case CALC_UI_DATA:
-            if (ctx->region_to_calc) {
-                free(ctx->region_to_calc);
-                ctx->region_to_calc = NULL;
-            }
-
-            if (ctx->collum_to_calc) {
-                free(ctx->collum_to_calc);
-                ctx->collum_to_calc = NULL;
-            }
-            break;
-
-        case NOTHING:
-            break;
-    }
+    clear_context(ctx, OPEN_UI_DATA);
+    clear_context(ctx, LOAD_UI_DATA);
+    clear_context(ctx, CALC_UI_DATA);
 
     return SUCCESS;
 }

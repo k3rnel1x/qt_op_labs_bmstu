@@ -15,9 +15,9 @@
 
 
 
-Result open_table(AppContext* ctx, Params* p);
-Result load_table(AppContext* ctx);
-Result calc_metrix(AppContext* ctx);
-Result clear_context(AppContext* ctx, CLEAR_TARGET clear_target);
+Result open_table(AppContext*  ctx, Params* p);
+Result load_table(AppContext*  ctx, Params* p);
+Result calc_metrix(AppContext* ctx, Params* p);
+Result erase_context(AppContext* ctx);
 
 #endif //LOGIC_H

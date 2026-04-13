@@ -8,7 +8,7 @@ typedef enum OperationType {
     OPEN_TABLE,
     LOAD_TABLE,
     CALC_METRIX,
-    CLEAR_CONTEXT
+    ERASE_CONTEXT
 } OperationType;
 
 typedef enum CLEAR_TARGET {
@@ -32,7 +32,7 @@ typedef struct Params {
     const char* collum_to_calc;
 
     // CLEAR_CONTEXT data
-    CLEAR_TARGET clear_target;
+    // CLEAR_TARGET clear_target;
 
 } Params;
 
