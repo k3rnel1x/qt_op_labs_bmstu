@@ -252,21 +252,29 @@ void MainWindow::on_loadSelectedButton_clicked()
     ui->tab_table_widget->setEnabled(true);
     ui->visualizateButton->setEnabled(false);
     QApplication::restoreOverrideCursor();
+    ui->tabWidget->setTabVisible(1, false);
     unblock_ui();
     QApplication::processEvents();
 }
 
 void MainWindow::on_visualizateButton_clicked()
 {
-    if (!graph)
-        graph = new MetrixGraph{};
+    if (!graph){
+        graph = new MetrixGraph;
+        graph->setParent(ui->tab_graph_widget);
+    }
 
+    if( perform_operation(CALC_VISUALIZATION, ctx, NULL) != SUCCESS)
+    {
+        QMessageBox::critical(this, "ERROR", "VISUALIZE ERROR");
+        return;
+    }
 
-    graph->update_data();
-
+    graph->update_data((const char***)ctx->year_sorted_table, ctx->year_sorted_table_len);
+    // qDebug() << ctx->year_sorted_table << year_so;
     ui->tabWidget->setTabVisible(1, true);
     ui->tab_graph_widget->setEnabled(true);
-    graph->setParent(ui->tab_graph_widget);
+    ui->tabWidget->setCurrentIndex(1);
     graph->show();
 }
 
@@ -308,7 +316,12 @@ void MainWindow::on_calcButton_clicked()
     unblock_ui();
     QApplication::processEvents();
     is_calculated = true;
-    on_calc_params_changed();
+    ui->tabWidget->setTabVisible(1, false);
+    ui->visualizateButton->setEnabled(true);
+    ui->minField->setEnabled(true);
+    ui->midField->setEnabled(true);
+    ui->maxField->setEnabled(true);
+    // on_calc_params_changed();
 }
 
 void MainWindow::set_calc_regions(const char** regions, size_t len)

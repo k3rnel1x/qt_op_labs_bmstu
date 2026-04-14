@@ -6,7 +6,7 @@
 
 Result perform_operation(OperationType type, AppContext* ctx, Params* ui_params)
 {
-    if(!ctx || (type != ERASE_CONTEXT && !ui_params)) return RUNTIME_ERROR;
+    if(!ctx /*|| (type != ERASE_CONTEXT && !ui_params)*/) return RUNTIME_ERROR;
     Result res_code = SUCCESS;
 
     switch (type) {

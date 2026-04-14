@@ -36,6 +36,7 @@ typedef struct AppContext {
     const char* calculated_region;
     const char* calculated_collum;
     int calculated_collum_idx;
+    size_t total_raw_size;
     double parse_time;
     size_t errors_count;
 

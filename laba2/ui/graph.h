@@ -18,19 +18,25 @@ public:
             size_t year = atol(year_sorted_table[i][0]);
             if (!func.contains(year))
                 func.insert(year, atof(year_sorted_table[i][2]));
+            qDebug() << year_sorted_table[i][0];
         }
+        // qDebug() << "len = " << len;
     }
 
     void paintEvent(QPaintEvent *)
     {
         QPainter painter;
         painter.begin(this);
-        painter.drawLine(200, 200, 400, 400);
+
+        int i = 0;
+        for(auto iter = func.begin(); iter != func.end(); ++iter)
+            painter.drawText(100, 100 + (i += 20), QString::number(iter.key()) + QString::number(iter.value()));
+        // qDebug() << i;
         painter.end();
 
     }
 private:
-    QMap<size_t, long double> func;
+    QMap<size_t, double> func;
 };
 
 #endif //GRAPH_H
