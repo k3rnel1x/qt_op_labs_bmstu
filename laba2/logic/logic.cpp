@@ -27,13 +27,22 @@ void swapp(void** ptr1, void** ptr2)
     *ptr2 = tmp;
 }
 
-int partition(void** a, int start, int end, int (*cmp)(void*, void*))
+void swapp(double** ptr1, double** ptr2)
 {
-    void* pivot = a[end];
+    if(!ptr1 || !ptr2) return;
+
+    double* tmp = *ptr1;
+    *ptr1 = *ptr2;
+    *ptr2 = tmp;
+}
+
+int partition(double** a, int start, int end)
+{
+    double* pivot = a[end];
     int pIndex = start;
     for (int i = start; i < end; ++i)
     {
-        if (cmp(a[i], pivot) > 0)
+        if (a[i] > pivot)
         {
             swapp(a + i, a + pIndex);
             ++pIndex;
@@ -61,12 +70,12 @@ int partition(AppContext* ctx, void** a, int start, int end, int (*cmp)(void*, v
     return pIndex;
 }
 
-void quicksort(void** a, int start, int end, int (*cmp)(void*, void*))
+void quicksort(double** a, int start, int end)
 {
     if (start >= end)  return;
-    int pivot = partition(a, start, end, cmp);
-    quicksort(a, start, pivot - 1, cmp);
-    quicksort(a, pivot + 1, end, cmp);
+    int pivot = partition(a, start, end);
+    quicksort(a, start, pivot - 1);
+    quicksort(a, pivot + 1, end);
 }
 
 void quicksort(AppContext* ctx, void** a, int start, int end, int (*cmp)(void*, void*, AppContext*))
@@ -338,6 +347,8 @@ Result load_table(AppContext* ctx, Params* p)
     {
         ctx->filtered_table = ctx->table_content;
         ctx->filtered_table_len = ctx->table_content_len;
+        ctx->region_to_load = p->region_to_load;
+        p->region_to_calc = NULL;
         return SUCCESS;
     }
 
@@ -433,12 +444,12 @@ Result calc_metrix(AppContext* ctx, Params* p)
     if (!strcmp(p->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; ++i)
-            push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
+            push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
 
     } else {
         for (size_t i = 0; i < ctx->filtered_table_len; ++i)
             if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], p->region_to_calc))
-                push(sorted_table, (char*)ctx->filtered_table[i] + byte_metrix_offset);
+                push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
     }
 
     if (sorted_table->count < 2)
@@ -448,7 +459,7 @@ Result calc_metrix(AppContext* ctx, Params* p)
         return NOT_ENOUGH_INFO;
     }
     // use quicksort to sort table
-    quicksort(sorted_table->data, 0, sorted_table->count - 1, double_cmp);
+    // quicksort((double**)sorted_table->data, 0, sorted_table->count - 1);
 
     // ############################ get values #################################
     // getting info
@@ -488,6 +499,7 @@ Result get_year_sorted_table(AppContext* ctx)
     if (!ctx || !ctx->filtered_table || !ctx->filtered_table_len) return RUNTIME_ERROR;
     if (!ctx->calculated_collum || !ctx->calculated_region) return RUNTIME_ERROR;
 
+    clear_context(ctx, CALC_VISUALIZATION_DATA);
     Array* year_sorted_table = get_array();
     if (!year_sorted_table) return RUNTIME_ERROR;
 
@@ -501,7 +513,7 @@ Result get_year_sorted_table(AppContext* ctx)
     {
         void** old_data = year_sorted_table->data;
         year_sorted_table->data = (void**)realloc(year_sorted_table->data, sizeof(void*) * ctx->filtered_table_len);
-        if(!year_sorted_table)
+        if(!year_sorted_table->data)
         {
             free(old_data);
             return RUNTIME_ERROR;
@@ -512,7 +524,7 @@ Result get_year_sorted_table(AppContext* ctx)
     } else {
         for (size_t i = 0; i < ctx->filtered_table_len; ++i)
             if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], ctx->calculated_region))
-                push(year_sorted_table, (char**)ctx->filtered_table[i]);
+                push(year_sorted_table, ctx->filtered_table[i]);
 
     }
 

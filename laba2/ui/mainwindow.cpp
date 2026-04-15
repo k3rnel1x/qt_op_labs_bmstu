@@ -49,12 +49,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->copyLoadedLinesCountButton->setCursor(point_hand_cursor);
     ui->copyLoadedRegionButton->setCursor(point_hand_cursor);
     ui->loadSelectedButton->setCursor(point_hand_cursor);
+    ui->visualizateButton->setCursor(point_hand_cursor);
     ui->openButton->setCursor(point_hand_cursor);
 
     connect(ui->regionList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
     connect(ui->collumList, &QComboBox::activated, this, &MainWindow::on_calc_params_changed);
 
     // hide all interfaces
+#ifndef ENABLE_GRAPH
+    ui->visualizateButton->setVisible(false);
+#endif
     ui->calcInterface->setVisible(false);
     ui->loadInterface->setVisible(false);
     ui->tabWidget->setCurrentIndex(0);
@@ -230,6 +234,7 @@ void MainWindow::on_loadSelectedButton_clicked()
     size_t regions_count = ctx->regions_count;
 
     // set loaded region
+
     ui->loadedRegionField->setText(region_to_load && strcmp(region_to_load, "All")? region_to_load : "All");
     ui->loadedLinesCount->setText(QString::number(table_len));
 
@@ -262,6 +267,7 @@ void MainWindow::on_visualizateButton_clicked()
     if (!graph){
         graph = new MetrixGraph;
         graph->setParent(ui->tab_graph_widget);
+        ui->tab_graph_widget->layout()->addWidget(graph);
     }
 
     if( perform_operation(CALC_VISUALIZATION, ctx, NULL) != SUCCESS)
@@ -270,7 +276,7 @@ void MainWindow::on_visualizateButton_clicked()
         return;
     }
 
-    graph->update_data((const char***)ctx->year_sorted_table, ctx->year_sorted_table_len);
+    graph->update_data((const char***)ctx->year_sorted_table, ctx->year_sorted_table_len, ctx->calculated_collum_idx);
     // qDebug() << ctx->year_sorted_table << year_so;
     ui->tabWidget->setTabVisible(1, true);
     ui->tab_graph_widget->setEnabled(true);
@@ -316,8 +322,10 @@ void MainWindow::on_calcButton_clicked()
     unblock_ui();
     QApplication::processEvents();
     is_calculated = true;
+#ifdef ENABLE_GRAPH
     ui->tabWidget->setTabVisible(1, false);
     ui->visualizateButton->setEnabled(true);
+#endif
     ui->minField->setEnabled(true);
     ui->midField->setEnabled(true);
     ui->maxField->setEnabled(true);
@@ -407,8 +415,10 @@ void MainWindow::on_calc_params_changed()
         ui->maxField->setEnabled(is_enabled);
         ui->minField->setEnabled(is_enabled);
         ui->midField->setEnabled(is_enabled);
+#ifdef ENABLE_GRAPH
         ui->visualizateButton->setEnabled(is_enabled);
         ui->tabWidget->setTabVisible(1, is_enabled);
+#endif
     }
 }
 
