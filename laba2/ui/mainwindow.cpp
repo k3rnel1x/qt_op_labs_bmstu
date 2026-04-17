@@ -86,12 +86,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     // get filename
-    QByteArray value = qgetenv("USER");
+    QByteArray username = qgetenv("USER");
     // QString filename = QFileDialog::getOpenFileName(this,
     //                                         tr("Open CSV"),
     //                                         "/home/" + value,
     //                                         tr("*.csv"));
-
     // QString filename = QFileDialog::getOpenFileName(this,
     //                                         tr("Open CSV"),
     //                                         "/home/" + value + "/Programing/qt-op-labs-bmstu/laba2/test_files",
@@ -100,6 +99,9 @@ void MainWindow::on_openButton_clicked()
 
     QFileDialog dialog(this);
     dialog.setNameFilter(tr("Table (*.csv)"));
+#ifdef DEBUG
+    dialog.setDirectory("/home/" + username + "/Programing/qt-op-labs-bmstu/laba2/test_files");
+#endif
     // dialog.setFileMode(QFileDialog::ReadOnly);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.exec();

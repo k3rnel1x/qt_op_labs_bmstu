@@ -22,16 +22,16 @@ public:
             // qDebug() << year_sorted_table[i][0];
         }
 
-        for (auto iter = func.begin(); iter != func.end(); ++iter)
-        {
-            qDebug() << iter.key() << " " << iter.value();
-        }
+        // for (auto iter = func.begin(); iter != func.end(); ++iter)
+        // {
+        //     qDebug() << iter.key() << " " << iter.value();
+        // }
 
         // calc max and min
-        max = min = func.value(func.firstKey());
+        min_val = min_val = func.value(func.firstKey());
         for (auto iter = func.begin(); iter != func.end(); ++iter){
-            max = qMax(max, iter.value());
-            min = qMin(min, iter.value());
+            max_val = qMax(max_val, iter.value());
+            min_val = qMin(min_val, iter.value());
         }
     }
 
@@ -39,83 +39,47 @@ public:
     {
         QPainter p;
         p.begin(this);
-        int padding = 10;
+        int padd = 20;
         const int max_xline_elems = 30;
+        p.translate(padd, (min_val >= 0? height() - padd : height()/2));
+        int max_y = (min_val >= 0? -height() + padd : -height()/2 + padd);
+        int min_y = (min_val >= 0? +padd : +height()/2 - padd);
+        int max_x = width() - padd;
 
-        // ########################## draw coords lines #########################
-        p.translate(width() / 2, height() / 2); // move coords to center
+        // ############################## coord lines ############################
+        p.drawLine(0-padd, 0, max_x, 0); // Ox
+        p.drawLine(0, min_y, 0, max_y); // Oy
 
-        // paint y
-        p.drawLine(-width()/2 + padding, -height()/2 + padding/2, -width()/2 + padding, height()/2 - padding/2);
-
-        // paint x
-        p.drawLine(-width()/2 + padding, 0, width()/2 - padding, 0);
-
-        // ############################ draw years ##############################
-        const int x_offset = (width() - 2*padding) / func.count();
-        int x_coord = padding + x_offset;
-        int counter = 0;
-        QFont font = p.font();
-        font.setPixelSize(padding);
-        p.setFont(font);
-        for (auto iter = func.begin(); iter != func.end(); ++iter)
+        // ############################## years ##################################
         {
-            if (counter++ > max_xline_elems) break;
-            p.drawLine(-width()/2 + x_coord, padding/2, -width()/2 + x_coord, -padding/2);
-            p.drawText(-width()/2 + x_coord - padding, 1.5 * padding, QString::number(iter.key()));
-            x_coord += x_offset;
-        }
-
-        // ############################## draw func ############################
-        {
-            counter = 0;
-            const int y_offset = (height() - padding) / func.count();
-            int step = ceil((max - min)  / func.count());
-            int num = 0;
-            QPoint l(-width()/2 + padding / 2, 0), r(-width()/2 + 1.5 * padding, 0);
-
-            // draw zero
-            p.drawText(-width() / 2 + 2*padding, +padding, "0");
-
-            for (int i = 1; i < func.count(); ++i)
-            {
-                qDebug() << l << r;
-                p.drawLine(l.x(), l.y(), r.x(), r.y());
-                p.drawText(r.x() + padding, -(r.y() - padding/2), QString::number(num + max));
-                p.drawLine(l.x(), -l.y(), r.x(), -r.y());
-                p.drawText(r.x() + padding, r.y() - padding/2, QString::number(-num - min));
-
-                l.setY(l.y() + y_offset);
-                r.setY(r.y() + y_offset);
-                // if (counter++ > max_xline_elems) break;
-                num += step;
+            QFont font = p.font();
+            font.setPixelSize(padd/2);
+            font.setBold(true);
+            p.setFont(font);
+            int offset = max_x / func.count();
+            int x = offset;
+            int y_up   = -padd/3;
+            int y_down = padd/3;
+            int y_txt  = padd;
+            int x_txt  = offset - padd/2;
+            for (auto iter = func.begin(); iter != func.end(); ++iter) {
+                // draw cutout
+                p.drawLine(x, y_up, x, y_down);
+                // draw year
+                p.drawText(x_txt, y_txt, QString::number(iter.key()));
+                x += offset;
+                x_txt += offset;
             }
         }
 
-        counter = 0;
-        QPoint prev_point;
-        x_coord = padding + x_offset;
-        for (auto iter = func.begin(); iter != func.end(); ++iter)
-        {
-            // qDebug() << -(int)(height() * (iter.value() - min) / (max - min));
-            QPoint curr_point = {-width()/2 + x_coord, -(int)((height()/2 - padding) * (iter.value() - min) / (max - min)) };
-            if (counter != 0) {
-                p.drawLine(prev_point, curr_point);
-            }
-
-            // p.drawLine(-width()/2 + padding/2, curr_point.y(), -width()/2 + 3*padding/2, curr_point.y());
-
-            prev_point = curr_point;
-            if (counter++ > max_xline_elems) break;
-            p.drawPoint(curr_point);
-            x_coord += x_offset;
-        }
         p.end();
     }
 private:
+    void draw_with_negative();
+    void draw_only_positive();
     QMap<size_t, double> func;
-    double max;
-    double min;
+    double max_val;
+    double min_val;
 };
 
 #endif //GRAPH_H

@@ -4,7 +4,7 @@ project(laba2 VERSION 0.1 LANGUAGES CXX)
 #set(CMAKE_BUILD_TYPE "RELEASE")
 set(CMAKE_BUILD_TYPE "DEBUG")
 set(ENABLE_PRICOLCHICKI 0)
-set(ENABLE_GRAPH 0)
+set(ENABLE_GRAPH 1)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -82,6 +82,10 @@ endif()
 
 if( NOT(CMAKE_BUILD_TYPE STREQUAL "RELEASE") AND ( ENABLE_PRICOLCHICKI ) )
     target_compile_definitions(laba2 PRIVATE PRICOLCHICKI)
+endif()
+
+if( ENABLE_GRAPH )
+    target_compile_definitions(laba2 PRIVATE ENABLE_GRAPH)
 endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
