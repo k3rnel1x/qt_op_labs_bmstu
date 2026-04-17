@@ -534,6 +534,7 @@ Result get_year_sorted_table(AppContext* ctx)
     // insert to context
     ctx->year_sorted_table = (char***)year_sorted_table->data;
     ctx->year_sorted_table_len = year_sorted_table->count;
+    // qDebug() << ((char**)(year_sorted_table->data[3]))[2];
 
     free(year_sorted_table);
     return SUCCESS;
