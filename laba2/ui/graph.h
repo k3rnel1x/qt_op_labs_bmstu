@@ -20,22 +20,9 @@ public:
             size_t year = atol(year_sorted_table[i][0]);
             if (!func.contains(year))
                 func.insert(year, atof(year_sorted_table[i][calculated_collum_idx]));
-            // qDebug() << year_sorted_table[i][calculated_collum_idx];
         }
-        // for (auto iter = func.begin(); iter != func.end(); ++iter)
-        // {
-        //     qDebug() << iter.key() << " " << iter.value();
-        // }
-
-        // calc max and min
-        min_val = min_val = func.begin().value();
-        for (auto iter = func.begin(); iter != func.end(); ++iter){
-            max_val = qMax(max_val, iter.value());
-            min_val = qMin(min_val, iter.value());
-        }
-
-        // qDebug() << "max_val = " << max_val;
-        // qDebug() << "min_val = " << min_val;
+        sorted_values = func.values();
+        std::sort(sorted_values.begin(), sorted_values.end());
     }
 
     void paintEvent(QPaintEvent *)
@@ -43,87 +30,68 @@ public:
         QPainter p;
         p.begin(this);
         int padd = 20;
-        int y_steps_count = 8;   
+        double min_value = *sorted_values.begin();
+        double max_value = *(sorted_values.end()-1);
         const int max_xline_elems = 30;
 
-        p.translate(padd, (min_val >= 0? height() - padd : height()/2));
-        int max_y = (min_val >= 0? -height() + padd : -height()/2 + padd);
-        int min_y = (min_val >= 0? +padd : +height()/2 - padd);
-        int max_x = width() - padd;
-
-        // ############################## coord lines ############################
-        p.drawLine(0-padd, 0, max_x, 0); // Ox
-        p.drawLine(0, min_y, 0, max_y); // Oy
-
-        // ############################## draw cuts, year, func ##############################
-
+        int y_step = height() / (func.count()+1);
+        int start_y = y_step;
+        p.drawLine(padd, height(), padd, 0);
+        if (min_value >= 0)
         {
-            QFont font = p.font();
-            font.setPixelSize(padd/2);
-            font.setBold(true);
-            p.setFont(font);
-            int offset = max_x / func.count();
-            int x = offset;
-            int y_up   = -padd/3;
-            int y_down = padd/3;
-            int y_txt  = padd;
-            int x_txt  = offset - padd/2;
-            
-            // func
-            int func_scale = max_y / max_val;
-
-            for (auto iter = func.begin(); iter != func.end(); ++iter) {
-                // draw cutout
-                p.drawLine(x, y_up, x, y_down);
-                // draw year
-                p.drawText(x_txt, y_txt, QString::number(iter.key()));
-                p.drawPoint(x, func_scale*iter.value());
-                x += offset;
-                x_txt += offset;
-            }
+            p.translate(padd, height() - padd);
+            y_step = -y_step;
+            start_y = -start_y;
+        }
+        else if (max_value <= 0)
+        {
+            p.translate(padd, padd);
+        }
+        else
+        {
+            y_step = height() / func.count();
+            p.translate(padd, height()/2);
+            y_step = -y_step;
+            start_y = -y_step * func.count() / 2;
         }
 
-        // ############################## draw y-cuts ##############################
 
+        int x_l = -padd/3, x_r = +padd/3;
+        for (int i = 0; i < func.count(); ++i)
         {
-            // 0.13 ... 0.77 0.64
-            // 0.64 / 10 =      xz ,nf fdhj, nmcyvfgf ggzpIX{DS Rk rg gefd}
+            p.drawLine(x_l, start_y, x_r, start_y);
+            p.drawText(x_r, start_y, QString::number(sorted_values[i]));
+            start_y += y_step;
+        }
 
-            double cut_offset = calc_normal_step(min_val, max_val, y_steps_count); 
-
-            double num = int(min_val) + cut_offset;
-
-            int screen_offset = max_y / y_steps_count;
-            int y = screen_offset;
-            int x_l = -padd/3;
-            int x_r = +padd/3;
-
-            int y_txt = screen_offset + padd/2;
-            int x_txt = padd/3;
-            // if(min_val >= 0)
+        if (!(max_value <= 0) && !(min_value >= 0))
+        {
+            start_y = -y_step * func.count() / 2;
+            double prev = sorted_values[0], curr;
+            for (int i = 1; i < func.count(); ++i)
             {
-                for (auto iter = func.begin(); iter != func.end(); ++iter) {
-                    p.drawLine(x_l, y, x_r, y);
-                    if(min_val < 0)
-                        p.drawLine(x_l, -y, x_r, -y);
-
-                    // qDebug() << "i =" << i << "y = " << y;
-                    p.drawText(x_txt, y_txt, QString::number(num));
-                    if(min_val < 0)
-                        p.drawText(x_txt, -(y_txt - padd), QString::number(-num));
-
-                    y += screen_offset;
-                    y_txt += screen_offset;
-                    num += cut_offset;
+                curr = sorted_values[i];
+                if (prev < 0 && curr > 0)
+                {
+                    p.drawLine(-padd, start_y, width() - padd, start_y);
+                    break;
                 }
-            } 
-        }
+                start_y += y_step;
+            }
+        } else p.drawLine(-padd, 0, width() - padd, 0);
 
-        
+
+        int x_step = (width()-padd) / (func.count()+1);
+        int y_u = -padd/3, y_d = +padd/3;
+        for (int x = x_step; x < width() - padd; ++x)
+        {
+            prin
+        }
 
         p.end();
     }
 private:
+
     double calc_normal_step(double min, double max, int steps)
     {
         double range = max - min;
@@ -143,8 +111,7 @@ private:
         return step * pw;
     }
     QMap<size_t, double> func;
-    double max_val;
-    double min_val;
+    QList<double> sorted_values;
 };
 
 #endif //GRAPH_H
