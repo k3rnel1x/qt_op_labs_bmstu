@@ -460,6 +460,10 @@ void MainWindow::handle_parce_table_error(Result code)
         case INVALID_HEADER:
             err_text = "INVALID_HEADER(PROBABLY MUST BE 7 COLLUMS)";
             break;
+        case NO_CSV_FILE:
+            err_text = "YOU MUST SELECT .CSV";
+            break;
+
     }
     QMessageBox::critical(this, "Error", err_text);
 }

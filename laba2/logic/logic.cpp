@@ -18,73 +18,49 @@
 
 typedef double metrix_t;
 
-void swapp(void** ptr1, void** ptr2)
-{
-    if(!ptr1 || !ptr2) return;
+// int exist(double** data, size_t len, double* elem)
+// {
+//     for(int i = 0; i < len; ++i)
+//         if(*data[i] == *elem)
+//             return 1;
+//     return 0;
+// }
 
-    void* tmp = *ptr1;
-    *ptr1 = *ptr2;
-    *ptr2 = tmp;
+void swap(double **a, double **b) {
+    double* temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-void swapp(double** ptr1, double** ptr2)
-{
-    if(!ptr1 || !ptr2) return;
-
-    double* tmp = *ptr1;
-    *ptr1 = *ptr2;
-    *ptr2 = tmp;
+void swap(char **a, char **b) {
+    char* temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-int partition(double** a, int start, int end)
-{
-    double* pivot = a[end];
-    int pIndex = start;
-    for (int i = start; i < end; ++i)
-    {
-        if (a[i] > pivot)
-        {
-            swapp(a + i, a + pIndex);
-            ++pIndex;
+int partition(double** arr, int low, int high) {
+    double pivot = *arr[high]; 
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++) {
+        if (*arr[j] < pivot) {
+            i++;
+            swap(arr + i, arr + j);
         }
     }
-
-    swapp (a + pIndex, a + end);
-    return pIndex;
+    swap(arr + i + 1, arr + high);
+    return (i + 1);
 }
 
-int partition(AppContext* ctx, void** a, int start, int end, int (*cmp)(void*, void*, AppContext*))
-{
-    void* pivot = a[end];
-    int pIndex = start;
-    for (int i = start; i < end; ++i)
-    {
-        if (cmp(a[i], pivot, ctx) > 0)
-        {
-            swapp(a + i, a + pIndex);
-            ++pIndex;
-        }
+void quicksort(double *arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        quicksort(arr, low, pi - 1);
+        quicksort(arr, pi + 1, high);
     }
-
-    swapp (a + pIndex, a + end);
-    return pIndex;
 }
 
-void quicksort(double** a, int start, int end)
-{
-    if (start >= end)  return;
-    int pivot = partition(a, start, end);
-    quicksort(a, start, pivot - 1);
-    quicksort(a, pivot + 1, end);
-}
-
-void quicksort(AppContext* ctx, void** a, int start, int end, int (*cmp)(void*, void*, AppContext*))
-{
-    if (start >= end)  return;
-    int pivot = partition(ctx, a, start, end, cmp);
-    quicksort(ctx, a, start, pivot - 1, cmp);
-    quicksort(ctx, a, pivot + 1, end, cmp);
-}
 
 int valid_year(char* year)
 {
@@ -123,10 +99,10 @@ int set_pointers(char** ptrs, char* str)
 
 size_t count_collums(char* table_header)
 {
-    if (!table_header || *table_header == SEP || *(strrchr(table_header, SEP) + 1) == 0) return 0;
+    if (!table_header || *table_header == SEP || !strrchr(table_header, SEP) || *(strrchr(table_header, SEP) + 1) == 0) return 0;
     size_t count = 0;
 
-    for (char* ptr = table_header; *ptr; ptr++) {
+    for (char* ptr = table_header; *ptr; ++ptr) {
         if (*ptr == SEP)
             ++count;
     }
@@ -207,6 +183,10 @@ Result open_table(AppContext* ctx, Params* p)
     // ######## checks ########
     if (!ctx || !p || !p->filename) return RUNTIME_ERROR;
 
+    const char* ext_ptr = p->filename;
+    while(*ext_ptr != '.') ext_ptr++;
+    if(std::strcmp(ext_ptr, ".csv")) return NO_CSV_FILE;
+
     FILE *f = fopen(p->filename, "r");
     if (!f) return NO_FILE;
     if (feof(f) || getc(f) == EOF) return EMPTY_FILE;
@@ -222,11 +202,12 @@ Result open_table(AppContext* ctx, Params* p)
         char* line = (char*)calloc(STR_SIZE, sizeof(char));
         if (!line) return RUNTIME_ERROR;
         fgets(line, STR_SIZE, f);
-        fseek(f, 0, SEEK_SET);
+        // fseek(f, 0, SEEK_SET);
+        rewind(f);
 
         collums_count = count_collums(line);
         free(line);
-        if (!collums_count) return INVALID_HEADER;
+        if (collums_count < 7) return INVALID_HEADER;
         parsed_raw_size = collums_count * sizeof(char*) + STR_SIZE + sizeof(metrix_t);
 
         // parse header
@@ -444,12 +425,14 @@ Result calc_metrix(AppContext* ctx, Params* p)
     if (!strcmp(p->region_to_calc, "All"))
     {
         for (size_t i = 0; i < ctx->filtered_table_len; ++i)
-            push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
+            // if(!exist((double**)sorted_table->data, sorted_table->count, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset)))
+                push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
 
     } else {
         for (size_t i = 0; i < ctx->filtered_table_len; ++i)
-            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], p->region_to_calc))
-                push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
+            if (!strcmp(ctx->filtered_table[i][REGION_COLLUM_NUM-1], p->region_to_calc)) //&&
+                // !exist((double**)sorted_table->data, sorted_table->count, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset)))
+                    push(sorted_table, (double*)((char*)ctx->filtered_table[i] + byte_metrix_offset));
     }
 
     if (sorted_table->count < 2)
@@ -459,8 +442,16 @@ Result calc_metrix(AppContext* ctx, Params* p)
         return NOT_ENOUGH_INFO;
     }
     // use quicksort to sort table
-    // quicksort((double**)sorted_table->data, 0, sorted_table->count - 1);
+    // TODO: working quicksort
+    quicksort((double**)sorted_table->data, 0, sorted_table->count-1);
+    
+    
 
+    // for (size_t i = 0; i < sorted_table->count; i++)
+    // {
+    //     qDebug() << *(double*)sorted_table->data[i];
+    // }
+    
     // ############################ get values #################################
     // getting info
     double min = *(double*)sorted_table->data[0];
@@ -474,6 +465,7 @@ Result calc_metrix(AppContext* ctx, Params* p)
         mid = (l + r) / 2.0;
     } else
         mid = *(double*)sorted_table->data[sorted_table->count/2];
+    
 
     // clear
     free(sorted_table->data);
@@ -528,8 +520,7 @@ Result get_year_sorted_table(AppContext* ctx)
 
     }
 
-    quicksort(ctx, year_sorted_table->data, 0, year_sorted_table->count - 1, strcmp);
-
+    // quicksort(ctx, year_sorted_table->data, 0, year_sorted_table->count - 1, strcmp);
 
     // insert to context
     ctx->year_sorted_table = (char***)year_sorted_table->data;

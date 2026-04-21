@@ -4,6 +4,7 @@
 typedef enum Result {
     SUCCESS,
     RUNTIME_ERROR,
+    NO_CSV_FILE,
 
     // logic error
     NO_FILE,

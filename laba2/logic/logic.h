@@ -13,8 +13,6 @@
 #define STR_SIZE 200
 #define SEP ','
 
-
-
 Result open_table(AppContext*  ctx, Params* p);
 Result load_table(AppContext*  ctx, Params* p);
 Result calc_metrix(AppContext* ctx, Params* p);
