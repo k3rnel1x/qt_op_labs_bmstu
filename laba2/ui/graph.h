@@ -10,7 +10,7 @@
 class MetrixGraph : public QWidget
 {
 public:
-    void update_data(const char*** year_sorted_table, size_t len, size_t calculated_collum_idx)
+    void update_data(const char*** year_sorted_table, size_t len, size_t calculated_collum_idx, double mediana)
     {
         if (!year_sorted_table) throw std::invalid_argument("table_content is null");
         func.clear();
@@ -23,6 +23,22 @@ public:
         }
         sorted_values = func.values();
         std::sort(sorted_values.begin(), sorted_values.end());
+        // qDebug() << func.values();
+        this->mediana = mediana;
+
+        int i = 0;
+        QList<double> vals = func.values();
+        for (auto iter = vals.begin(); iter != vals.end(); ++iter, ++i)
+        {
+            if ( *iter == *sorted_values.begin() )
+            {
+                this->minimana_idx = i;
+            }
+            if ( *iter == *(sorted_values.end()-1) )
+            {
+                this->maxiana_idx = i;
+            }
+        }
     }
 
     void paintEvent(QPaintEvent *)
@@ -85,43 +101,41 @@ public:
             p.drawText(x-padd/2, y_d+padd/2, QString::number(iter.key()));
             x += x_step;
         }
-        
-        int prev_x = x_step * max_value <= 0? -1:0, prev_y = y_step * max_value <= 0? -1:1;
-        for(int x = prev_x + x_step, y = prev_y + y_step; abs(x) < width() && abs(y) < height();)
+
+        // draw graph
+        y_step = y_step * (max_value <= 0? 1:-1);
+        int prev_x = x_step;
+        x = prev_x + x_step;
+
+        auto iter = func.begin();
+        int prev_y = y_step * ( sorted_values.indexOf(iter.value()) + 1 ); ++iter;
+        y = y_step * ( sorted_values.indexOf(iter.value()) + 1 ); ++iter;
+
+        // qDebug() << iter.value();
+        while (iter != func.end())
         {
             p.drawLine(prev_x, prev_y, x, y);
             prev_x = x;
             prev_y = y;
-            if(max_value <= 0) {
-                x += x_step;
-                y += y_step;
-            } else {
-                x -= x_step;
-                y -= y_step;
-            }
+            x += x_step;
+            // qDebug() << iter.value();
+            y = y_step * (sorted_values.indexOf(iter.value()) + 1);
+            ++iter;
         }
+        QPen pen;
+        pen.setColor(Qt::red); // Change color
+        pen.setWidth(5);       // Change size
+        p.setPen(pen);
+        // qDebug() << minimana_idx;
+        // qDebug() << maxiana_idx;
+        p.drawPoint(x_step * (minimana_idx + 1), y_step * (sorted_values.indexOf(*(func.begin() + minimana_idx)) + 1));
+        p.drawPoint(x_step * (maxiana_idx + 1), y_step * (sorted_values.indexOf(*(func.begin() + maxiana_idx)) + 1));
         p.end();
     }
 private:
-
-    // double calc_normal_step(double min, double max, int steps)
-    // {
-    //     double range = max - min;
-    //     if (range <= 0) return 1.0;
-
-    //     double raw_step = range / steps; // 152.67
-    //     double pw = pow(10, floor(log10(raw_step))); // 2.423 -> 2.0 -> 100.0
-    //     qDebug() << "raw_step =" << raw_step;
-    //     qDebug() << "pw =" << pw;
-        
-    //     double residual = raw_step / pw; 
-    //     double step;
-    //     if (residual < 1.5) step = 1.0;
-    //     else if (residual < 7.0) step = 5.0;
-    //     else step = 10.0;
-        
-    //     return step * pw;
-    // }
+    double maxiana_idx;
+    double mediana;
+    double minimana_idx;
     QMap<size_t, double> func;
     QList<double> sorted_values;
 };

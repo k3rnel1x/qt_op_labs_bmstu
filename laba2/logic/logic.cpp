@@ -444,8 +444,9 @@ Result calc_metrix(AppContext* ctx, Params* p)
     // use quicksort to sort table
     // TODO: working quicksort
     quicksort((double**)sorted_table->data, 0, sorted_table->count-1);
-    
-    
+
+    // for (size_t i = 0; i < sorted_table->count; ++i)
+        // qDebug() << *(double*)sorted_table->data[i];
 
     // for (size_t i = 0; i < sorted_table->count; i++)
     // {

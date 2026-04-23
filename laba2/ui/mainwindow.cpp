@@ -278,7 +278,7 @@ void MainWindow::on_visualizateButton_clicked()
         return;
     }
 
-    graph->update_data((const char***)ctx->year_sorted_table, ctx->year_sorted_table_len, ctx->calculated_collum_idx);
+    graph->update_data((const char***)ctx->year_sorted_table, ctx->year_sorted_table_len, ctx->calculated_collum_idx, ctx->mid);
     // qDebug() << ctx->year_sorted_table << year_so;
     ui->tabWidget->setTabVisible(1, true);
     ui->tab_graph_widget->setEnabled(true);
