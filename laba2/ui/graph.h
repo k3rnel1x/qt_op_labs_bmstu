@@ -12,132 +12,97 @@ class MetrixGraph : public QWidget
 public:
     void update_data(const char*** year_sorted_table, size_t len, size_t calculated_collum_idx, double mediana)
     {
-        if (!year_sorted_table) throw std::invalid_argument("table_content is null");
-        func.clear();
-        // qDebug() << "calculated_collum_idx =" << calculated_collum_idx;
+        if (!year_sorted_table)
+            throw std::invalid_argument("table_content is null");
+
+        data.clear();
         for (size_t i = 0; i < len; ++i)
         {
             size_t year = atol(year_sorted_table[i][0]);
-            if (!func.contains(year))
-                func.insert(year, atof(year_sorted_table[i][calculated_collum_idx]));
-        }
-        sorted_values = func.values();
-        std::sort(sorted_values.begin(), sorted_values.end());
-        // qDebug() << func.values();
-        this->mediana = mediana;
-
-        int i = 0;
-        QList<double> vals = func.values();
-        for (auto iter = vals.begin(); iter != vals.end(); ++iter, ++i)
-        {
-            if ( *iter == *sorted_values.begin() )
-            {
-                this->minimana_idx = i;
-            }
-            if ( *iter == *(sorted_values.end()-1) )
-            {
-                this->maxiana_idx = i;
-            }
+            if (!data.contains(year))
+                data.insert(year, atof(year_sorted_table[i][calculated_collum_idx]));
         }
     }
 
     void paintEvent(QPaintEvent *)
     {
-        QPainter p;
-        p.begin(this);
-        QFont font;
-        font.setPixelSize(10);
-        p.setFont(font);
-        int padd = 20;
-        double min_value = *sorted_values.begin();
-        double max_value = *(sorted_values.end()-1);
-    
-        // draw y
-        p.drawLine(+2*padd, padd, +2*padd, height());
-        int y = height() - 2*padd;
-        int y_step = y / func.count();
-        for (int i = 0, x_l=2*padd-padd/3, x_r=2*padd+padd/3; i < sorted_values.count(); ++i)
-        {
-            p.drawLine(x_l, y, x_r, y);
-            p.drawText(0, y-padd/4, QString::number(sorted_values[i]));
-            y -= y_step;
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+        const int steps_count = 5;
+        const int margin = 50;
+
+        int w = width();
+        int h = height();
+
+        // **************** Find max`s and min`s *******************
+        size_t min_x = data.firstKey();
+        size_t max_x = data.lastKey();
+
+        auto iter = data.begin();
+        double min_y = iter.value();
+        double max_y = iter.value();
+
+        for (; iter != data.end(); ++iter) {
+            double y = iter.value();
+            min_y = std::min(min_y, y);
+            max_y = std::max(max_y, y);
         }
 
-        // draw x
-        // y = padd + y_step*sorted_values.count();
-        // y = padd/2 + y_step*sorted_values.count();
-        y = height() - 2*padd;
-        if(min_value >= 0)
-        {
-            p.translate(2*padd, y+padd);
-        } else if(max_value <= 0){
-            p.translate(padd, 0);
-        } else {
-            double prev = sorted_values[0], curr;
-            for(int i = 1; i < sorted_values.count(); ++i)
-            {
-                curr = sorted_values[i];
-                if(prev < 0 && curr > 0)
-                {
-                    p.translate(y + y_step/2, 2*padd);
-                    break;
-                } else if(curr == 0 ) { 
-                    p.translate(2*padd, y-y_step);
-                    break;
-                }
-                prev = curr;
-                y -= y_step;
-            }
-        }
-        
-        p.drawLine(-padd*2, 0, width()-2*padd, 0);
-        
-        int x_step = (width()-2*padd)/func.count();
-        int x = x_step;
-        int y_u = -padd/3, y_d = +padd/3;
-        for(auto iter = func.begin(); iter != func.end(); ++iter)
-        {
-            p.drawLine(x, y_u, x, y_d);
-            p.drawText(x-padd/2, y_d+padd/2, QString::number(iter.key()));
-            x += x_step;
+        // ********************** Map func ***********************
+        auto map_x = [&](size_t x) { return margin + double(x - min_x) / (max_x - min_x) * (w - 2 * margin); };
+        auto map_y = [&](double y) { return h - margin - (y - min_y)   / (max_y - min_y) * (h - 2 * margin); };
+
+        // ******************* x axis y-coord ********************
+        int x_axis_y;
+        if (min_y > 0)
+            x_axis_y = h - margin;
+        else if (max_y < 0)
+            x_axis_y = margin;
+        else
+            x_axis_y = map_y(0);
+
+        // ***************** Draw axis **********************
+        painter.setPen(Qt::black);
+        painter.drawLine(margin, x_axis_y, w - margin, x_axis_y);
+        painter.drawLine(margin, margin, margin, h - margin);
+
+        // ***************** Steps **********************
+
+        // X
+        for (int i = 0; i <= steps_count; ++i) {
+            double x_val = min_x + (i * (max_x - min_x) / steps_count);
+            int x = map_x(x_val);
+            painter.drawLine(x, x_axis_y - 5, x, x_axis_y + 5);
+            painter.drawText(x - margin/3 / 2, x_axis_y + 20, QString::number(x_val));
         }
 
-        // draw graph
-        y_step = y_step * (max_value <= 0? 1:-1);
-        int prev_x = x_step;
-        x = prev_x + x_step;
-
-        auto iter = func.begin();
-        int prev_y = y_step * ( sorted_values.indexOf(iter.value()) + 1 ); ++iter;
-        y = y_step * ( sorted_values.indexOf(iter.value()) + 1 ); ++iter;
-
-        // qDebug() << iter.value();
-        while (iter != func.end())
-        {
-            p.drawLine(prev_x, prev_y, x, y);
-            prev_x = x;
-            prev_y = y;
-            x += x_step;
-            // qDebug() << iter.value();
-            y = y_step * (sorted_values.indexOf(iter.value()) + 1);
-            ++iter;
+        // Y
+        for (int i = 0; i <= steps_count; ++i) {
+            double y_val = min_y + (i * (max_y - min_y) / steps_count);
+            int y = map_y(y_val);
+            painter.drawLine(margin - 5, y, margin + 5, y);
+            painter.drawText(5, y + margin/3 / 2, QString::number(y_val));
         }
-        QPen pen;
-        pen.setColor(Qt::red); // Change color
-        pen.setWidth(5);       // Change size
-        p.setPen(pen);
-        // qDebug() << minimana_idx;
-        // qDebug() << maxiana_idx;
-        p.drawPoint(x_step * (minimana_idx + 1), y_step * (sorted_values.indexOf(*(func.begin() + minimana_idx)) + 1));
-        p.drawPoint(x_step * (maxiana_idx + 1), y_step * (sorted_values.indexOf(*(func.begin() + maxiana_idx)) + 1));
-        p.end();
+
+        // ***************** Draw graph ************************
+        auto line_iter = data.constBegin();
+        QPoint prev(map_x(line_iter.key()), map_y(line_iter.value()));
+        ++line_iter;
+
+        for (; line_iter != data.constEnd(); ++line_iter) {
+            QPoint curr(map_x(line_iter.key()), map_y(line_iter.value()));
+            painter.drawLine(prev, curr);
+            prev = curr;
+        }
+
+        // ***************** Graph point *********************
+        painter.setBrush(Qt::red);
+        for (auto point_iter = data.constBegin(); point_iter != data.constEnd(); ++point_iter) {
+            painter.drawEllipse(QPoint(map_x(point_iter.key()), map_y(point_iter.value())), 1.5, 1.5);
+        }
     }
 private:
-    double maxiana_idx;
-    double mediana;
-    double minimana_idx;
-    QMap<size_t, double> func;
-    QList<double> sorted_values;
+    QMap<size_t, double> data;
 };
 
 #endif //GRAPH_H
