@@ -5,13 +5,12 @@
 #ifndef ENTRYPOINT_H
 #define ENTRYPOINT_H
 
-typedef enum ResultCode {
-
-} ResultCode;
+#include "../app/appcontext.h"
 
 typedef enum Operation {
-
-};
+    LoadFile,
+    CleanUp
+} Operation;
 
 ResultCode performOperation(AppContext* context, Params* params, Operation type);
 

@@ -12,7 +12,7 @@
 
 class Logger {
 public:
-    static Logger& get_instance()
+    inline static Logger& get_instance()
     {
         static Logger instance;
         return instance;
@@ -30,17 +30,17 @@ public:
         if (message.isEmpty()) return;
 
         open_debug_file();
-
         QByteArray bytearray = message.toUtf8();
         const char* c_str = bytearray.constData();
         writeLog(debug_stream, c_str);
     }
 
 protected:
-    void writeLog(FILE* f, const char* message) const noexcept
+    static void writeLog(FILE* f, const char* message) noexcept
     {
         if (!f || !message) return;
-        fprintf(f, "%s\n",message);
+        fprintf(f, "%zu) %s\n", ++counter, message);
+        fflush(f);
     }
 
     void open_debug_file()
@@ -51,6 +51,8 @@ protected:
             debug_stream = fopen(path.data(), "a");
             if (!debug_stream)
                 throw std::runtime_error("failed to open log file: " + path);
+
+            fprintf(debug_stream, "----------------- New log session started... --------------\n");
         }
     }
 
@@ -68,6 +70,7 @@ private:
     Logger& operator=(Logger&&) = delete;
 
     FILE* debug_stream = nullptr;
+    static inline size_t counter = 0;
     const char* debug_log_filename = "debug.log";
     const char* logs_path_dir = LOG_DIR;
 };

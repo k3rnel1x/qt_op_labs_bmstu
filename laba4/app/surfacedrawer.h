@@ -5,12 +5,8 @@
 #ifndef SURFACEDRAWER_H
 #define SURFACEDRAWER_H
 
-
-
 class SurfaceDrawer {
 
 };
-
-
 
 #endif //SURFACEDRAWER_H

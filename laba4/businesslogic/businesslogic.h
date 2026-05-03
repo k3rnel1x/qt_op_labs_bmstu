@@ -6,10 +6,10 @@
 #define BUSINESSLOGIC_H
 
 #include "../app/appcontext.h"
-#include "../entrypoint/entrypoint.h"
 
 ResultCode loadFuncTable       (AppContext* context, Params* params);
 ResultCode updateRenderConfig  (AppContext* context, Params* params);
 ResultCode calcNormalizedCoords(AppContext* context, Params* params);
+ResultCode deleteContext       (AppContext* context);
 
 #endif //BUSINESSLOGIC_H

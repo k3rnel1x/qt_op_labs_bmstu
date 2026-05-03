@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>512</height>
+    <height>666</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Ultrafast mega thin and functional increrable pedantic amazing creeper 2014 melancholic supervised AI ChatGeminiSeek pro SALE 50% nice cute strong cool table viewer and calculate metriX application in qt</string>
+   <string/>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -53,7 +53,7 @@
          <x>0</x>
          <y>0</y>
          <width>282</width>
-         <height>490</height>
+         <height>644</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -86,7 +86,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="configureRenderUI" native="true">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">

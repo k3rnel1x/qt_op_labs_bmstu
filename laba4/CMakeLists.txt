@@ -9,41 +9,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS
-        Widgets
-        DataVisualization
-        3DCore
-        3DRender
-        3DInput
-        3DLogic
-        3DExtras
-)
-
+find_package(Qt6 REQUIRED Widgets COMPONENTS Core)
 
 qt_standard_project_setup()
 
+add_compile_definitions(DIRECTORY="/home/k3rnel1x/Programing/qt_op_labs_bmstu/laba4")
+
+add_subdirectory(app)
 add_subdirectory(entrypoint)
 add_subdirectory(businesslogic)
-
-qt_add_executable(laba4
-        app/main.cpp
-        gui/mainwindow.cpp
-        gui/mainwindow.h
-        gui/mainwindow.ui
-        app/appcontext.h
-        gui/SurfaceDrawer.cpp
-        gui/SurfaceDrawer.h
-)
-
-target_link_libraries(laba4 PRIVATE
-        entrypoint
-        businesslogic
-
-        Qt6::Widgets
-        Qt6::DataVisualization
-        stdc++
-        Qt6::3DCore
-        Qt6::3DRender
-        Qt6::3DLogic
-        Qt6::3DExtras
-)
