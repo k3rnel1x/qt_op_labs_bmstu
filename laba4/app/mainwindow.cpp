@@ -67,7 +67,13 @@ void MainWindow::on_renderButton_clicked()
 
 void MainWindow::on_stepSlider_valueChanged()
 {
-
+    size_t currStep = ui->stepSlider->sliderPosition();
+    Params prms = { .renderStep = currStep };
+    
+    ResultCode result = performOperation(context, &prms, UpdateRenderConfig);
+    if(result != SUCCEED) {
+        handleResult(result);
+    }
 }
 
 void MainWindow::handleResult(ResultCode result)
@@ -102,15 +108,14 @@ void MainWindow::updateConfigureUI()
     // update step labels
     ui->minStepLabel->setText(QString::number(context->minStep));
     ui->maxStepLabel->setText(QString::number(context->maxStep));
-
-    ui->currStepLabel->setText(QString::number(context->currStep));
+    size_t defaultStep = (context->maxStep - context->minStep) / 2;
+    ui->currStepLabel->setText(QString::number(defaultStep));
 
     // update slider range
     QSlider* slider = ui->stepSlider;
-
-    slider->setRange(context->minStep, context->maxStep);
-    slider->setValue(context->currStep);
     slider->setTickInterval(1);
+    slider->setRange(context->minStep, context->maxStep);
+    slider->setValue(defaultStep);
     slider->setTickPosition(QSlider::TickPosition::TicksBelow);
 }
 
@@ -121,8 +126,3 @@ char* MainWindow::qstrtoc(const QString& qstr)
 
     return strdup(c_str);
 }
-
-// void MainWindow::StatesManager::updateState(State targetState, Params* params)
-// {
-
-// }

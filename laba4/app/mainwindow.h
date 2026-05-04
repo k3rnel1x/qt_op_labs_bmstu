@@ -16,37 +16,6 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    // class State {
-
-    // };
-
-    // class FileSelectioning : public State {
-    //     void selectFile();
-    // };
-
-    // class ConfiguringRender : public FileSelectioning {
-    //     void updateStep();
-    //     void updateRange();
-    // };
-
-    // class Rendering : public ConfiguringRender {
-    //     void render();
-    // };
-
-    // typedef enum StateType {
-    //     FileSelectioning,
-    //     ConfiguringRender,
-    //     Rendering
-    // } StateType;
-
-    // class StatesManager {
-    // public:
-    //     void updateState(State& targetState, Params* params);
-
-    // private:
-    //     State currState;
-    // };
-
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
