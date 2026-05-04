@@ -20,6 +20,7 @@ MainWindow::~MainWindow()
     Logger::get_instance().logDebug("Start clearing..");
 
     performOperation(context, NULL, CleanUp);
+
     Logger::get_instance().logDebug("CleanUp SUCCEED");
 
     delete context;
@@ -48,7 +49,7 @@ void MainWindow::on_loadDataButton_clicked()
     ResultCode result = performOperation(context, &prms, LoadFile);
     if(result == SUCCEED) {
         Logger::get_instance().logDebug("LoadFile SUCCEED");
-        this->setupConfigureUI();
+        this->updateConfigureUI();
         Logger::get_instance().logDebug(QString("Filename Selected: ") + QString(context->filenamePath));
     }
 
@@ -96,9 +97,21 @@ void MainWindow::handleResult(ResultCode result)
     QMessageBox::critical(this, "Error", err_text);
 }
 
-void MainWindow::setupConfigureUI()
+void MainWindow::updateConfigureUI()
 {
+    // update step labels
+    ui->minStepLabel->setText(QString::number(context->minStep));
+    ui->maxStepLabel->setText(QString::number(context->maxStep));
 
+    ui->currStepLabel->setText(QString::number(context->currStep));
+
+    // update slider range
+    QSlider* slider = ui->stepSlider;
+
+    slider->setRange(context->minStep, context->maxStep);
+    slider->setValue(context->currStep);
+    slider->setTickInterval(1);
+    slider->setTickPosition(QSlider::TickPosition::TicksBelow);
 }
 
 char* MainWindow::qstrtoc(const QString& qstr)

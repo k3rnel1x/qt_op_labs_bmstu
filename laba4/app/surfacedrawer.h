@@ -4,9 +4,10 @@
 
 #ifndef SURFACEDRAWER_H
 #define SURFACEDRAWER_H
+#include <QWidget>
 
-class SurfaceDrawer {
-
+class SurfaceDrawer : public QWidget{
+    
 };
 
 #endif //SURFACEDRAWER_H

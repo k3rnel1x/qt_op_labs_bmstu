@@ -5,8 +5,14 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 
+#include <cstddef>
+
 typedef struct AppContext {
     const char* filenamePath;
+    size_t maxStep;
+    size_t minStep;
+    size_t currStep;
+    size_t maxNormalizationRange;
 } AppContext;
 
 typedef enum ResultCode {

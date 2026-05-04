@@ -172,7 +172,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QSpinBox" name="spinBox"/>
+              <widget class="QSpinBox" name="minSpinBox"/>
              </item>
              <item>
               <widget class="QLabel" name="label_4">
@@ -182,7 +182,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QSpinBox" name="spinBox_2"/>
+              <widget class="QSpinBox" name="maxSpinBox"/>
              </item>
             </layout>
            </item>

@@ -60,7 +60,7 @@ private:
 
     void handleResult(ResultCode result);
 
-    void setupConfigureUI();
+    void updateConfigureUI();
 
     char* qstrtoc(const QString& qstr);
 
