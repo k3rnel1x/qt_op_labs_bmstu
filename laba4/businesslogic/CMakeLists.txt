@@ -1,5 +1,8 @@
 qt_add_library(businesslogic STATIC
         businesslogic.cpp
+        pointsarr/pointsarr.h
+        pointsarr/pointsarr.cpp
+        pointsarr/point.h
 )
 
 target_link_libraries(businesslogic PRIVATE entrypoint Qt6::Core Qt6::Widgets)

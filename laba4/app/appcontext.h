@@ -11,11 +11,11 @@ typedef struct AppContext {
     // UI / Backend
     const char* filenamePath;
     size_t renderStep;
+    size_t maxNormalizationRange;
 
     // UI
     size_t maxStep;
     size_t minStep;
-    size_t maxNormalizationRange;
 } AppContext;
 
 typedef enum ResultCode {
@@ -29,6 +29,7 @@ typedef enum ResultCode {
 typedef struct Params {
     const char* filenamePath;
     size_t renderStep;
+    size_t maxNormalizationRange;
 } Params;
 
 #endif //APPCONTEXT_H

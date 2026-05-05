@@ -39,8 +39,13 @@ ResultCode loadFuncTable(AppContext* context, Params* params)
 ResultCode updateRenderConfig(AppContext* context, Params* params)
 {
     if(!context || !params) return ERROR;
-
     ResultCode result = SUCCEED;
+
+    // TODO validate render step
+
+    // insert parameters to context
+    context->maxNormalizationRange = params->maxNormalizationRange;    
+    context->renderStep = params->renderStep;    
     return result;
 }
 
