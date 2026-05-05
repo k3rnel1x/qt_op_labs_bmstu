@@ -4,8 +4,7 @@
 #define POINTSARR
 
 #include <stdlib.h>
-// #define INITCAPACITY 20
-#define INITCAPACITY 2
+#define INITCAPACITY 20
 #define SCALECAPACITY 2
 
 struct PointsArr

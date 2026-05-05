@@ -1,0 +1,1 @@
+g++ parser.cpp tests.cpp ../pointsarr/pointsarr.cpp -lstdc++ -I../pointsarr -I../../app -I../ -o test && ./test

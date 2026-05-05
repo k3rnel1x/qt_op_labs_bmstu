@@ -27,7 +27,7 @@ void addPoint(PointsArr* pointsArr, Point point)
 
     if(pointsArr->capacity == pointsArr->count)
     {
-        Point* new_points = (Point*)realloc(pointsArr->points, INITCAPACITY*SCALECAPACITY*sizeof(Point));
+        Point* new_points = (Point*)realloc(pointsArr->points, pointsArr->capacity*SCALECAPACITY*sizeof(Point));
         if(!new_points)
             return;
 
