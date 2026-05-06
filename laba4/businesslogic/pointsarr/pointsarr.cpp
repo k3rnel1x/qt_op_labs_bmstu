@@ -2,7 +2,7 @@
 
 PointsArr getPointsArr()
 {
-    Point* data = (Point*)calloc(1, sizeof(PointsArr));
+    Point* data = (Point*)calloc(1, INITCAPACITY*sizeof(Point));
 
     PointsArr arr = {
         .points = data,
@@ -27,7 +27,7 @@ void addPoint(PointsArr* pointsArr, Point point)
 
     if(pointsArr->capacity == pointsArr->count)
     {
-        Point* new_points = (Point*)realloc(pointsArr->points, pointsArr->capacity*SCALECAPACITY*sizeof(Point));
+        Point* new_points = (Point*)realloc(pointsArr->points, pointsArr->capacity*SCALECAPACITY*sizeof(point));
         if(!new_points)
             return;
 
@@ -35,5 +35,6 @@ void addPoint(PointsArr* pointsArr, Point point)
 
         pointsArr->points = new_points;
     }
+
     pointsArr->points[pointsArr->count++] = point;
 }   

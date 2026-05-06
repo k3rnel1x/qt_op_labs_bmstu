@@ -2,8 +2,8 @@
 #define PARSER
 
 #include <stdio.h>
-#include <appcontext.h>
-#include <pointsarr.h>
+#include "../../app/appcontext.h"
+#include "../pointsarr/pointsarr.h"
 
 #define BUFFERSIZE 100
 #define BASE 10

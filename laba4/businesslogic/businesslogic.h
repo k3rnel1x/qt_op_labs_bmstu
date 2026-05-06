@@ -6,6 +6,7 @@
 #define BUSINESSLOGIC_H
 
 #include "../app/appcontext.h"
+#include "./parser/parser.h"
 
 ResultCode loadFuncTable       (AppContext* context, Params* params);
 ResultCode updateRenderConfig  (AppContext* context, Params* params);

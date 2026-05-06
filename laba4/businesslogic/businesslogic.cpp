@@ -1,8 +1,11 @@
-#include "businesslogic.h"
-#include "../app/logger.hpp"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "businesslogic.h"
+#include "../app/logger.hpp"
+#include "./pointsarr/pointsarr.h"
+#include "./parser/parser.h"
 
 int checkFileExtension(const char* path);
 void clearFilename(AppContext* context);
@@ -22,10 +25,10 @@ ResultCode loadFuncTable(AppContext* context, Params* params)
     rewind(f);
 
     // main part
-
+    PointsArr arr = getPointsArr();
+    size_t matrixSize = 0;
     
-    // TODO load and parce table
-
+    ResultCode res = parceCSVpoints(f, &arr, &matrixSize);
     
     fclose(f);
     // push to context
