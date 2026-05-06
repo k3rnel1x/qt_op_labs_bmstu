@@ -10,7 +10,9 @@
 typedef enum Operation {
     LoadFile,
     CleanUp,
-    UpdateRenderConfig
+    UpdateRangeConfig,
+    UpdateStepConfig,
+    NormalizePoints
 } Operation;
 
 ResultCode performOperation(AppContext* context, Params* params, Operation type);

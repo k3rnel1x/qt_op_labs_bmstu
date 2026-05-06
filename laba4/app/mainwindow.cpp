@@ -65,6 +65,7 @@ void MainWindow::on_loadDataButton_clicked()
         ui->configureRenderUI->setVisible(true);
         ui->loadDataButton->setText(strrchr(charFilename, '/')+1);
 
+
     } else {
         handleResult(result);
         Logger::get_instance().logDebug("LoadFile Failed");
@@ -77,7 +78,13 @@ void MainWindow::on_loadDataButton_clicked()
 
 void MainWindow::on_renderButton_clicked()
 {
-    
+    Logger::get_instance().logDebug("renderButton clicked");
+
+    ResultCode result = performOperation(context, NULL, NormalizePoints);
+    if(result != SUCCEED) {
+        handleResult(result);
+        return;
+    }
 }
 
 void MainWindow::on_stepSlider_valueChanged()
@@ -87,7 +94,7 @@ void MainWindow::on_stepSlider_valueChanged()
     size_t currStep = ui->stepSlider->sliderPosition();
     Params prms = { .renderStep = currStep };
     
-    ResultCode result = performOperation(context, &prms, UpdateRenderConfig);
+    ResultCode result = performOperation(context, &prms, UpdateStepConfig);
     if(result != SUCCEED) {
         handleResult(result);
         return;
@@ -100,12 +107,12 @@ void MainWindow::on_spinboxes_valueChanged()
 {
     Logger::get_instance().logDebug("spinboxes valueChanged");
 
-    int maxValue = qMax<int, int>(ui->maxSpinBox->value() - 1, 0);
+    int maxValue = ui->maxSpinBox->value();
     int minValue = ui->minSpinBox->value();
-    ui->minSpinBox->setMaximum(maxValue);
+    ui->minSpinBox->setMaximum(qMax<int, int>(maxValue - 1, 0));
 
     Params prms = { .maxNormalizationRange = maxValue, .minNormalizationRange = minValue };
-    ResultCode result = performOperation(context, &prms, UpdateRenderConfig);
+    ResultCode result = performOperation(context, &prms, UpdateRangeConfig);
     if(result != SUCCEED) {
         handleResult(result);
         return;
@@ -138,6 +145,10 @@ void MainWindow::handleResult(ResultCode result)
         case INVALIDTABLE:
             err_text = "INVALID TABLE!";
             break;
+
+        case RANGESAREINDENTICAL:
+            err_text = "RANGES ARE INDENTICAL!";
+            break;
     }
 
     QMessageBox::critical(this, "Error", err_text);
@@ -157,6 +168,14 @@ void MainWindow::updateConfigureUI()
     slider->setRange(context->minStep, context->maxStep);
     slider->setValue(defaultStep);
     slider->setTickPosition(QSlider::TickPosition::TicksBelow);
+
+    // update QSpinBoxes
+    ui->minSpinBox->setValue(0);
+    ui->maxSpinBox->setValue(1);
+
+    // update context
+    on_stepSlider_valueChanged();
+    on_spinboxes_valueChanged();
 }
 
 char* MainWindow::qstrtoc(const QString& qstr)

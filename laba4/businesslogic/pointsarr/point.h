@@ -2,9 +2,9 @@
 #define POINT
 struct Point
 {
-    long x;
-    long y;
-    long z;
+    double x;
+    double y;
+    double z;
 };
 
 #endif

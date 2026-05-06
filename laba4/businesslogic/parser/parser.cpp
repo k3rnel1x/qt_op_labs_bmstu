@@ -12,7 +12,7 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
 
     char buff[BUFFERSIZE] = {0};
 
-    long row = 0;
+    double row = 0;
     char* res;
     do {
         res = fgets(buff, BUFFERSIZE, f);
@@ -21,10 +21,10 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
 
         char* ptr = buff;
         char* endPtr;
-        long col = 0;
+        double col = 0;
         while(*ptr){
 
-            long val = strtol(ptr, &endPtr, BASE);
+            double val = strtod(ptr, &endPtr);
             if(endPtr == ptr){
                 delPointsArr(arr);
                 result = INVALIDTABLE;

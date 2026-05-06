@@ -3,7 +3,7 @@
 
 ResultCode performOperation(AppContext* context, Params* params, Operation type)
 {
-    if(!context || (type != CleanUp && !params)) return ERROR;
+    if(!context) return ERROR;
 
     ResultCode result = SUCCEED;
     switch(type)
@@ -16,8 +16,16 @@ ResultCode performOperation(AppContext* context, Params* params, Operation type)
         result = deleteContext(context);
         break;
 
-    case UpdateRenderConfig:
-        result = updateRenderConfig(context, params);
+    case UpdateStepConfig:
+        result = updateStepConfig(context, params);
+        break;
+
+    case UpdateRangeConfig:
+        result = updateRangeConfig(context, params);
+        break;
+
+    case NormalizePoints:
+        result = calcNormalizedCoords(context);
         break;
     }
 

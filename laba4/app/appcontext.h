@@ -27,7 +27,8 @@ typedef enum ResultCode {
     WRONG_FILE_EXTENSION,
     NO_FILE,
     EMPTY_FILE,
-    INVALIDTABLE
+    INVALIDTABLE,
+    RANGESAREINDENTICAL
 } ResultCode;
 
 typedef struct Params {

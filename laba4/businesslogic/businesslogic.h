@@ -9,8 +9,9 @@
 #include "./parser/parser.h"
 
 ResultCode loadFuncTable       (AppContext* context, Params* params);
-ResultCode updateRenderConfig  (AppContext* context, Params* params);
-ResultCode calcNormalizedCoords(AppContext* context, Params* params);
+ResultCode updateRangeConfig   (AppContext* context, Params* params);
+ResultCode updateStepConfig    (AppContext* context, Params* params);
+ResultCode calcNormalizedCoords(AppContext* context);
 ResultCode deleteContext       (AppContext* context);
 
 #endif //BUSINESSLOGIC_H

@@ -49,7 +49,7 @@ ResultCode loadFuncTable(AppContext* context, Params* params)
     return res;
 }
 
-ResultCode updateRenderConfig(AppContext* context, Params* params)
+ResultCode updateRangeConfig(AppContext* context, Params* params)
 {
     if(!context || !params) return ERROR;
     ResultCode result = SUCCEED;
@@ -57,15 +57,56 @@ ResultCode updateRenderConfig(AppContext* context, Params* params)
     // insert parameters to context
     context->maxNormalizationRange = params->maxNormalizationRange;    
     context->minNormalizationRange = params->minNormalizationRange;
+    return result;
+}
+
+ResultCode updateStepConfig(AppContext* context, Params* params)
+{
+    if(!context || !params) return ERROR;
+    ResultCode result = SUCCEED;
+
+    // insert parameters to context
     context->renderStep = params->renderStep;    
     return result;
 }
 
-ResultCode calcNormalizedCoords(AppContext* context, Params* params)
+ResultCode calcNormalizedCoords(AppContext* context)
 {
-    if(!context || !params) return ERROR;
+    if(!context || !context->points.points) return ERROR;
+    if(context->minNormalizationRange == context->maxNormalizationRange) return RANGESAREINDENTICAL;
 
     ResultCode result = SUCCEED;
+
+    size_t minInRange = context->minNormalizationRange;
+    size_t maxInRange = context->maxNormalizationRange;
+
+    PointsArr* arr = &context->points;
+
+    double zMin = arr->points[0].z;
+    double zMax = arr->points[0].z;
+    for(int i = 0; i < arr->count; ++i)
+    {
+        double z = arr->points[i].z;
+
+        if(zMax < z)
+            zMax = z;
+
+        if(zMin > z)
+            zMin = z;
+    }
+
+    char logText[100] = {0};
+    sprintf(logText, "starting normalize.. Params: Norm range: [%zu, %zu] zRange: [%lf, %lf]", minInRange, maxInRange, zMin, zMax);
+    Logger::get_instance().logDebug(logText);
+
+    for(int i = 0; i < arr->count; ++i)
+    {
+        double z = arr->points[i].z;
+        arr->points[i].z = minInRange + double(z - zMin) / double(zMax - zMin) * double(maxInRange - minInRange);
+        qDebug("|zold = %lf|znew = %lf|\n", z, arr->points[i].z);
+    }
+    Logger::get_instance().logDebug("normalizing succeed.");
+
     return result;
 }
 
