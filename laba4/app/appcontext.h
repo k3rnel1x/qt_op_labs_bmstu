@@ -6,12 +6,14 @@
 #define APPCONTEXT_H
 
 #include <cstddef>
+#include "../businesslogic/pointsarr/pointsarr.h"
 
 typedef struct AppContext {
     // UI / Backend
     const char* filenamePath;
     size_t renderStep;
     size_t maxNormalizationRange;
+    PointsArr points;
 
     // UI
     size_t maxStep;

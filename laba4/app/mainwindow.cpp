@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 
 #include "logger.hpp"
+#include <string.h>
 
 #include <QHeaderView>
 #include <QFileDialog>
@@ -13,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
 {
     ui->setupUi(this);
     context = new AppContext{};
+
+    // hide configureRenderUI
+    ui->configureRenderUI->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -51,12 +55,18 @@ void MainWindow::on_loadDataButton_clicked()
         Logger::get_instance().logDebug("LoadFile SUCCEED");
         this->updateConfigureUI();
         Logger::get_instance().logDebug(QString("Filename Selected: ") + QString(context->filenamePath));
-    }
 
-    if(result != SUCCEED) {
+        // set visible configureRenderUI
+        ui->configureRenderUI->setVisible(true);
+        ui->loadDataButton->setText(strrchr(charFilename, '/')+1);
+
+    } else {
         handleResult(result);
         Logger::get_instance().logDebug("LoadFile Failed");
-        return;
+
+        // hide configureRenderU
+        ui->configureRenderUI->setVisible(false);
+        ui->loadDataButton->setText(DEFAULTLOADTEXT);
     }
 }
 
@@ -67,13 +77,18 @@ void MainWindow::on_renderButton_clicked()
 
 void MainWindow::on_stepSlider_valueChanged()
 {
+    Logger::get_instance().logDebug("stepSlider valueChanged");
+
     size_t currStep = ui->stepSlider->sliderPosition();
     Params prms = { .renderStep = currStep };
     
     ResultCode result = performOperation(context, &prms, UpdateRenderConfig);
     if(result != SUCCEED) {
         handleResult(result);
+        return;
     }
+
+    ui->currStepLabel->setText(QString::number(currStep));
 }
 
 void MainWindow::handleResult(ResultCode result)
@@ -97,6 +112,10 @@ void MainWindow::handleResult(ResultCode result)
 
         case WRONG_FILE_EXTENSION:
             err_text = "WRONG_FILE_EXTENSION(MUST BE .CSV)";
+            break;
+
+        case INVALIDTABLE:
+            err_text = "INVALID TABLE!";
             break;
     }
 

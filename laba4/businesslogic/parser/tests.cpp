@@ -11,7 +11,7 @@ using namespace std;
 
 int test01()
 {
-    cout << "test 01";
+    cout << "test 01 ";
     FILE* f = fopen("/home/k3rnel1x/Programing/qt_op_labs_bmstu/laba4/test_files/students_exams (вариант 2).csv", "r");
     if(!f){
         cout << "open file fail" << endl;

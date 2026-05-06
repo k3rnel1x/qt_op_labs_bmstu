@@ -7,8 +7,11 @@
 #include "./pointsarr/pointsarr.h"
 #include "./parser/parser.h"
 
+#define DIMENSIONSIZE 1000
+
 int checkFileExtension(const char* path);
 void clearFilename(AppContext* context);
+void clearPoints(AppContext* context);
 
 ResultCode loadFuncTable(AppContext* context, Params* params)
 {
@@ -29,22 +32,27 @@ ResultCode loadFuncTable(AppContext* context, Params* params)
     size_t matrixSize = 0;
     
     ResultCode res = parceCSVpoints(f, &arr, &matrixSize);
+    if(res == SUCCEED)
+    {
+        clearFilename(context);
+        context->filenamePath = path;
+        params->filenamePath  = NULL;
+
+        clearPoints(context);
+        context->points = arr;
+
+        context->minStep = 1;
+        context->maxStep = DIMENSIONSIZE / matrixSize;
+    }
     
     fclose(f);
-    // push to context
-    clearFilename(context);
-    context->filenamePath = path;
-    params->filenamePath  = NULL;
-
-    return SUCCEED;
+    return res;
 }
 
 ResultCode updateRenderConfig(AppContext* context, Params* params)
 {
     if(!context || !params) return ERROR;
     ResultCode result = SUCCEED;
-
-    // TODO validate render step
 
     // insert parameters to context
     context->maxNormalizationRange = params->maxNormalizationRange;    
@@ -66,7 +74,7 @@ ResultCode deleteContext(AppContext* context)
     if(!context) return SUCCEED;
 
     clearFilename(context);
-    // TODO clearPoints(); 
+    clearPoints(context); 
 
     Logger::get_instance().logDebug("->Clear context succeed");
     return SUCCEED;
@@ -81,6 +89,16 @@ void clearFilename(AppContext* context)
 
     free((char*)context->filenamePath);
     context->filenamePath = NULL;
+}
+
+void clearPoints(AppContext* context)
+{
+    Logger::get_instance().logDebug("Clearing points..");
+
+    if(!context) return;
+    if(!context->points.points) return;
+
+    delPointsArr(&context->points);
 }
 
 // utils

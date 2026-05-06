@@ -1,5 +1,6 @@
 #include "parser.h"
-
+#include <iostream>
+using namespace std;
 ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
 {
     if(!f  || feof(f) || getc(f) == EOF || !matrixSize) return ERROR;
@@ -24,7 +25,8 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
         while(*ptr){
 
             long val = strtol(ptr, &endPtr, BASE);
-            if(!endPtr){
+            if(endPtr == ptr){
+                delPointsArr(arr);
                 result = INVALIDTABLE;
                 break;
             }
