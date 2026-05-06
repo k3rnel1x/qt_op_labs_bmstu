@@ -9,14 +9,19 @@
 #include <QMessageBox>
 #include <entrypoint.h>
 #include <businesslogic.h>
+#include <QtMinMax>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     context = new AppContext{};
 
-    // hide configureRenderUI
+    // Inizialize UI
     ui->configureRenderUI->setVisible(false);
+    ui->maxSpinBox->setMinimum(1);
+    connect(ui->minSpinBox, &QSpinBox::valueChanged, this, &MainWindow::on_spinboxes_valueChanged);
+    connect(ui->maxSpinBox, &QSpinBox::valueChanged, this, &MainWindow::on_spinboxes_valueChanged);
+
 }
 
 MainWindow::~MainWindow()
@@ -89,6 +94,22 @@ void MainWindow::on_stepSlider_valueChanged()
     }
 
     ui->currStepLabel->setText(QString::number(currStep));
+}
+
+void MainWindow::on_spinboxes_valueChanged()
+{
+    Logger::get_instance().logDebug("spinboxes valueChanged");
+
+    int maxValue = qMax<int, int>(ui->maxSpinBox->value() - 1, 0);
+    int minValue = ui->minSpinBox->value();
+    ui->minSpinBox->setMaximum(maxValue);
+
+    Params prms = { .maxNormalizationRange = maxValue, .minNormalizationRange = minValue };
+    ResultCode result = performOperation(context, &prms, UpdateRenderConfig);
+    if(result != SUCCEED) {
+        handleResult(result);
+        return;
+    }
 }
 
 void MainWindow::handleResult(ResultCode result)

@@ -9,13 +9,14 @@
 #include "../businesslogic/pointsarr/pointsarr.h"
 
 typedef struct AppContext {
-    // UI / Backend
+    // UI between Backend
     const char* filenamePath;
     size_t renderStep;
     size_t maxNormalizationRange;
+    size_t minNormalizationRange;
     PointsArr points;
 
-    // UI
+    // to UI
     size_t maxStep;
     size_t minStep;
 } AppContext;
@@ -33,6 +34,7 @@ typedef struct Params {
     const char* filenamePath;
     size_t renderStep;
     size_t maxNormalizationRange;
+    size_t minNormalizationRange;
 } Params;
 
 #endif //APPCONTEXT_H

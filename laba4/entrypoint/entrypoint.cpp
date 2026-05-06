@@ -15,6 +15,10 @@ ResultCode performOperation(AppContext* context, Params* params, Operation type)
     case CleanUp:
         result = deleteContext(context);
         break;
+
+    case UpdateRenderConfig:
+        result = updateRenderConfig(context, params);
+        break;
     }
 
     return result;

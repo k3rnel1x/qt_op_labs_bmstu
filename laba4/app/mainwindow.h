@@ -26,6 +26,7 @@ private slots:
     void on_loadDataButton_clicked();
     void on_renderButton_clicked();
     void on_stepSlider_valueChanged();
+    void on_spinboxes_valueChanged();
 
 private:
 

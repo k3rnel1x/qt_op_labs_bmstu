@@ -56,6 +56,7 @@ ResultCode updateRenderConfig(AppContext* context, Params* params)
 
     // insert parameters to context
     context->maxNormalizationRange = params->maxNormalizationRange;    
+    context->minNormalizationRange = params->minNormalizationRange;
     context->renderStep = params->renderStep;    
     return result;
 }
