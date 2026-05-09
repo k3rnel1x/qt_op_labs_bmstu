@@ -192,6 +192,66 @@ void MainWindow::updateConfigureUI()
     on_spinboxes_valueChanged();
 }
 
+// void MainWindow::mousePressEvent(QMouseEvent *event)
+// {
+//     switch (event->button())
+//     {
+//     case Qt::LeftButton:
+//         drawer.xRotate(ROTATIONANGLE);
+//         break;
+
+//     case Qt::RightButton:
+//         drawer.xRotate(-ROTATIONANGLE);
+//         break;
+//     }
+// }
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_4:
+        drawer.yRotate(ROTATIONANGLE);
+        break;
+    
+    case Qt::Key_6:
+        drawer.yRotate(-ROTATIONANGLE);
+        break;
+
+    case Qt::Key_2:
+        drawer.xRotate(ROTATIONANGLE);
+        break;
+    
+    case Qt::Key_8:
+        drawer.xRotate(-ROTATIONANGLE);
+        break;
+
+    case Qt::Key_S:
+        drawer.walkOz(-STEP);
+        break;
+
+    case Qt::Key_D:
+        drawer.walkOx(-STEP);
+        break;
+
+    case Qt::Key_W:
+        drawer.walkOz(STEP);
+        break;
+
+    case Qt::Key_A:
+        drawer.walkOx(STEP);
+        break;
+
+    case Qt::Key_Z:
+        drawer.walkOy(STEP);
+        break;
+
+    case Qt::Key_X:
+        drawer.walkOy(-STEP);
+        break;
+    }
+}
+
 char* MainWindow::qstrtoc(const QString& qstr)
 {
     QByteArray bytearray = qstr.toUtf8();

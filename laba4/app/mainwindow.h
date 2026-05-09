@@ -23,6 +23,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    // void mousePressEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+
 private slots:
     void on_loadDataButton_clicked();
     void on_renderButton_clicked();
