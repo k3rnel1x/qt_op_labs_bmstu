@@ -103,7 +103,7 @@ ResultCode calcNormalizedCoords(AppContext* context)
     {
         double z = arr->points[i].z;
         arr->points[i].z = minInRange + double(z - zMin) / double(zMax - zMin) * double(maxInRange - minInRange);
-        qDebug("|zold = %lf|znew = %lf|\n", z, arr->points[i].z);
+        // qDebug("|zold = %lf|znew = %lf|\n", z, arr->points[i].z);
     }
     Logger::get_instance().logDebug("normalizing succeed.");
 

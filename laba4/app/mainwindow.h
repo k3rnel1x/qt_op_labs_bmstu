@@ -5,6 +5,7 @@
 #include "appcontext.h"
 #include <entrypoint.h>
 #include "ui_mainwindow.h"
+#include "surfacedrawer/surfacedrawer.h"
 
 #define DEFAULTLOADTEXT "Load Data"
 
@@ -38,5 +39,6 @@ private:
 
     AppContext* context;
     Ui::MainWindow* ui;
+    SurfaceDrawer drawer;
 };
 #endif // MAINWINDOW_H

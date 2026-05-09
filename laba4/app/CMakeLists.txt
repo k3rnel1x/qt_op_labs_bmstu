@@ -1,8 +1,8 @@
 qt_add_executable(laba4
     mainwindow.cpp
     mainwindow.h
-    surfacedrawer.h
-    surfacedrawer.cpp
+    surfacedrawer/surfacedrawer.h
+    surfacedrawer/surfacedrawer.cpp
     logger.hpp
     appcontext.h
     main.cpp

@@ -21,7 +21,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainW
     ui->maxSpinBox->setMinimum(1);
     connect(ui->minSpinBox, &QSpinBox::valueChanged, this, &MainWindow::on_spinboxes_valueChanged);
     connect(ui->maxSpinBox, &QSpinBox::valueChanged, this, &MainWindow::on_spinboxes_valueChanged);
-
+    QGridLayout* layout = new QGridLayout;
+    layout->addWidget(&drawer);
+    // drawer.setParent(ui->widget_2);
+    ui->widget_2->setLayout(layout);
+    drawer.setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -48,6 +52,7 @@ void MainWindow::on_loadDataButton_clicked()
     );
 
     if(QfilenamePath.isEmpty()){
+        drawer.setVisible(false);
         Logger::get_instance().logDebug("No file selected");
         return;
     }
@@ -65,7 +70,6 @@ void MainWindow::on_loadDataButton_clicked()
         ui->configureRenderUI->setVisible(true);
         ui->loadDataButton->setText(strrchr(charFilename, '/')+1);
 
-
     } else {
         handleResult(result);
         Logger::get_instance().logDebug("LoadFile Failed");
@@ -73,7 +77,11 @@ void MainWindow::on_loadDataButton_clicked()
         // hide configureRenderU
         ui->configureRenderUI->setVisible(false);
         ui->loadDataButton->setText(DEFAULTLOADTEXT);
+
     }
+
+    // hide render
+    drawer.setVisible(false);
 }
 
 void MainWindow::on_renderButton_clicked()
@@ -82,9 +90,15 @@ void MainWindow::on_renderButton_clicked()
 
     ResultCode result = performOperation(context, NULL, NormalizePoints);
     if(result != SUCCEED) {
+        // hide render
+        drawer.setVisible(false);
         handleResult(result);
         return;
     }
+
+    PointsArr* arr = &context->points;
+    drawer.updateData(arr);
+    drawer.setVisible(true);
 }
 
 void MainWindow::on_stepSlider_valueChanged()
