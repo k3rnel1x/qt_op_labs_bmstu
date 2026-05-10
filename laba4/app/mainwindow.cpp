@@ -99,10 +99,12 @@ void MainWindow::on_renderButton_clicked()
     PointsArr* arr = &context->points;
     drawer.updateData(arr);
     drawer.setVisible(true);
+    Logger::get_instance().logDebug("Render started!");
 }
 
 void MainWindow::on_stepSlider_valueChanged()
 {
+    drawer.setVisible(false);
     Logger::get_instance().logDebug("stepSlider valueChanged");
 
     size_t currStep = ui->stepSlider->sliderPosition();
@@ -119,6 +121,7 @@ void MainWindow::on_stepSlider_valueChanged()
 
 void MainWindow::on_spinboxes_valueChanged()
 {
+    drawer.setVisible(false);
     Logger::get_instance().logDebug("spinboxes valueChanged");
 
     int maxValue = ui->maxSpinBox->value();
@@ -226,7 +229,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         drawer.xRotate(-ROTATIONANGLE);
         break;
 
-    case Qt::Key_S:
+    case Qt::Key_W:
         drawer.walkOz(-STEP);
         break;
 
@@ -234,7 +237,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         drawer.walkOx(-STEP);
         break;
 
-    case Qt::Key_W:
+    case Qt::Key_S:
         drawer.walkOz(STEP);
         break;
 

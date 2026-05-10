@@ -4,7 +4,16 @@
 
 #include "surfacedrawer.h"
 
-void SurfaceDrawer::updateData(PointsArr* arr) { this->arr = arr; };
+void SurfaceDrawer::updateData(PointsArr* arr) {
+    this->arr = arr;
+
+    this->Xangle = 0;
+    this->Yangle = 0;
+
+    xOffset = 0.0;
+    yOffset = 0.0;
+    zOffset = 0.0;
+};
 
 SurfaceDrawer::SurfaceDrawer()
 {
@@ -73,7 +82,7 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
 
         v3.x += xOffset;
         v3.y += yOffset;
-        v3.z += initZOffset + zOffset;
+        v3.z += zOffset + initZOffset;
 
         Vector2 protectedPoint = protect(v3);
         Vector2 point = place(protectedPoint.x, protectedPoint.y);
