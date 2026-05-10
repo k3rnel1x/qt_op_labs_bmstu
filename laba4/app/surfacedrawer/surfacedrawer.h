@@ -53,6 +53,7 @@ private:
     Vector3 _rotateY(Vector3 p, double angle);
     Vector3 _rotateX(Vector3 p, double angle);
     Vector2 place(double x, double y);
+    void normalizePoints();
 
     PointsArr* arr;
     double Xangle = 0;

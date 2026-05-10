@@ -5,6 +5,9 @@
 #include "surfacedrawer.h"
 
 void SurfaceDrawer::updateData(PointsArr* arr) {
+    if(this->arr == arr)
+        return;
+        
     this->arr = arr;
 
     this->Xangle = 0;
@@ -13,6 +16,8 @@ void SurfaceDrawer::updateData(PointsArr* arr) {
     xOffset = 0.0;
     yOffset = 0.0;
     zOffset = 0.0;
+
+    normalizePoints();
 };
 
 SurfaceDrawer::SurfaceDrawer()
@@ -33,6 +38,7 @@ SurfaceDrawer::SurfaceDrawer()
         { SIZE,  SIZE, -SIZE},
         { SIZE, -SIZE, -SIZE},
     };
+
 }
 
 SurfaceDrawer::~SurfaceDrawer()
@@ -76,9 +82,29 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
     // p.drawText(width()/2, height()/2, QString("Height"));
     // angle += 0.02;
 
-    for (int i = 0; i < 8; i++)
+    // for (int i = 0; i < 8; i++)
+    // {
+    //     Vector3 v3 = _rotateX(_rotateY(v[i], Yangle), Xangle);
+
+    //     v3.x += xOffset;
+    //     v3.y += yOffset;
+    //     v3.z += zOffset + initZOffset;
+
+    //     Vector2 protectedPoint = protect(v3);
+    //     Vector2 point = place(protectedPoint.x, protectedPoint.y);
+    //     // qDebug() << "Point: " << point.x << point.y;
+    //     p.drawEllipse(point.x, point.y, 5, 5);
+    // }
+
+    for (int i = 0; i < arr->count; i++)
     {
-        Vector3 v3 = _rotateX(_rotateY(v[i], Yangle), Xangle);
+        Vector3 init = {
+            .x = arr->points[i].x,
+            .y = arr->points[i].z,
+            .z = arr->points[i].y
+        };
+
+        Vector3 v3 = _rotateX(_rotateY(init, Yangle), Xangle);
 
         v3.x += xOffset;
         v3.y += yOffset;
@@ -125,4 +151,21 @@ Vector3 SurfaceDrawer::_rotateX(Vector3 p, double angle)
         .y = p.y*cos(angle) - p.z*sin(angle),
         .z = p.y*sinf(angle) + p.z*cos(angle),
     };
+}
+
+void SurfaceDrawer::normalizePoints()
+{
+    if(!arr || !arr->points) return;
+
+    for (size_t i = 0; i < arr->count; i++)
+    {
+        // [-1, 1]
+        Point& p = arr->points[i];
+        p.x = -1 + (p.x)/(30)*2;
+        p.y = -1 + (p.y)/(30)*2;
+        p.z = -1 + (p.z)/(45)*2;
+
+        qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
+    }
+    
 }
