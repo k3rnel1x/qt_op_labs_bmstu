@@ -56,6 +56,7 @@ private:
     void normalizePoints();
 
     PointsArr* arr;
+    PointsArr normArr;
     double Xangle = 0;
     double Yangle = 0;
     Vector3* v;
@@ -64,6 +65,8 @@ private:
     double xOffset = 0.0;
     double yOffset = 0.0;
     double zOffset = 0.0;
+
+    int minZovoffset;
 
 };
 

@@ -95,6 +95,10 @@ ResultCode calcNormalizedCoords(AppContext* context)
             zMin = z;
     }
 
+    if(zMin == minInRange && zMax == maxInRange){
+        return result;
+    }
+
     char logText[100] = {0};
     sprintf(logText, "starting normalize.. Params: Norm range: [%zu, %zu] zRange: [%lf, %lf]", minInRange, maxInRange, zMin, zMax);
     Logger::get_instance().logDebug(logText);

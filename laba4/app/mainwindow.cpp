@@ -124,8 +124,8 @@ void MainWindow::on_spinboxes_valueChanged()
     drawer.setVisible(false);
     Logger::get_instance().logDebug("spinboxes valueChanged");
 
-    int maxValue = ui->maxSpinBox->value();
-    int minValue = ui->minSpinBox->value();
+    size_t maxValue = (size_t)ui->maxSpinBox->value();
+    size_t minValue = (size_t)ui->minSpinBox->value();
     ui->minSpinBox->setMaximum(qMax<int, int>(maxValue - 1, 0));
 
     Params prms = { .maxNormalizationRange = maxValue, .minNormalizationRange = minValue };
@@ -213,19 +213,19 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
-    case Qt::Key_4:
+    case Qt::Key_J:
         drawer.yRotate(ROTATIONANGLE);
         break;
     
-    case Qt::Key_6:
+    case Qt::Key_L:
         drawer.yRotate(-ROTATIONANGLE);
         break;
 
-    case Qt::Key_2:
+    case Qt::Key_K:
         drawer.xRotate(ROTATIONANGLE);
         break;
     
-    case Qt::Key_8:
+    case Qt::Key_I:
         drawer.xRotate(-ROTATIONANGLE);
         break;
 

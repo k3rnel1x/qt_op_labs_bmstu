@@ -5,9 +5,11 @@
 #include "surfacedrawer.h"
 
 void SurfaceDrawer::updateData(PointsArr* arr) {
-    if(this->arr == arr)
+    if(this->arr == arr) {
+        qDebug() << "same arr";
         return;
-        
+    }
+
     this->arr = arr;
 
     this->Xangle = 0;
@@ -96,12 +98,12 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
     //     p.drawEllipse(point.x, point.y, 5, 5);
     // }
 
-    for (int i = 0; i < arr->count; i++)
+    for (int i = 0; i < normArr.count; i++)
     {
         Vector3 init = {
-            .x = arr->points[i].x,
-            .y = arr->points[i].z,
-            .z = arr->points[i].y
+            .x = normArr.points[i].x,
+            .y = normArr.points[i].z,
+            .z = normArr.points[i].y
         };
 
         Vector3 v3 = _rotateX(_rotateY(init, Yangle), Xangle);
@@ -157,15 +159,36 @@ void SurfaceDrawer::normalizePoints()
 {
     if(!arr || !arr->points) return;
 
-    for (size_t i = 0; i < arr->count; i++)
+    int maxZ = arr->points[0].z;
+    int minZ = arr->points[0].z;
+    for (size_t i = 0; i < arr->count; i++){
+        int z = arr->points[i].z;
+        if(z < minZ)
+            minZ = z;
+
+        if(z > maxZ)
+            maxZ = z;
+    }
+
+    this->normArr = getPointsArr();
+
+    // this->minZovoffset = arr->points[0].z;
+    int range = maxZ - minZ;
+    for (size_t i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
-        Point& p = arr->points[i];
+        Point p = arr->points[i];
         p.x = -1 + (p.x)/(30)*2;
         p.y = -1 + (p.y)/(30)*2;
-        p.z = -1 + (p.z)/(45)*2;
+        p.z = -1 + (p.z)/(range)*2;
 
-        qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
+        addPoint(&normArr, p);
+
+        // if(p.z < minZovoffset)
+            // minZovoffset = p.z;
+
+        // qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
     }
-    
+
+
 }
