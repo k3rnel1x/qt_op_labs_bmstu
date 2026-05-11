@@ -1,4 +1,3 @@
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,22 +94,33 @@ ResultCode calcNormalizedCoords(AppContext* context)
             zMin = z;
     }
 
-    if(zMin == minInRange && zMax == maxInRange){
-        return result;
-    }
+    // if(zMin == minInRange && zMax == maxInRange){
+        // context->normPoints = context->points;
+        // return result;
+    // }
 
     char logText[100] = {0};
     sprintf(logText, "starting normalize.. Params: Norm range: [%zu, %zu] zRange: [%lf, %lf]", minInRange, maxInRange, zMin, zMax);
     Logger::get_instance().logDebug(logText);
+    qDebug() << logText;
 
+    PointsArr normArr = getPointsArr();
     for(int i = 0; i < arr->count; ++i)
     {
         double z = arr->points[i].z;
-        arr->points[i].z = minInRange + double(z - zMin) / double(zMax - zMin) * double(maxInRange - minInRange);
+        double normZ = minInRange + double(z - zMin) / double(zMax - zMin) * double(maxInRange - minInRange);
+        Point p = {
+            .x = arr->points[i].x,
+            .y = arr->points[i].y,
+            .z = normZ,
+        };
+        addPoint(&normArr, p);
         // qDebug("|zold = %lf|znew = %lf|\n", z, arr->points[i].z);
     }
     Logger::get_instance().logDebug("normalizing succeed.");
 
+    // push to context normPoints
+    context->normPoints = normArr;
     return result;
 }
 

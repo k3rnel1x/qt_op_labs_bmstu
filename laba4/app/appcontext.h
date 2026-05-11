@@ -15,6 +15,7 @@ typedef struct AppContext {
     size_t maxNormalizationRange;
     size_t minNormalizationRange;
     PointsArr points;
+    PointsArr normPoints;
 
     // to UI
     size_t maxStep;

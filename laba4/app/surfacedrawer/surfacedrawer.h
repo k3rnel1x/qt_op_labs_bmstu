@@ -9,9 +9,10 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include "../../businesslogic/pointsarr/pointsarr.h"
+#include "../appcontext.h"
 #include <cmath>
 
-#define MAXZ 2000
+#define MAXZ 100
 #define MAXY 2000
 #define MAXX 2000
 
@@ -36,7 +37,7 @@ struct Vector3
 class SurfaceDrawer : public QWidget {
 public:
 
-    SurfaceDrawer();
+    SurfaceDrawer(AppContext* context);
     ~SurfaceDrawer();
     void updateData(PointsArr* arr);
     void paintEvent(QPaintEvent* event);
@@ -53,10 +54,11 @@ private:
     Vector3 _rotateY(Vector3 p, double angle);
     Vector3 _rotateX(Vector3 p, double angle);
     Vector2 place(double x, double y);
-    void normalizePoints();
+    void calcNormPoints();
 
     PointsArr* arr;
-    PointsArr normArr;
+    PointsArr  normArr;
+    AppContext* context;
     double Xangle = 0;
     double Yangle = 0;
     Vector3* v;
@@ -67,6 +69,7 @@ private:
     double zOffset = 0.0;
 
     int minZovoffset;
+    int maxZovoffset;
 
 };
 

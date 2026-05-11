@@ -5,10 +5,10 @@
 #include "surfacedrawer.h"
 
 void SurfaceDrawer::updateData(PointsArr* arr) {
-    if(this->arr == arr) {
-        qDebug() << "same arr";
-        return;
-    }
+    // if(this->arr == arr) {
+    //     qDebug() << "same arr";
+    //     return;
+    // }
 
     this->arr = arr;
 
@@ -19,11 +19,15 @@ void SurfaceDrawer::updateData(PointsArr* arr) {
     yOffset = 0.0;
     zOffset = 0.0;
 
-    normalizePoints();
+    calcNormPoints();
 };
 
-SurfaceDrawer::SurfaceDrawer()
+SurfaceDrawer::SurfaceDrawer(AppContext* context)
 {
+    if(!context)
+        throw std::invalid_argument("context is null");
+
+    this->context = context;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SurfaceDrawer::update));
     
@@ -40,7 +44,7 @@ SurfaceDrawer::SurfaceDrawer()
         { SIZE,  SIZE, -SIZE},
         { SIZE, -SIZE, -SIZE},
     };
-
+    normArr.points = NULL;
 }
 
 SurfaceDrawer::~SurfaceDrawer()
@@ -155,40 +159,44 @@ Vector3 SurfaceDrawer::_rotateX(Vector3 p, double angle)
     };
 }
 
-void SurfaceDrawer::normalizePoints()
+void SurfaceDrawer::calcNormPoints()
 {
     if(!arr || !arr->points) return;
 
-    int maxZ = arr->points[0].z;
-    int minZ = arr->points[0].z;
-    for (size_t i = 0; i < arr->count; i++){
-        int z = arr->points[i].z;
-        if(z < minZ)
-            minZ = z;
+    // int maxZ = arr->points[0].z;
+    // int minZ = arr->points[0].z;
+    // for (size_t i = 0; i < arr->count; i++){
+    //     int z = arr->points[i].z;
+    //     if(z < minZ)
+    //         minZ = z;
 
-        if(z > maxZ)
-            maxZ = z;
-    }
+    //     if(z > maxZ)
+    //         maxZ = z;
+    // }
 
-    this->normArr = getPointsArr();
+    delPointsArr(&normArr);
+    normArr = getPointsArr();
 
-    // this->minZovoffset = arr->points[0].z;
-    int range = maxZ - minZ;
+    this->minZovoffset = arr->points[0].z;
+    this->maxZovoffset = arr->points[0].z;
+    int range = context->maxNormalizationRange - context->minNormalizationRange;
+    qDebug() << "range = " << range;
     for (size_t i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
         Point p = arr->points[i];
         p.x = -1 + (p.x)/(30)*2;
         p.y = -1 + (p.y)/(30)*2;
-        p.z = -1 + (p.z)/(range)*2;
+        p.z = -1 + (p.z)/(MAXZ)*2;
 
         addPoint(&normArr, p);
 
-        // if(p.z < minZovoffset)
-            // minZovoffset = p.z;
+        if(p.z < minZovoffset)
+            minZovoffset = p.z;
+
+        if(p.z > maxZovoffset)
+            maxZovoffset = p.z;
 
         // qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
     }
-
-
 }

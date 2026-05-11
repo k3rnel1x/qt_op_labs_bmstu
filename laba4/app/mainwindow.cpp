@@ -11,10 +11,13 @@
 #include <businesslogic.h>
 #include <QtMinMax>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : 
+    QMainWindow(parent),
+    context(new AppContext{}),
+    drawer(context),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    context = new AppContext{};
 
     // Inizialize UI
     ui->configureRenderUI->setVisible(false);
@@ -96,7 +99,7 @@ void MainWindow::on_renderButton_clicked()
         return;
     }
 
-    PointsArr* arr = &context->points;
+    PointsArr* arr = &context->normPoints;
     drawer.updateData(arr);
     drawer.setVisible(true);
     Logger::get_instance().logDebug("Render started!");

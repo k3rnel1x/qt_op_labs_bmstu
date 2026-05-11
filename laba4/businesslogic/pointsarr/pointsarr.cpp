@@ -17,7 +17,8 @@ void delPointsArr(PointsArr* pointsArr)
 {
     if(!pointsArr) return;
 
-    free(pointsArr->points);
+    if(pointsArr->points)
+        free(pointsArr->points);
     pointsArr->points = NULL;
 }
 
