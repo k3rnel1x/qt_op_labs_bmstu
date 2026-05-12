@@ -13,8 +13,8 @@
 #include <cmath>
 
 #define MAXZ 100
-#define MAXY 2000
-#define MAXX 2000
+#define MAXY 1000
+#define MAXX 1000
 
 #define ROTATIONANGLE 0.05
 #define STEP 0.2
