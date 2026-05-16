@@ -85,22 +85,6 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
 
     QPainter p;
     p.begin(this);
-    // p.drawText(width()/2, height()/2, QString("Height"));
-    // angle += 0.02;
-
-    // for (int i = 0; i < 8; i++)
-    // {
-    //     Vector3 v3 = _rotateX(_rotateY(v[i], Yangle), Xangle);
-
-    //     v3.x += xOffset;
-    //     v3.y += yOffset;
-    //     v3.z += zOffset + initZOffset;
-
-    //     Vector2 protectedPoint = protect(v3);
-    //     Vector2 point = place(protectedPoint.x, protectedPoint.y);
-    //     // qDebug() << "Point: " << point.x << point.y;
-    //     p.drawEllipse(point.x, point.y, 5, 5);
-    // }
 
     for (int i = 0; i < normArr.count; i++)
     {
@@ -181,12 +165,13 @@ void SurfaceDrawer::calcNormPoints()
     this->maxZovoffset = arr->points[0].z;
     int range = context->maxNormalizationRange - context->minNormalizationRange;
     qDebug() << "range = " << range;
+    qDebug() << "context->renderStep = " << context->renderStep;
     for (size_t i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
         Point p = arr->points[i];
-        p.x = -1 + (p.x)/(30)*2;
-        p.y = -1 + (p.y)/(30)*2;
+        p.x = -1 + (p.x)/(40)*2;
+        p.y = -1 + (p.y)/(40)*2;
         p.z = -1 + (p.z)/(MAXZ)*2;
 
         addPoint(&normArr, p);
