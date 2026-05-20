@@ -1,6 +1,9 @@
 #include "parser.h"
 #include <iostream>
 using namespace std;
+
+void fillNeibors(PointsArr* arr);
+
 ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
 {
     if(!f  || feof(f) || getc(f) == EOF || !matrixSize) return ERROR;
@@ -50,5 +53,12 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
         *matrixSize = row;
     }
 
+    fillNeibors(arr);
+
     return result;
+}
+
+void fillNeibors(PointsArr* arr)
+{
+    // TODO
 }

@@ -157,7 +157,6 @@ void SurfaceDrawer::calcNormPoints()
     //     if(z > maxZ)
     //         maxZ = z;
     // }
-
     delPointsArr(&normArr);
     normArr = getPointsArr();
 
