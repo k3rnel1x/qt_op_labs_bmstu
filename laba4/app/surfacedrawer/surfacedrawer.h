@@ -55,6 +55,7 @@ private:
     Vector3 _rotateX(Vector3 p, double angle);
     Vector2 place(double x, double y);
     void calcNormPoints();
+    void drawLines(QPainter& p, PointsArr normArr);
 
     PointsArr* arr;
     PointsArr  normArr;

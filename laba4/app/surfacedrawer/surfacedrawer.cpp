@@ -106,6 +106,8 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
         p.drawEllipse(point.x, point.y, 5, 5);
     }
 
+    drawLines(p, normArr);
+
     // qDebug() << Xangle << Yangle;
     
     p.end();
@@ -163,8 +165,10 @@ void SurfaceDrawer::calcNormPoints()
     this->minZovoffset = arr->points[0].z;
     this->maxZovoffset = arr->points[0].z;
     int range = context->maxNormalizationRange - context->minNormalizationRange;
-    qDebug() << "range = " << range;
-    qDebug() << "context->renderStep = " << context->renderStep;
+
+    // qDebug() << "range = " << range;
+    // qDebug() << "context->renderStep = " << context->renderStep;
+
     for (size_t i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
@@ -183,4 +187,11 @@ void SurfaceDrawer::calcNormPoints()
 
         // qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
     }
+}
+
+void SurfaceDrawer::drawLines(QPainter& p, PointsArr normArr)
+{
+    if(normArr.count == 0)
+        throw std::invalid_argument("normArr is empty");
+
 }
