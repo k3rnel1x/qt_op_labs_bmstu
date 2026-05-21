@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include "../../businesslogic/pointsarr/pointsarr.h"
 #include "../appcontext.h"
+#include "vec2dyarr.hpp"
 #include <cmath>
 
 #define MAXZ 100
@@ -20,12 +21,8 @@
 #define STEP 0.2
 
 #define SIZE 0.4
+#define INITZOFFSET -2.0
 
-struct Vector2
-{
-    double x;
-    double y;
-};
 
 struct Vector3
 {
@@ -55,7 +52,8 @@ private:
     Vector3 _rotateX(Vector3 p, double angle);
     Vector2 place(double x, double y);
     void calcNormPoints();
-    void drawLines(QPainter& p, PointsArr normArr);
+    void drawLines(QPainter& p, Vector2* point);
+    void fillNeibors(Vec2DyArr* arr, size_t matrix_size);
 
     PointsArr* arr;
     PointsArr  normArr;
@@ -64,7 +62,7 @@ private:
     double Yangle = 0;
     Vector3* v;
 
-    const double initZOffset = -2.0;
+    const double initZOffset = INITZOFFSET;
     double xOffset = 0.0;
     double yOffset = 0.0;
     double zOffset = 0.0;

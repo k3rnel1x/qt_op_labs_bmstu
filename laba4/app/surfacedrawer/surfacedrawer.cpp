@@ -4,11 +4,8 @@
 
 #include "surfacedrawer.h"
 
-void SurfaceDrawer::updateData(PointsArr* arr) {
-    // if(this->arr == arr) {
-    //     qDebug() << "same arr";
-    //     return;
-    // }
+void SurfaceDrawer::updateData(PointsArr* arr)
+{
 
     this->arr = arr;
 
@@ -86,6 +83,7 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
     QPainter p;
     p.begin(this);
 
+    Vec2DyArr v2arr = getVec2DyArr();
     for (int i = 0; i < normArr.count; i++)
     {
         Vector3 init = {
@@ -102,12 +100,17 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
 
         Vector2 protectedPoint = protect(v3);
         Vector2 point = place(protectedPoint.x, protectedPoint.y);
-        // qDebug() << "Point: " << point.x << point.y;
+
+        addVector2(&v2arr, point);
         p.drawEllipse(point.x, point.y, 5, 5);
     }
 
-    drawLines(p, normArr);
-
+    QPen pen = p.pen();
+    pen.setWidth(2);
+    p.setPen(pen);
+    fillNeibors(&v2arr, 30);
+    drawLines(p, v2arr.data + 5);
+    delVec2DyArr(&v2arr);
     // qDebug() << Xangle << Yangle;
     
     p.end();
@@ -149,25 +152,12 @@ void SurfaceDrawer::calcNormPoints()
 {
     if(!arr || !arr->points) return;
 
-    // int maxZ = arr->points[0].z;
-    // int minZ = arr->points[0].z;
-    // for (size_t i = 0; i < arr->count; i++){
-    //     int z = arr->points[i].z;
-    //     if(z < minZ)
-    //         minZ = z;
-
-    //     if(z > maxZ)
-    //         maxZ = z;
-    // }
     delPointsArr(&normArr);
     normArr = getPointsArr();
 
     this->minZovoffset = arr->points[0].z;
     this->maxZovoffset = arr->points[0].z;
     int range = context->maxNormalizationRange - context->minNormalizationRange;
-
-    // qDebug() << "range = " << range;
-    // qDebug() << "context->renderStep = " << context->renderStep;
 
     for (size_t i = 0; i < arr->count; ++i)
     {
@@ -184,14 +174,49 @@ void SurfaceDrawer::calcNormPoints()
 
         if(p.z > maxZovoffset)
             maxZovoffset = p.z;
-
-        // qDebug() << p.x << ' ' << p.y << ' ' << p.z << ' ';
     }
 }
 
-void SurfaceDrawer::drawLines(QPainter& p, PointsArr normArr)
+void SurfaceDrawer::drawLines(QPainter& p, Vector2* v2)
 {
-    if(normArr.count == 0)
-        throw std::invalid_argument("normArr is empty");
+    if(!v2 || v2->visited)
+        return;
 
+    v2->visited = true;
+
+    // qDebug() << "Vector v2 : " << v2; 
+    for (int i = 0; i < NEIBORSCOUNT; ++i)
+    {
+        if(v2->neibors[i] && !v2->neibors[i]->visited)
+        {
+            p.drawLine(v2->x, v2->y, v2->neibors[i]->x, v2->neibors[i]->y);
+            drawLines(p, v2->neibors[i]);
+        }
+    }
+}
+
+void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, size_t matrix_size)
+{
+    for(int i = 0; i < arr->count; ++i)
+    {
+        memset(arr->data[i].neibors, 0, sizeof(Point*)*NEIBORSCOUNT);
+
+        if(i - matrix_size >= 0){
+            arr->data[i].neibors[0] = arr->data + i - matrix_size;
+        }
+
+        if(i + matrix_size < arr->count){
+            arr->data[i].neibors[2] = arr->data + i + matrix_size;
+        }
+
+        if (i - 1 >= 0){
+            arr->data[i].neibors[1] = arr->data + i - 1;
+        }
+
+        if (i + 1 < arr->count){
+            arr->data[i].neibors[3] = arr->data + i + 1;
+        }
+        // qDebug() << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1] << ' '
+                                // << arr->data[i].neibors[2] << ' ' << arr->data[i].neibors[3];
+    }
 }

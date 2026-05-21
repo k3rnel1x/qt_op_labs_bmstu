@@ -3,6 +3,7 @@ qt_add_executable(laba4
     mainwindow.h
     surfacedrawer/surfacedrawer.h
     surfacedrawer/surfacedrawer.cpp
+    surfacedrawer/vec2dyarr.cpp
     logger.hpp
     appcontext.h
     main.cpp
