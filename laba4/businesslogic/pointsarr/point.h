@@ -6,7 +6,7 @@ struct Point
     double x;
     double y;
     double z;
-    Point* neibors[4];
+    Point* neibors[NEIBORSCOUNT];
     int visited = 0;
 };
 

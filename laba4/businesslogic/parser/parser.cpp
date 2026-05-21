@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-void fillNeibors(PointsArr* arr);
+void fillNeibors(PointsArr* arr, size_t matrix_size);
 
 ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
 {
@@ -25,7 +25,8 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
         char* ptr = buff;
         char* endPtr;
         double col = 0;
-        while(*ptr){
+        while(*ptr)
+        {
 
             double val = strtod(ptr, &endPtr);
             if(endPtr == ptr){
@@ -53,12 +54,41 @@ ResultCode parceCSVpoints(FILE* f, PointsArr* arr, size_t* matrixSize)
         *matrixSize = row;
     }
 
-    fillNeibors(arr);
+    fillNeibors(arr, *matrixSize);
+    // for (int i = 0; i < arr->count; ++i)
+    //     printf("Point: (%02lf %02lf %02lf) (neibors: %p %p %p %p)\n",
+    //         arr->points[i].x,
+    //         arr->points[i].y, 
+    //         arr->points[i].z,
 
+    //         arr->points[i].neibors[0],
+    //         arr->points[i].neibors[1],
+    //         arr->points[i].neibors[2],
+    //         arr->points[i].neibors[3]
+    //     );
     return result;
 }
 
-void fillNeibors(PointsArr* arr)
+void fillNeibors(PointsArr* arr, size_t matrix_size)
 {
-    // TODO
+    for(int i = 0; i < arr->count; ++i)
+    {
+        memset(arr->points[i].neibors, NULL, sizeof(Point*)*4);
+
+        if(i - matrix_size >= 0){
+            arr->points[i].neibors[0] = arr->points + i - matrix_size;
+        }
+
+        if(i + matrix_size < arr->count){
+            arr->points[i].neibors[2] = arr->points + i + matrix_size;
+        }
+
+        if (i - 1 >= 0){
+            arr->points[i].neibors[1] = arr->points + i - 1;
+        }
+
+        if (i + 1 < arr->count){
+            arr->points[i].neibors[3] = arr->points + i + 1;
+        }
+    }
 }
