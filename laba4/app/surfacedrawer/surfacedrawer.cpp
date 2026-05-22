@@ -108,6 +108,8 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
         v3.y += yOffset;
         v3.z += zOffset + initZOffset;
 
+        qDebug("(%lf, %lf, %lf)", v3.x, v3.y, v3.z);
+
         Vector2 protectedPoint = protect(v3);
         Vector2 point = place(protectedPoint.x, protectedPoint.y);
 
@@ -118,7 +120,7 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
     QPen pen = p.pen();
     pen.setWidth(2);
     p.setPen(pen);
-    fillNeibors(&v2arr, 30);
+    fillNeibors(&v2arr);
     drawLines(p, v2arr);
     delVec2DyArr(&v2arr);
     // qDebug() << Xangle << Yangle;
@@ -169,17 +171,17 @@ void SurfaceDrawer::calcNormPoints()
     this->maxZovoffset = arr->points[0].z;
     int range = context->maxNormalizationRange - context->minNormalizationRange;
 
-    for (size_t i = 0; i < arr->count; ++i)
+    double oneStep = 1.0 / double(context->renderStep);
+    for (int i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
         Point p = arr->points[i];
-        p.x = -1 + (p.x)/(40)*2;
-        p.y = -1 + (p.y)/(40)*2;
+        p.x = -1 + (p.x)/double(context->matrixSize)*2;
+        p.y = -1 + (p.y)/double(context->matrixSize)*2;
         p.z = -1 + (p.z)/(VDMAXZ)*2;
 
         // if (p.z > 1.0)
             // p.z = 1.0;
-        
 
         addPoint(&normArr, p);
 
@@ -189,7 +191,7 @@ void SurfaceDrawer::calcNormPoints()
         if(p.z > maxZovoffset)
             maxZovoffset = p.z;
 
-        qDebug("%lf %lf %lf\n", p.x, p.y, p.z);
+        // qDebug("%lf %lf %lf\n", p.x, p.y, p.z);
     }
 }
 
@@ -208,23 +210,24 @@ void SurfaceDrawer::drawLines(QPainter& p, Vec2DyArr& arr)
     }
 }
 
-void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, int matrix_size)
+void SurfaceDrawer::fillNeibors(Vec2DyArr* arr)
 {
+    int matrix_size = int(context->matrixSize);
+    // qDebug() << matrix_size;
     for(int i = 0; i < arr->count; ++i)
     {
         memset(arr->data[i].neibors, 0, sizeof(Vector2*)*NEIBORSCOUNT);
 
-        if (i + 1 < arr->count && i+1 % matrix_size != 0) {
+        if (i + 1 < arr->count && (i+1) % matrix_size != 0) {
             arr->data[i].neibors[0] = arr->data + i + 1;
-            qDebug("i = %i", i);
+            // qDebug("i = %i; i + 1 = %i; i+1 % matrix_size = %i", i, i+1, (i+1) % matrix_size);
         }
 
         if(i + matrix_size < arr->count){
             // qDebug() << "i - matrix_size = " << i - matrix_size;
             arr->data[i].neibors[1] = arr->data + i + matrix_size;
         }
-        // qDebug() << "i = " << i << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1] << ' '
-                                // << arr->data[i].neibors[2] << ' ' << arr->data[i].neibors[3];
+        // qDebug() << "i = " << i << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1];
     }
 }
 // 4

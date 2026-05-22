@@ -42,6 +42,8 @@ ResultCode loadFuncTable(AppContext* context, Params* params)
 
         context->minStep = 1;
         context->maxStep = DIMENSIONSIZE / matrixSize;
+
+        context->matrixSize = matrixSize;
     }
     
     fclose(f);
@@ -93,11 +95,6 @@ ResultCode calcNormalizedCoords(AppContext* context)
         if(zMin > z)
             zMin = z;
     }
-
-    // if(zMin == minInRange && zMax == maxInRange){
-        // context->normPoints = context->points;
-        // return result;
-    // }
 
     char logText[100] = {0};
     sprintf(logText, "starting normalize.. Params: Norm range: [%zu, %zu] zRange: [%lf, %lf]", minInRange, maxInRange, zMin, zMax);

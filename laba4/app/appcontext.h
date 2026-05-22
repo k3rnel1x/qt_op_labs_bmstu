@@ -16,6 +16,7 @@ typedef struct AppContext {
     size_t minNormalizationRange;
     PointsArr points;
     PointsArr normPoints;
+    size_t matrixSize;
 
     // to UI
     size_t maxStep;

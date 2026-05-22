@@ -18,14 +18,14 @@
 #define STEP 0.2
 
 #define SIZE 0.4
-#define INITZOFFSET -2.0
+#define INITZOFFSET -2.5
 
 /* Limits */
 #define VDMAXZ 100
 
-#define ABSMAXZ 1
-#define ABSMAXY 1
-#define ABSMAXX 1
+#define ABSMAXZ 0.5
+#define ABSMAXY 0.5
+#define ABSMAXX 0.5
 
 struct Vector3
 {
@@ -56,7 +56,7 @@ private:
     Vector2 place(double x, double y);
     void calcNormPoints();
     void drawLines(QPainter& p, Vec2DyArr& arr);
-    void fillNeibors(Vec2DyArr* arr, int matrix_size);
+    void fillNeibors(Vec2DyArr* arr);
 
     PointsArr* arr;
     PointsArr  normArr;
