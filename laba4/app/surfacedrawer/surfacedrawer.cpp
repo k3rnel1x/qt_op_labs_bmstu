@@ -198,11 +198,11 @@ void SurfaceDrawer::drawLines(QPainter& p, Vec2DyArr& arr)
     for (int i = 0; i < arr.count; ++i)
     {
         Vector2& v1 = arr.data[i];
-        for (int j = 0; j < NEIBORSCOUNT; ++j)
+        for (int k = 0; k < NEIBORSCOUNT; ++k)
         {
-            if (v1.neibors[j])
+            if (v1.neibors[k])
             {
-                p.drawLine(v1.x, v1.y, v1.neibors[j]->x, v1.neibors[j]->y);
+                p.drawLine(v1.x, v1.y, v1.neibors[k]->x, v1.neibors[k]->y);
             }
         }
     }
@@ -212,25 +212,22 @@ void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, int matrix_size)
 {
     for(int i = 0; i < arr->count; ++i)
     {
-        memset(arr->data[i].neibors, 0, sizeof(Point*)*NEIBORSCOUNT);
+        memset(arr->data[i].neibors, 0, sizeof(Vector2*)*NEIBORSCOUNT);
 
-        if(i - matrix_size >= 0){
-            // qDebug() << "i - matrix_size = " << i - matrix_size;
-            arr->data[i].neibors[0] = arr->data + i - matrix_size;
+        if (i + 1 < arr->count && i+1 % matrix_size != 0) {
+            arr->data[i].neibors[0] = arr->data + i + 1;
+            qDebug("i = %i", i);
         }
 
         if(i + matrix_size < arr->count){
-            arr->data[i].neibors[2] = arr->data + i + matrix_size;
-        }
-
-        if (i - 1 >= 0 && (i == 0 || i % matrix_size != 0)){
-            arr->data[i].neibors[1] = arr->data + i - 1;
-        } 
-
-        if (i + 1 < arr->count && (i == 0 || i % matrix_size != 0)){
-            arr->data[i].neibors[3] = arr->data + i + 1;
+            // qDebug() << "i - matrix_size = " << i - matrix_size;
+            arr->data[i].neibors[1] = arr->data + i + matrix_size;
         }
         // qDebug() << "i = " << i << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1] << ' '
                                 // << arr->data[i].neibors[2] << ' ' << arr->data[i].neibors[3];
     }
 }
+// 4
+// 0,0,0,0
+// 0,0,0,0
+// 0,0,0,0

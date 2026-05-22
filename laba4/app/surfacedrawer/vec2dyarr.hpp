@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #define INITCAPACITY 20
 #define SCALECAPACITY 2
-#define NEIBORSCOUNT 4
+#define NEIBORSCOUNT 2
 
 struct Vector2
 {
     double x;
     double y;
     Vector2* neibors[NEIBORSCOUNT];
-    int visited = 0;
+    // int visited = 0;
 };
 
 struct Vec2DyArr
