@@ -28,7 +28,7 @@ SurfaceDrawer::SurfaceDrawer(AppContext* context)
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SurfaceDrawer::update));
     
-    timer->start(3);
+    timer->start(1);
 
     v = new Vector3[8] {
         {-SIZE, -SIZE,  SIZE},
@@ -61,17 +61,27 @@ void SurfaceDrawer::xRotate(double addAngle)
 
 void SurfaceDrawer::walkOx(double step)
 {
-    xOffset += step;
+    if (fabs(xOffset + step) < ABSMAXX)
+    {
+        xOffset += step;
+    }
 }
 
 void SurfaceDrawer::walkOy(double step)
 {
-    yOffset += step;
+    if (fabs(yOffset + step) < ABSMAXY)
+    {
+        yOffset += step;
+    }
+
 }
 
 void SurfaceDrawer::walkOz(double step)
 {
-    zOffset += step;
+    if (fabs(zOffset + step) < ABSMAXZ)
+    {
+        zOffset += step;
+    }
 }
 
 void SurfaceDrawer::paintEvent(QPaintEvent* event)
@@ -102,14 +112,14 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
         Vector2 point = place(protectedPoint.x, protectedPoint.y);
 
         addVector2(&v2arr, point);
-        p.drawEllipse(point.x, point.y, 5, 5);
+        // p.drawEllipse(point.x, point.y, 5, 5);
     }
 
     QPen pen = p.pen();
     pen.setWidth(2);
     p.setPen(pen);
     fillNeibors(&v2arr, 30);
-    drawLines(p, v2arr.data + 5);
+    drawLines(p, v2arr);
     delVec2DyArr(&v2arr);
     // qDebug() << Xangle << Yangle;
     
@@ -165,7 +175,11 @@ void SurfaceDrawer::calcNormPoints()
         Point p = arr->points[i];
         p.x = -1 + (p.x)/(40)*2;
         p.y = -1 + (p.y)/(40)*2;
-        p.z = -1 + (p.z)/(MAXZ)*2;
+        p.z = -1 + (p.z)/(VDMAXZ)*2;
+
+        // if (p.z > 1.0)
+            // p.z = 1.0;
+        
 
         addPoint(&normArr, p);
 
@@ -174,34 +188,34 @@ void SurfaceDrawer::calcNormPoints()
 
         if(p.z > maxZovoffset)
             maxZovoffset = p.z;
+
+        qDebug("%lf %lf %lf\n", p.x, p.y, p.z);
     }
 }
 
-void SurfaceDrawer::drawLines(QPainter& p, Vector2* v2)
+void SurfaceDrawer::drawLines(QPainter& p, Vec2DyArr& arr)
 {
-    if(!v2 || v2->visited)
-        return;
-
-    v2->visited = true;
-
-    // qDebug() << "Vector v2 : " << v2; 
-    for (int i = 0; i < NEIBORSCOUNT; ++i)
+    for (int i = 0; i < arr.count; ++i)
     {
-        if(v2->neibors[i] && !v2->neibors[i]->visited)
+        Vector2& v1 = arr.data[i];
+        for (int j = 0; j < NEIBORSCOUNT; ++j)
         {
-            p.drawLine(v2->x, v2->y, v2->neibors[i]->x, v2->neibors[i]->y);
-            drawLines(p, v2->neibors[i]);
+            if (v1.neibors[j])
+            {
+                p.drawLine(v1.x, v1.y, v1.neibors[j]->x, v1.neibors[j]->y);
+            }
         }
     }
 }
 
-void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, size_t matrix_size)
+void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, int matrix_size)
 {
     for(int i = 0; i < arr->count; ++i)
     {
         memset(arr->data[i].neibors, 0, sizeof(Point*)*NEIBORSCOUNT);
 
         if(i - matrix_size >= 0){
+            // qDebug() << "i - matrix_size = " << i - matrix_size;
             arr->data[i].neibors[0] = arr->data + i - matrix_size;
         }
 
@@ -209,14 +223,14 @@ void SurfaceDrawer::fillNeibors(Vec2DyArr* arr, size_t matrix_size)
             arr->data[i].neibors[2] = arr->data + i + matrix_size;
         }
 
-        if (i - 1 >= 0){
+        if (i - 1 >= 0 && (i == 0 || i % matrix_size != 0)){
             arr->data[i].neibors[1] = arr->data + i - 1;
-        }
+        } 
 
-        if (i + 1 < arr->count){
+        if (i + 1 < arr->count && (i == 0 || i % matrix_size != 0)){
             arr->data[i].neibors[3] = arr->data + i + 1;
         }
-        // qDebug() << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1] << ' '
+        // qDebug() << "i = " << i << "Neibors: " << arr->data[i].neibors[0] << ' ' << arr->data[i].neibors[1] << ' '
                                 // << arr->data[i].neibors[2] << ' ' << arr->data[i].neibors[3];
     }
 }

@@ -13,9 +13,6 @@
 #include "vec2dyarr.hpp"
 #include <cmath>
 
-#define MAXZ 100
-#define MAXY 1000
-#define MAXX 1000
 
 #define ROTATIONANGLE 0.05
 #define STEP 0.2
@@ -23,6 +20,12 @@
 #define SIZE 0.4
 #define INITZOFFSET -2.0
 
+/* Limits */
+#define VDMAXZ 100
+
+#define ABSMAXZ 1
+#define ABSMAXY 1
+#define ABSMAXX 1
 
 struct Vector3
 {
@@ -52,8 +55,8 @@ private:
     Vector3 _rotateX(Vector3 p, double angle);
     Vector2 place(double x, double y);
     void calcNormPoints();
-    void drawLines(QPainter& p, Vector2* point);
-    void fillNeibors(Vec2DyArr* arr, size_t matrix_size);
+    void drawLines(QPainter& p, Vec2DyArr& arr);
+    void fillNeibors(Vec2DyArr* arr, int matrix_size);
 
     PointsArr* arr;
     PointsArr  normArr;
