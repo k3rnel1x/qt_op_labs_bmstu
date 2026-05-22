@@ -73,7 +73,6 @@ void SurfaceDrawer::walkOy(double step)
     {
         yOffset += step;
     }
-
 }
 
 void SurfaceDrawer::walkOz(double step)
@@ -108,7 +107,7 @@ void SurfaceDrawer::paintEvent(QPaintEvent* event)
         v3.y += yOffset;
         v3.z += zOffset + initZOffset;
 
-        qDebug("(%lf, %lf, %lf)", v3.x, v3.y, v3.z);
+        // qDebug("(%lf, %lf, %lf)", v3.x, v3.y, v3.z);
 
         Vector2 protectedPoint = protect(v3);
         Vector2 point = place(protectedPoint.x, protectedPoint.y);
@@ -171,13 +170,13 @@ void SurfaceDrawer::calcNormPoints()
     this->maxZovoffset = arr->points[0].z;
     int range = context->maxNormalizationRange - context->minNormalizationRange;
 
-    double oneStep = 1.0 / double(context->renderStep);
+    double scale = double(context->renderStep)/double(context->maxStep);
     for (int i = 0; i < arr->count; ++i)
     {
         // [-1, 1]
         Point p = arr->points[i];
-        p.x = -1 + (p.x)/double(context->matrixSize)*2;
-        p.y = -1 + (p.y)/double(context->matrixSize)*2;
+        p.x = scale*(-1 + (p.x)/double(context->matrixSize)*2);
+        p.y = scale*(-1 + (p.y)/double(context->matrixSize)*2);
         p.z = -1 + (p.z)/(VDMAXZ)*2;
 
         // if (p.z > 1.0)
@@ -202,7 +201,7 @@ void SurfaceDrawer::drawLines(QPainter& p, Vec2DyArr& arr)
         Vector2& v1 = arr.data[i];
         for (int k = 0; k < NEIBORSCOUNT; ++k)
         {
-            if (v1.neibors[k])
+            if (v1.neibors[k] && fabs(v1.x) < width() && fabs(v1.y) < height())
             {
                 p.drawLine(v1.x, v1.y, v1.neibors[k]->x, v1.neibors[k]->y);
             }
