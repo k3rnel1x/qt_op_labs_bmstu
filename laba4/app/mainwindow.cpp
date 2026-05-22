@@ -129,7 +129,12 @@ void MainWindow::on_spinboxes_valueChanged()
 
     size_t maxValue = (size_t)ui->maxSpinBox->value();
     size_t minValue = (size_t)ui->minSpinBox->value();
+    // qDebug() << "spinboxes valueChanged: " << minValue << ' ' << maxValue;
+
     ui->minSpinBox->setMaximum(qMax<int, int>(maxValue - 1, 0));
+
+    if(maxValue < minValue)
+        return;
 
     Params prms = { .maxNormalizationRange = maxValue, .minNormalizationRange = minValue };
     ResultCode result = performOperation(context, &prms, UpdateRangeConfig);
